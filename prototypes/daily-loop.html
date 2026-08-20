@@ -10,10 +10,9 @@
     --ink:#3A2A2E; --muted:#8A7668; --line:#EBDDCB;
     --magenta:#FF2A85; --magenta-ink:#C21361;
     --caramel:#C49A6C; --caramel-deep:#A67C52;
-    --sky:#38BDF8; --gold:#FACC15; --mint:#2FBF8F;
+    --sky:#38BDF8; --sky-ink:#0C6E9E; --gold:#FACC15; --gold-ink:#946A00; --mint:#2FBF8F;
     --shadow:0 18px 40px -18px rgba(58,42,46,.45);
-    --r:22px;
-    --path:#E7CBa8;
+    --r:22px; --path:#E7CBA8;
   }
   :root:not([data-theme="light"]){
     @media (prefers-color-scheme: dark){
@@ -22,9 +21,8 @@
       --ink:#F7ECE0; --muted:#B7A2A6; --line:#402E42;
       --magenta:#FF54A0; --magenta-ink:#FF9CC8;
       --caramel:#C99C6E; --caramel-deep:#B4885A;
-      --sky:#5CCcff; --gold:#FBD24B; --mint:#43D6A2;
-      --shadow:0 22px 46px -18px rgba(0,0,0,.6);
-      --path:#5A4536;
+      --sky:#5CCCFF; --sky-ink:#9AD9FF; --gold:#FBD24B; --gold-ink:#FBD24B; --mint:#43D6A2;
+      --shadow:0 22px 46px -18px rgba(0,0,0,.6); --path:#5A4536;
     }
   }
   :root[data-theme="dark"]{
@@ -33,9 +31,8 @@
     --ink:#F7ECE0; --muted:#B7A2A6; --line:#402E42;
     --magenta:#FF54A0; --magenta-ink:#FF9CC8;
     --caramel:#C99C6E; --caramel-deep:#B4885A;
-    --sky:#5CCcff; --gold:#FBD24B; --mint:#43D6A2;
-    --shadow:0 22px 46px -18px rgba(0,0,0,.6);
-    --path:#5A4536;
+    --sky:#5CCCFF; --sky-ink:#9AD9FF; --gold:#FBD24B; --gold-ink:#FBD24B; --mint:#43D6A2;
+    --shadow:0 22px 46px -18px rgba(0,0,0,.6); --path:#5A4536;
   }
 
   *{box-sizing:border-box}
@@ -48,140 +45,104 @@
       radial-gradient(120% 80% at 80% -10%, color-mix(in srgb, var(--magenta) 12%, transparent), transparent 60%),
       radial-gradient(100% 70% at 0% 110%, color-mix(in srgb, var(--sky) 14%, transparent), transparent 55%),
       linear-gradient(180deg, var(--bg), var(--bg2));
-    background-attachment:fixed;
-    min-height:100vh;
+    background-attachment:fixed; min-height:100vh;
     display:flex; flex-direction:column; align-items:center;
-    padding:28px 16px 48px;
-    gap:18px;
+    padding:28px 16px 48px; gap:18px;
   }
   @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  svg.i{width:1em;height:1em;display:block;flex:none}
 
-  /* ---- page intro ---- */
   .intro{max-width:440px;text-align:center}
   .intro .kicker{
-    font-family:"Rubik";font-weight:700;font-size:.72rem;letter-spacing:.16em;
-    text-transform:uppercase;color:var(--magenta-ink);
-    display:inline-block;padding:.35em .8em;border-radius:99px;
+    font-family:"Rubik";font-weight:700;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--magenta-ink);display:inline-block;padding:.35em .8em;border-radius:99px;
     background:color-mix(in srgb, var(--magenta) 14%, transparent);
   }
   .intro h1{font-family:"Rubik";font-weight:800;font-size:1.5rem;margin:.5em 0 .2em;text-wrap:balance}
   .intro p{margin:0;color:var(--muted);font-size:.95rem;line-height:1.5}
 
-  /* ---- phone ---- */
   .phone{
-    width:100%;max-width:412px;
-    background:var(--surface);
-    border-radius:38px;
+    width:100%;max-width:412px;background:var(--surface);border-radius:38px;
     box-shadow:var(--shadow), 0 0 0 10px color-mix(in srgb, var(--ink) 88%, transparent), 0 0 0 12px color-mix(in srgb, var(--caramel) 40%, transparent);
-    overflow:hidden;position:relative;
-    aspect-ratio:412/780;
-    display:flex;flex-direction:column;
+    overflow:hidden;position:relative;aspect-ratio:412/780;display:flex;flex-direction:column;
   }
   .notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:120px;height:22px;background:var(--ink);border-radius:99px;z-index:40;opacity:.9}
 
-  /* ---- app header ---- */
   .appbar{
-    padding:26px 18px 14px;
-    display:flex;align-items:center;gap:12px;
+    padding:26px 18px 14px;display:flex;align-items:center;gap:12px;
     background:linear-gradient(180deg, color-mix(in srgb,var(--magenta) 16%, var(--surface)), var(--surface));
-    border-bottom:1px solid var(--line);
-    flex:none;
+    border-bottom:1px solid var(--line);flex:none;
   }
-  .avatar{
-    width:44px;height:44px;border-radius:14px;flex:none;
-    background:radial-gradient(circle at 40% 30%, #FFD9E8, var(--magenta));
-    display:grid;place-items:center;font-size:1.4rem;box-shadow:0 4px 10px -3px var(--magenta);
-    border:2px solid var(--surface);
-  }
+  .avatar{width:46px;height:46px;border-radius:14px;flex:none;overflow:hidden;border:2px solid var(--surface);box-shadow:0 4px 10px -3px var(--magenta)}
+  .avatar svg{width:100%;height:100%;display:block}
+  .who b{font-family:"Rubik";font-weight:700;font-size:.98rem;line-height:1;display:block}
+  .who span{font-size:.74rem;color:var(--muted);font-weight:600}
   .stats{display:flex;gap:8px;margin-inline-start:auto}
-  .chip{
-    display:flex;align-items:center;gap:5px;
-    background:var(--surface-2);border:1px solid var(--line);
-    border-radius:99px;padding:6px 11px;font-family:"Rubik";font-weight:700;font-size:.9rem;
-    font-variant-numeric:tabular-nums;
-  }
-  .chip .ic{width:16px;height:16px;display:grid;place-items:center}
-  .chip.coins{color:#946a00;background:color-mix(in srgb,var(--gold) 22%, var(--surface))}
+  .chip{display:flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:99px;padding:6px 11px;font-family:"Rubik";font-weight:700;font-size:.9rem;font-variant-numeric:tabular-nums}
+  .chip svg.i{font-size:15px}
+  .chip.coins{color:var(--gold-ink);background:color-mix(in srgb,var(--gold) 22%, var(--surface))}
   .chip.streak{color:var(--magenta-ink);background:color-mix(in srgb,var(--magenta) 12%, var(--surface))}
-  :root[data-theme="dark"] .chip.coins,:root:not([data-theme="light"]) .chip.coins{color:var(--gold)}
 
-  /* ---- screen stage ---- */
   .stage{position:relative;flex:1;overflow:hidden}
   .screen{position:absolute;inset:0;display:flex;flex-direction:column;padding:16px 16px 12px;overflow-y:auto;
     opacity:0;transform:translateX(-16px);pointer-events:none;transition:opacity .32s ease, transform .32s ease}
   .screen.active{opacity:1;transform:none;pointer-events:auto}
-
   .screen-title{font-family:"Rubik";font-weight:700;font-size:1.05rem;margin:2px 2px 10px;display:flex;align-items:center;gap:8px}
   .screen-title small{font-family:"Assistant";font-weight:600;color:var(--muted);font-size:.8rem;margin-inline-start:auto}
 
-  /* ---- MAP ---- */
-  .map{position:relative;flex:1;min-height:420px}
+  .map{position:relative;flex:1;min-height:430px}
   .map svg.trail{position:absolute;inset:0;width:100%;height:100%}
-  .node{
-    position:absolute;transform:translate(-50%,-50%);
-    display:flex;flex-direction:column;align-items:center;gap:6px;
-    width:118px;text-align:center;
-  }
-  .node button{
-    width:74px;height:74px;border-radius:24px;border:none;cursor:pointer;
-    font-size:2rem;display:grid;place-items:center;position:relative;
-    box-shadow:0 10px 20px -8px rgba(58,42,46,.5);transition:transform .15s ease, box-shadow .15s ease;
-    color:#fff;
-  }
+  .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;width:120px;text-align:center}
+  .node button{width:74px;height:74px;border-radius:24px;border:none;cursor:pointer;color:#fff;
+    display:grid;place-items:center;position:relative;box-shadow:0 10px 20px -8px rgba(58,42,46,.5);
+    transition:transform .15s ease}
+  .node button svg.i{font-size:34px}
   .node button:hover{transform:translateY(-3px) scale(1.04)}
   .node button:active{transform:translateY(0) scale(.98)}
   .node button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
   .node .label{font-family:"Rubik";font-weight:600;font-size:.82rem;line-height:1.15}
   .node .sub{font-size:.68rem;color:var(--muted);font-weight:600;margin-top:-3px}
   .node.done button{background:linear-gradient(160deg,var(--mint),#1E9E77)}
-  .node.done button::after{content:"✓";position:absolute;font-size:1rem;bottom:-2px;left:-2px;background:var(--surface);color:var(--mint);width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-weight:800;box-shadow:0 2px 6px -2px rgba(0,0,0,.4)}
-  .node.locked button{filter:grayscale(.7) opacity(.6);cursor:not-allowed}
-  .node.locked .sub{color:var(--caramel-deep)}
+  .node.done button svg.i{opacity:0}
+  .node.done button::after{content:"";position:absolute;width:26px;height:26px;
+    background:no-repeat center/16px url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'><path d='M5 13l4 4L19 7'/></svg>")}
   .n-core button{background:linear-gradient(160deg,#FF5AA6,var(--magenta))}
   .n-lang button{background:linear-gradient(160deg,#6DD3FB,var(--sky))}
   .n-future button{background:linear-gradient(160deg,#F6D24A,#E0A800)}
   .n-lead button{background:linear-gradient(160deg,#C9A87F,var(--caramel-deep))}
-
   .pulse{animation:pulse 1.8s ease-in-out infinite}
   @keyframes pulse{0%,100%{box-shadow:0 10px 20px -8px rgba(58,42,46,.5),0 0 0 0 color-mix(in srgb,var(--magenta) 55%,transparent)}50%{box-shadow:0 10px 20px -8px rgba(58,42,46,.5),0 0 0 12px color-mix(in srgb,var(--magenta) 0%,transparent)}}
 
-  /* ---- Capi companion ---- */
   .capi-wrap{display:flex;align-items:flex-end;gap:10px;margin-top:6px}
   .capi{width:76px;height:76px;flex:none}
-  .bubble{
-    background:var(--surface-2);border:1px solid var(--line);border-radius:18px 18px 18px 5px;
-    padding:10px 13px;font-size:.9rem;line-height:1.4;font-weight:600;box-shadow:0 6px 16px -10px rgba(0,0,0,.5);
-    flex:1;
-  }
+  .bubble{background:var(--surface-2);border:1px solid var(--line);border-radius:18px 18px 18px 5px;padding:10px 13px;
+    font-size:.9rem;line-height:1.4;font-weight:600;box-shadow:0 6px 16px -10px rgba(0,0,0,.5);flex:1}
   .bubble b{color:var(--magenta-ink)}
   .capi.bob{animation:bob 3s ease-in-out infinite}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 
-  /* ---- exercise ---- */
   .qcard{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:0 8px 20px -14px rgba(0,0,0,.4)}
   .qtag{font-family:"Rubik";font-weight:700;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
   .qtext{font-family:"Rubik";font-weight:700;font-size:1.25rem;margin:6px 0 2px;text-wrap:balance}
   .answers{display:grid;gap:10px;margin-top:4px}
-  .ans{
-    text-align:start;background:var(--surface);border:2px solid var(--line);border-radius:16px;
-    padding:14px 16px;font-family:"Rubik";font-weight:600;font-size:1.05rem;color:var(--ink);cursor:pointer;
-    transition:transform .12s, border-color .12s, background .12s;
-  }
+  .ans{text-align:start;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:14px 16px;
+    font-family:"Rubik";font-weight:600;font-size:1.05rem;color:var(--ink);cursor:pointer;transition:transform .12s, border-color .12s, background .12s}
   .ans:hover{transform:translateX(-3px);border-color:var(--magenta)}
   .ans:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
-  .ans.correct{border-color:var(--mint);background:color-mix(in srgb,var(--mint) 16%,var(--surface));color:var(--ink)}
+  .ans.correct{border-color:var(--mint);background:color-mix(in srgb,var(--mint) 16%,var(--surface))}
   .ans.wrong{border-color:var(--magenta);background:color-mix(in srgb,var(--magenta) 12%,var(--surface));animation:shake .4s}
   .ans:disabled{cursor:default}
   @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
-  /* leadership choice cards */
   .choices{display:grid;gap:10px}
-  .choice{display:flex;align-items:center;gap:12px;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:13px 15px;cursor:pointer;font-weight:600;font-size:1rem;transition:transform .12s,border-color .12s}
-  .choice .emo{font-size:1.5rem}
+  .choice{display:flex;align-items:center;gap:12px;background:var(--surface);border:2px solid var(--line);border-radius:16px;
+    padding:13px 15px;cursor:pointer;font-weight:600;font-size:1rem;color:var(--ink);transition:transform .12s,border-color .12s;text-align:start}
+  .choice .ico{width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--caramel) 22%,var(--surface));color:var(--caramel-deep)}
+  .choice .ico svg.i{font-size:20px}
   .choice:hover{transform:translateX(-3px);border-color:var(--caramel-deep)}
   .choice.picked{border-color:var(--caramel-deep);background:color-mix(in srgb,var(--caramel) 18%,var(--surface))}
 
-  /* footer action */
   .foot{margin-top:auto;padding-top:12px}
   .cta{width:100%;border:none;border-radius:16px;padding:15px;font-family:"Rubik";font-weight:700;font-size:1.05rem;
     background:var(--magenta);color:#fff;cursor:pointer;box-shadow:0 10px 22px -10px var(--magenta);transition:transform .12s, filter .12s}
@@ -191,26 +152,53 @@
   .cta:disabled{opacity:.5;cursor:default}
 
   .heartbank{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px;font-weight:600;font-size:.9rem}
+  .heartbank .hlabel{display:flex;align-items:center;gap:6px;color:var(--magenta-ink)}
   .heartbar{flex:1;height:10px;border-radius:99px;background:var(--line);overflow:hidden}
   .heartbar > i{display:block;height:100%;width:60%;border-radius:99px;background:linear-gradient(90deg,#FF6FA6,var(--magenta));transition:width .6s ease}
 
-  /* celebration */
+  /* stats screen */
+  .skill{margin-bottom:12px}
+  .skill .top{display:flex;justify-content:space-between;font-weight:600;font-size:.9rem;margin-bottom:5px}
+  .skill .top .pct{font-family:"Rubik";color:var(--muted);font-variant-numeric:tabular-nums}
+  .bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden}
+  .bar > i{display:block;height:100%;border-radius:99px}
+  .bar.good > i{background:linear-gradient(90deg,#57D6AC,var(--mint))}
+  .bar.mid > i{background:linear-gradient(90deg,#8FD9FB,var(--sky))}
+  .bar.low > i{background:linear-gradient(90deg,#FF7FB2,var(--magenta))}
+  .section-h{font-family:"Rubik";font-weight:700;font-size:.82rem;color:var(--muted);margin:14px 2px 8px;display:flex;align-items:center;gap:6px}
+
+  /* shop screen */
+  .reward{display:flex;gap:12px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px}
+  .reward .rico{width:44px;height:44px;border-radius:12px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--gold) 26%,var(--surface));color:var(--gold-ink)}
+  .reward .rico svg.i{font-size:22px}
+  .reward .rmid{flex:1;min-width:0}
+  .reward .rmid b{font-family:"Rubik";font-weight:700;font-size:.98rem;display:block}
+  .reward .rbar{height:7px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:6px}
+  .reward .rbar > i{display:block;height:100%;background:var(--gold);border-radius:99px}
+  .reward .rmid span{font-size:.75rem;color:var(--muted);font-weight:600}
+  .redeem{border:none;border-radius:12px;padding:9px 13px;font-family:"Rubik";font-weight:700;font-size:.82rem;cursor:pointer;flex:none;
+    background:var(--magenta);color:#fff}
+  .redeem:disabled{background:var(--surface);color:var(--muted);border:1px solid var(--line);cursor:default}
+  .voucher{background:color-mix(in srgb,var(--mint) 14%,var(--surface));border:1px dashed var(--mint);border-radius:14px;padding:12px;margin-bottom:10px;font-weight:600;font-size:.9rem;display:none;align-items:center;gap:10px}
+  .voucher b{font-family:"Rubik"}
+
   .cele{align-items:center;justify-content:center;text-align:center;gap:2px}
-  .cele h2{font-family:"Rubik";font-weight:800;font-size:1.6rem;margin:14px 0 4px}
-  .cele p{color:var(--muted);margin:0 0 14px;font-weight:600}
+  .cele h2{font-family:"Rubik";font-weight:800;font-size:1.55rem;margin:14px 0 4px}
+  .cele p{color:var(--muted);margin:0 0 14px;font-weight:600;display:flex;align-items:center;gap:6px}
   .rewardrow{display:flex;gap:10px;margin:6px 0 16px}
   .rw{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:12px 16px;min-width:96px}
-  .rw b{display:block;font-family:"Rubik";font-weight:800;font-size:1.5rem;font-variant-numeric:tabular-nums}
+  .rw b{display:flex;align-items:center;justify-content:center;gap:4px;font-family:"Rubik";font-weight:800;font-size:1.4rem;font-variant-numeric:tabular-nums}
   .rw span{font-size:.75rem;color:var(--muted);font-weight:600}
   .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
   .confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
   @keyframes fall{to{transform:translateY(720px) rotate(540deg);opacity:.9}}
 
-  /* bottom nav */
   .nav{display:flex;border-top:1px solid var(--line);background:var(--surface);flex:none}
-  .nav button{flex:1;background:none;border:none;padding:10px 4px 12px;cursor:pointer;color:var(--muted);font-family:"Rubik";font-weight:600;font-size:.72rem;display:flex;flex-direction:column;align-items:center;gap:3px}
-  .nav button .ni{font-size:1.2rem}
+  .nav button{flex:1;background:none;border:none;padding:9px 4px 11px;cursor:pointer;color:var(--muted);
+    font-family:"Rubik";font-weight:600;font-size:.72rem;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .nav button svg.i{font-size:21px}
   .nav button.on{color:var(--magenta-ink)}
+  .nav button:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
 
   .legend{max-width:440px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
   .legend .lg{font-size:.78rem;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-weight:600}
@@ -221,60 +209,55 @@
 <div class="intro">
   <span class="kicker">QuestLearn · פרוטוטיפ</span>
   <h1>מסע קפי — הלולאה היומית</h1>
-  <p>הדגמה לחיצה של יום אחד באפליקציה: מפת ההרפתקאות, ארבע התחנות, וקפי הקפיברה שמלווה. געו בתחנות לפי הסדר.</p>
+  <p>הדגמה לחיצה של יום אחד באפליקציה: מפת ההרפתקאות, ארבע התחנות, וקפי הקפיברה המנחה. געו בתחנות לפי הסדר, ובדקו גם את לשוניות "המצב שלי" ו"חנות".</p>
 </div>
 
 <div class="phone" id="app">
   <div class="notch"></div>
 
   <div class="appbar">
-    <div class="avatar" title="האווטאר שלך">🦄</div>
-    <div>
-      <div style="font-family:Rubik;font-weight:700;font-size:.98rem;line-height:1">מילי</div>
-      <div style="font-size:.74rem;color:var(--muted);font-weight:600">כיתה ג׳</div>
-    </div>
+    <div class="avatar" id="avatar"></div>
+    <div class="who"><b>מילי</b><span>כיתה ג׳</span></div>
     <div class="stats">
-      <div class="chip coins"><span class="ic">🪙</span><span id="coins">120</span></div>
-      <div class="chip streak"><span class="ic">🔥</span><span id="streak">6</span></div>
+      <div class="chip coins"><span data-icon="coin"></span><span id="coins">120</span></div>
+      <div class="chip streak"><span data-icon="flame"></span><span id="streak">6</span></div>
     </div>
   </div>
 
   <div class="stage" id="stage">
 
-    <!-- ============ MAP ============ -->
+    <!-- MAP -->
     <section class="screen active" data-screen="map">
       <div class="screen-title">מפת המסע היומית <small id="progressTxt">0/4 הושלמו</small></div>
       <div class="map" id="map">
-        <svg class="trail" viewBox="0 0 340 460" preserveAspectRatio="none" aria-hidden="true">
-          <path id="trailPath" d="M60,40 C 250,70 60,150 150,190 C 250,230 90,300 150,340 C 210,375 120,410 250,430"
+        <svg class="trail" viewBox="0 0 340 470" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M60,42 C 250,72 60,155 150,195 C 250,235 90,305 150,345 C 210,382 120,418 250,438"
                 fill="none" stroke="var(--path)" stroke-width="14" stroke-linecap="round" stroke-dasharray="2 22"/>
         </svg>
-
         <div class="node n-core" style="right:10%;top:9%" data-station="core">
-          <button aria-label="תחנת חשבון">🔢</button>
+          <button aria-label="תחנת חשבון"><span data-icon="math"></span></button>
           <div class="label">חשבון</div><div class="sub">חובה · 2 דק׳</div>
         </div>
         <div class="node n-lang" style="right:52%;top:41%" data-station="lang">
-          <button aria-label="תחנת שפות">💬</button>
+          <button aria-label="תחנת שפות"><span data-icon="speech"></span></button>
           <div class="label">ערבית</div><div class="sub">שפות · 2 דק׳</div>
         </div>
         <div class="node n-future" style="right:20%;top:73%" data-station="future">
-          <button aria-label="תחנת שער העתיד">🚀</button>
+          <button aria-label="תחנת שער העתיד"><span data-icon="spark"></span></button>
           <div class="label">שער העתיד</div><div class="sub">העשרה · 2 דק׳</div>
         </div>
         <div class="node n-lead" style="right:70%;top:93%" data-station="lead">
-          <button aria-label="תחנת מנהיגות">💛</button>
+          <button aria-label="תחנת מנהיגות"><span data-icon="heart"></span></button>
           <div class="label">בנק הלב</div><div class="sub">מנהיגות · 1 דק׳</div>
         </div>
       </div>
-
       <div class="capi-wrap">
         <div class="capi bob" id="capiMap"></div>
-        <div class="bubble" id="capiSays">אהלן מילי! מוכנה למסע של היום? נתחיל ב<b>חשבון</b> 🎯</div>
+        <div class="bubble" id="capiSays">אהלן מילי. מוכנה למסע של היום? נתחיל ב<b>חשבון</b>.</div>
       </div>
     </section>
 
-    <!-- ============ EXERCISE ============ -->
+    <!-- EXERCISE -->
     <section class="screen" data-screen="ex">
       <div class="screen-title" id="exTitle">חשבון <small>תחנה 1 מתוך 4</small></div>
       <div class="qcard">
@@ -282,22 +265,18 @@
         <div class="qtext" id="qtext"></div>
       </div>
       <div class="answers" id="answers"></div>
-
       <div class="capi-wrap" id="exCapiWrap" style="margin-top:14px;display:none">
         <div class="capi" id="capiEx"></div>
         <div class="bubble" id="exHint"></div>
       </div>
-
-      <div class="foot">
-        <button class="cta" id="exNext" style="display:none">אחלה! ממשיכים →</button>
-      </div>
+      <div class="foot"><button class="cta" id="exNext" style="display:none">ממשיכות</button></div>
     </section>
 
-    <!-- ============ LEADERSHIP ============ -->
+    <!-- LEADERSHIP -->
     <section class="screen" data-screen="lead">
       <div class="screen-title">בנק הלב <small>אי המצפן · מנהיגות</small></div>
       <div class="heartbank">
-        <span>💛 יתרת הלב שלך</span>
+        <span class="hlabel"><span data-icon="heart"></span> יתרת הלב שלך</span>
         <div class="heartbar"><i id="heartFill"></i></div>
       </div>
       <div class="qcard" style="margin-bottom:12px">
@@ -306,39 +285,75 @@
         <div style="color:var(--muted);font-weight:600;font-size:.85rem;margin-top:4px">אין כאן תשובה נכונה — כל בחירה היא הפקדה טובה ללב.</div>
       </div>
       <div class="choices" id="choices">
-        <button class="choice"><span class="emo">🌟</span> לפרגן לחברה על משהו</button>
-        <button class="choice"><span class="emo">🏠</span> לעזור במשהו בבית</button>
-        <button class="choice"><span class="emo">👂</span> להקשיב לחברה בלי להפריע</button>
+        <button class="choice"><span class="ico"><span data-icon="star"></span></span> לפרגן לחברה על משהו</button>
+        <button class="choice"><span class="ico"><span data-icon="home"></span></span> לעזור במשהו בבית</button>
+        <button class="choice"><span class="ico"><span data-icon="ear"></span></span> להקשיב לחברה בלי להפריע</button>
       </div>
       <div class="capi-wrap" id="leadCapiWrap" style="margin-top:14px;display:none">
         <div class="capi" id="capiLead"></div>
         <div class="bubble" id="leadSays"></div>
       </div>
-      <div class="foot">
-        <button class="cta" id="leadNext" disabled>לסיום המסע →</button>
-      </div>
+      <div class="foot"><button class="cta" id="leadNext" disabled>לסיום המסע</button></div>
     </section>
 
-    <!-- ============ CELEBRATION ============ -->
+    <!-- CELEBRATION -->
     <section class="screen cele" data-screen="done">
       <div class="confetti" id="confetti"></div>
       <div class="capi" id="capiDone" style="width:120px;height:120px"></div>
-      <h2>סיימת את המסע היומי!</h2>
-      <p>הרצף שלך עלה ל‑7 ימים 🔥</p>
+      <h2>סיימת את המסע היומי</h2>
+      <p>הרצף שלך עלה ל‑7 ימים <span data-icon="flame" style="color:var(--magenta)"></span></p>
       <div class="rewardrow">
-        <div class="rw"><b id="earnCoins">+30</b><span>מטבעות</span></div>
+        <div class="rw"><b><span data-icon="coin" style="color:var(--gold-ink)"></span> <span id="earnCoins">+30</span></b><span>מטבעות</span></div>
         <div class="rw"><b>+45</b><span>XP לאווטאר</span></div>
-        <div class="rw"><b>💛</b><span>הפקדה ללב</span></div>
+        <div class="rw"><b><span data-icon="heart" style="color:var(--magenta)"></span></b><span>הפקדה ללב</span></div>
       </div>
       <button class="cta ghost" id="replayIn" style="max-width:220px">למסע חדש</button>
     </section>
 
+    <!-- STATS -->
+    <section class="screen" data-screen="stats">
+      <div class="screen-title">המצב שלי <small>מילי · כיתה ג׳</small></div>
+      <div class="section-h"><span data-icon="star"></span> החוזקות הבולטות שלך</div>
+      <div class="skill"><div class="top"><span>לוח הכפל</span><span class="pct">92%</span></div><div class="bar good"><i style="width:92%"></i></div></div>
+      <div class="skill"><div class="top"><span>הבנת הנקרא</span><span class="pct">88%</span></div><div class="bar good"><i style="width:88%"></i></div></div>
+      <div class="skill"><div class="top"><span>ערבית מדוברת</span><span class="pct">80%</span></div><div class="bar mid"><i style="width:80%"></i></div></div>
+      <div class="section-h"><span data-icon="spark"></span> תחום לאימון</div>
+      <div class="skill"><div class="top"><span>חיסור במאות</span><span class="pct">55%</span></div><div class="bar low"><i style="width:55%"></i></div></div>
+      <div class="capi-wrap" style="margin-top:6px">
+        <div class="capi" id="capiStats"></div>
+        <div class="bubble">חיסור במאות עוד קצת מאתגר — נעשה אימון קצר של שתי דקות ונשדרג אותו יחד.</div>
+      </div>
+      <div class="foot"><button class="cta" data-goto="map">לאימון ממוקד</button></div>
+    </section>
+
+    <!-- SHOP -->
+    <section class="screen" data-screen="shop">
+      <div class="screen-title">חנות הפרסים <small>המשפחתית</small></div>
+      <div class="voucher" id="voucher"><span data-icon="check"></span><div>מומש! הצגי להורה את השובר <b id="voucherCode"></b></div></div>
+      <div class="reward">
+        <div class="rico"><span data-icon="screen"></span></div>
+        <div class="rmid"><b>חצי שעה זמן מסך</b><div class="rbar"><i style="width:100%"></i></div><span>150 / 150 מטבעות</span></div>
+        <button class="redeem" data-cost="150">מימוש</button>
+      </div>
+      <div class="reward">
+        <div class="rico"><span data-icon="home"></span></div>
+        <div class="rmid"><b>ערב סרטים משפחתי</b><div class="rbar"><i style="width:80%"></i></div><span>120 / 150 מטבעות</span></div>
+        <button class="redeem" data-cost="150" disabled>עוד 30</button>
+      </div>
+      <div class="reward">
+        <div class="rico"><span data-icon="star"></span></div>
+        <div class="rmid"><b>לבחור את ארוחת הערב</b><div class="rbar"><i style="width:60%"></i></div><span>120 / 200 מטבעות</span></div>
+        <button class="redeem" data-cost="200" disabled>עוד 80</button>
+      </div>
+      <p style="color:var(--muted);font-size:.8rem;font-weight:600;margin:6px 2px 0">המימוש אוטומטי — לא צריך אישור הורה. נוצר שובר שמציגים בבית.</p>
+    </section>
+
   </div>
 
-  <div class="nav">
-    <button class="on"><span class="ni">🗺️</span>מסע</button>
-    <button><span class="ni">📊</span>המצב שלי</button>
-    <button><span class="ni">🎁</span>חנות</button>
+  <div class="nav" id="nav">
+    <button class="on" data-tab="map"><span data-icon="map"></span>מסע</button>
+    <button data-tab="stats"><span data-icon="chart"></span>המצב שלי</button>
+    <button data-tab="shop"><span data-icon="gift"></span>חנות</button>
   </div>
 </div>
 
@@ -346,113 +361,125 @@
   <span class="lg">מסלול יומי של 4 תחנות</span>
   <span class="lg">רמז מקפי בטעות</span>
   <span class="lg">מנהיגות = תחנת מיקרו קבועה</span>
-  <span class="lg">תגמול זהותי במנהיגות</span>
+  <span class="lg">מימוש פרס אוטומטי (שובר)</span>
 </div>
-<button class="replay" id="replayOut">↺ התחלה מחדש</button>
+<button class="replay" id="replayOut">התחלה מחדש</button>
 
 <script>
-  // ---------- Capi SVG (Chill & Smart capybara) ----------
+  // ---------- icon set (no emoji) ----------
+  const P={cap:'stroke-linecap="round" stroke-linejoin="round"'};
+  const ICONS={
+    coin:`<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/>`,
+    flame:`<path d="M12 3c1.4 3 4 4.2 4 7.5a4 4 0 0 1-8 0c0-1.6.7-2.8 1.6-3.7.2 1.7 1.9 1.8 1.9.2 0-1.7-.2-2.8.5-4z"/>`,
+    math:`<rect x="4" y="3" width="16" height="18" rx="3"/><line x1="8" y1="7.5" x2="16" y2="7.5"/><line x1="8.5" y1="12" x2="8.6" y2="12"/><line x1="12" y1="12" x2="12.1" y2="12"/><line x1="15.5" y1="12" x2="15.6" y2="12"/><line x1="8.5" y1="16" x2="8.6" y2="16"/><line x1="12" y1="16" x2="12.1" y2="16"/><line x1="15.5" y1="16" x2="15.6" y2="16"/>`,
+    speech:`<path d="M20 6H8a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v3l4-3h7a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2z"/><line x1="10" y1="10.5" x2="18" y2="10.5"/>`,
+    spark:`<path d="M12 3c2.6 2 3.8 5.4 3.8 8.4l-3.8 2.8-3.8-2.8C8.2 8.4 9.4 5 12 3z"/><path d="M9 14.5l-2 4M15 14.5l2 4"/><circle cx="12" cy="9" r="1.4"/>`,
+    heart:`<path d="M12 20s-6.5-4.2-6.5-9A3.3 3.3 0 0 1 12 8a3.3 3.3 0 0 1 6.5 3c0 4.8-6.5 9-6.5 9z"/>`,
+    star:`<path d="M12 4l2.2 4.6 5 .7-3.6 3.6.9 5-4.5-2.4L7.5 18l.9-5L4.8 9.3l5-.7z"/>`,
+    home:`<path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/>`,
+    ear:`<path d="M8.5 9a3.5 3.5 0 1 1 7 0c0 3-3 3-3 5.5a2 2 0 0 1-4 0"/><path d="M17.5 6.5c1.2 1 1.8 2.3 1.8 3.8"/>`,
+    map:`<path d="M9 4L4 6v14l5-2 6 2 5-2V4l-5 2-6-2z"/><line x1="9" y1="4" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="20"/>`,
+    chart:`<line x1="5" y1="20" x2="5" y2="11"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="19" y1="20" x2="19" y2="14"/>`,
+    gift:`<rect x="4" y="9" width="16" height="11" rx="1"/><line x1="4" y1="13" x2="20" y2="13"/><line x1="12" y1="9" x2="12" y2="20"/><path d="M12 9C11 6 8 6 8 8s3 1 4 1zM12 9c1-3 4-3 4-1s-3 1-4 1z"/>`,
+    screen:`<rect x="3" y="5" width="18" height="12" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>`,
+    check:`<path d="M5 13l4 4L19 7"/>`
+  };
+  function iconSVG(name){return `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ${P.cap} aria-hidden="true">${ICONS[name]||''}</svg>`;}
+  document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=iconSVG(el.getAttribute('data-icon')));
+
+  // ---------- preset avatar (no emoji) ----------
+  document.getElementById('avatar').innerHTML=`<svg viewBox="0 0 46 46" role="img" aria-label="האווטאר של מילי">
+    <rect width="46" height="46" rx="14" fill="#FF7FB2"/>
+    <path d="M9 30c0-9 5-15 14-15s14 6 14 15z" fill="#5A3D2E"/>
+    <circle cx="23" cy="24" r="9.5" fill="#FBE3CE"/>
+    <path d="M12 22c0-8 5-11 11-11s11 3 11 11c-2-3-5-4-11-4s-9 1-11 4z" fill="#5A3D2E"/>
+    <circle cx="19.5" cy="24" r="1.4" fill="#3A2A2E"/><circle cx="26.5" cy="24" r="1.4" fill="#3A2A2E"/>
+    <path d="M20 28q3 2.4 6 0" fill="none" stroke="#C2506E" stroke-width="1.6" stroke-linecap="round"/>
+  </svg>`;
+
+  // ---------- Capi SVG ----------
   function capiSVG(mood){
-    // mood: 'chill' | 'hint' | 'cheer'
     const eye = mood==='cheer'
       ? '<path d="M40 46 q6 -7 12 0" fill="none" stroke="#2A1D1A" stroke-width="3.2" stroke-linecap="round"/><path d="M62 46 q6 -7 12 0" fill="none" stroke="#2A1D1A" stroke-width="3.2" stroke-linecap="round"/>'
       : '<path d="M40 47 q6 4 12 0" fill="none" stroke="#2A1D1A" stroke-width="3.4" stroke-linecap="round"/><path d="M62 47 q6 4 12 0" fill="none" stroke="#2A1D1A" stroke-width="3.4" stroke-linecap="round"/>';
     const glasses = mood==='hint'
-      ? '<g><rect x="34" y="24" width="46" height="9" rx="4" fill="#38BDF8" opacity=".85"/><rect x="34" y="26" width="20" height="7" rx="3" fill="#7ad4ff"/></g>'
-      : '';
+      ? '<g><rect x="34" y="24" width="46" height="9" rx="4" fill="#38BDF8" opacity=".85"/><rect x="34" y="26" width="20" height="7" rx="3" fill="#7ad4ff"/></g>' : '';
     const mouth = mood==='cheer'
       ? '<path d="M50 60 q7 9 14 0" fill="none" stroke="#2A1D1A" stroke-width="3" stroke-linecap="round"/>'
       : '<path d="M52 60 q5 4 10 0" fill="none" stroke="#2A1D1A" stroke-width="2.8" stroke-linecap="round"/>';
     return `<svg viewBox="0 0 114 114" width="100%" height="100%" role="img" aria-label="קפי">
-      <!-- headphones band -->
       <path d="M22 52 a35 35 0 0 1 70 0" fill="none" stroke="#F2F5FA" stroke-width="7"/>
-      <!-- jacket shoulders -->
       <path d="M18 104 q0 -30 39 -30 q39 0 39 30 z" fill="#FF2A85"/>
       <path d="M18 104 q0 -30 39 -30 l0 30 z" fill="#E01f72"/>
-      <!-- head -->
       <ellipse cx="57" cy="52" rx="34" ry="31" fill="#C49A6C"/>
       <ellipse cx="57" cy="52" rx="34" ry="31" fill="none" stroke="#A67C52" stroke-width="2"/>
-      <!-- ears -->
       <circle cx="27" cy="34" r="8" fill="#C49A6C" stroke="#A67C52" stroke-width="2"/>
       <circle cx="87" cy="34" r="8" fill="#C49A6C" stroke="#A67C52" stroke-width="2"/>
-      <!-- muzzle -->
       <ellipse cx="57" cy="63" rx="20" ry="15" fill="#FDF6E3"/>
       <ellipse cx="57" cy="55" rx="12" ry="9" fill="#EFE0C2" opacity=".55"/>
-      ${glasses}
-      ${eye}
-      <!-- nose -->
-      <ellipse cx="57" cy="55" rx="8" ry="5" fill="#5A3D2E"/>
-      ${mouth}
-      <!-- headphone cups -->
+      ${glasses}${eye}
+      <ellipse cx="57" cy="55" rx="8" ry="5" fill="#5A3D2E"/>${mouth}
       <rect x="16" y="46" width="13" height="18" rx="6" fill="#FF2A85" stroke="#fff" stroke-width="2"/>
       <rect x="85" y="46" width="13" height="18" rx="6" fill="#FF2A85" stroke="#fff" stroke-width="2"/>
-      <!-- star badge -->
-      <text x="70" y="99" font-size="14" text-anchor="middle">⭐</text>
+      <path d="M64 92 l3 5 5 -8" fill="none" stroke="#FACC15" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`;
   }
-  ['capiMap','capiEx','capiLead','capiDone'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.innerHTML=capiSVG('chill');
-  });
+  ['capiMap','capiEx','capiLead','capiDone','capiStats'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=capiSVG('chill');});
+
+  // ---------- varied copy pools ----------
+  const PRAISE=['יש. ידעת את זה.','בול. ממשיכות הלאה.','נכון מאוד, כל הכבוד.','מדויק — את בכיוון מעולה.','אלופה, עוד אחת נפלה.','חד. ראיתי שחשבת על זה.','מצוין, את תופסת את זה מהר.','זה בדיוק זה. יאללה קדימה.'];
+  const GENTLE=['זה בסדר גמור לטעות, ככה לומדים. הנה התשובה, ונמשיך יחד.','טעות היא רק שלב בדרך. הנה הפתרון, וממשיכות.','יופי שניסית. זו התשובה — נחזור לזה עוד קצת בהמשך.'];
+  const HEART=['הפקדת ללב. הקשרים שלך מרגישים את זה.','הפקדה יפה — ככה נבנית מנהיגת אמת.','זה בדיוק מה שממלא את בנק הלב.'];
+  function pick(pool,lastKey){let i;do{i=Math.floor(Math.random()*pool.length);}while(pool.length>1&&pool[i]===pick[lastKey]);pick[lastKey]=pool[i];return pool[i];}
 
   // ---------- state ----------
   const S={coins:120, done:{core:false,lang:false,future:false,lead:false}, order:['core','lang','future','lead'], earned:0};
-  const stage=document.getElementById('stage');
-  const screens={};
+  const stage=document.getElementById('stage'); const screens={};
   document.querySelectorAll('.screen').forEach(s=>screens[s.dataset.screen]=s);
   function show(name){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[name].classList.add('active');stage.scrollTop=0;}
-
   const coinsEl=document.getElementById('coins');
   function setCoins(v){S.coins=v;coinsEl.textContent=v;}
 
-  // ---------- questions ----------
   const Q={
-    core:{title:'חשבון',pos:'תחנה 1 מתוך 4',tag:'כפל',q:'כמה זה 7 × 6 ?',
-      answers:['42','48','36','40'],correct:0,
+    core:{title:'חשבון',pos:'תחנה 1 מתוך 4',tag:'כפל',q:'כמה זה 7 × 6 ?',answers:['42','48','36','40'],correct:0,
       hint:'נסי לספור בקפיצות של 7: 7, 14, 21, 28… עד שש קפיצות. איפה נוחתים?'},
-    lang:{title:'ערבית מדוברת',pos:'תחנה 2 מתוך 4',tag:'ברכות',q:'איך אומרים "שלום / היי" בערבית מדוברת?',
-      answers:['מַרְחַבָּא','שׁוּכְּרַן','יַאללָה','בַּסְטָה'],correct:0,
-      hint:'זו הברכה הראשונה שאומרים כשפוגשים מישהו. מתחילה ב‑"מ"…'},
-    future:{title:'שער העתיד · יזמות',pos:'תחנה 3 מתוך 4',tag:'המצאות',q:'מה הצעד הראשון של כל ממציאה חכמה?',
-      answers:['למצוא בעיה שמפריעה','לצייר לוגו יפה','לבחור שם מגניב','לפתוח חנות'],correct:0,
-      hint:'לפני שממציאים פתרון — צריך לדעת מה בכלל שווה לפתור. ממה אנשים מתעצבנים?'}
+    lang:{title:'ערבית מדוברת',pos:'תחנה 2 מתוך 4',tag:'ברכות',q:'איך אומרים "שלום / היי" בערבית מדוברת?',answers:['מַרְחַבָּא','שׁוּכְּרַן','יַאללָה','בַּסְטָה'],correct:0,
+      hint:'זו הברכה הראשונה שאומרים כשפוגשים מישהו. מתחילה ב‑"מ".'},
+    future:{title:'שער העתיד · יזמות',pos:'תחנה 3 מתוך 4',tag:'המצאות',q:'מה הצעד הראשון של כל ממציאה חכמה?',answers:['למצוא בעיה שמפריעה','לצייר לוגו יפה','לבחור שם מגניב','לפתוח חנות'],correct:0,
+      hint:'לפני שממציאים פתרון צריך לדעת מה שווה לפתור. ממה אנשים מתעצבנים?'}
   };
 
   function openStation(st){
-    if(st==='lead'){ startLead(); return; }
+    if(st==='lead'){startLead();return;}
     const data=Q[st];
     document.getElementById('exTitle').innerHTML=`${data.title} <small>${data.pos}</small>`;
     document.getElementById('qtag').textContent=data.tag;
     document.getElementById('qtext').textContent=data.q;
-    const wrap=document.getElementById('answers'); wrap.innerHTML='';
+    const wrap=document.getElementById('answers');wrap.innerHTML='';
     document.getElementById('exCapiWrap').style.display='none';
     document.getElementById('exNext').style.display='none';
     let tries=0;
     data.answers.forEach((a,i)=>{
       const b=document.createElement('button');b.className='ans';b.textContent=a;
       b.onclick=()=>{
-        if(b.disabled) return;
+        if(b.disabled)return;
         if(i===data.correct){
-          b.classList.add('correct');
-          [...wrap.children].forEach(c=>c.disabled=true);
-          setCoins(S.coins+10); S.earned+=10;
+          b.classList.add('correct');[...wrap.children].forEach(c=>c.disabled=true);
+          setCoins(S.coins+10);S.earned+=10;
           capiFor('capiEx','cheer');
-          say('exHint','יש! <b>+10 מטבעות</b>. אמרתי לך שאת מסתדרת 💪');
+          say('exHint',`${pick(PRAISE,'p')} <b>+10 מטבעות.</b>`);
           document.getElementById('exCapiWrap').style.display='flex';
           document.getElementById('exNext').style.display='block';
         }else{
-          tries++;
-          b.classList.add('wrong');b.disabled=true;
-          capiFor('capiEx', tries>=2?'chill':'hint');
+          tries++;b.classList.add('wrong');b.disabled=true;
+          capiFor('capiEx',tries>=2?'chill':'hint');
           document.getElementById('exCapiWrap').style.display='flex';
           if(tries>=2){
-            // reveal correct gently, move on
-            const cc=wrap.children[data.correct];cc.classList.add('correct');
+            wrap.children[data.correct].classList.add('correct');
             [...wrap.children].forEach(c=>c.disabled=true);
-            say('exHint','זה בסדר גמור לטעות — ככה לומדים. הנה התשובה, ונמשיך הלאה יחד 🌱');
+            say('exHint',pick(GENTLE,'g'));
             document.getElementById('exNext').style.display='block';
-          }else{
-            say('exHint','כמעט! '+data.hint);
-          }
+          }else{ say('exHint','כמעט. '+data.hint); }
         }
       };
       wrap.appendChild(b);
@@ -462,18 +489,13 @@
   }
 
   function completeStation(st){
-    S.done[st]=true;
-    markNode(st);
-    // pick next undone in order
-    const next=S.order.find(k=>!S.done[k]);
-    updateProgress();
-    if(!next){ finish(); return; }
-    // return to map, point Capi to next
+    S.done[st]=true;markNode(st);
+    const next=S.order.find(k=>!S.done[k]);updateProgress();
+    if(!next){finish();return;}
     capiFor('capiMap','chill');
     const names={core:'חשבון',lang:'ערבית',future:'שער העתיד',lead:'בנק הלב'};
-    say('capiSays', `כל הכבוד! עכשיו קדימה ל<b>${names[next]}</b> ✨`);
-    highlightNext(next);
-    show('map');
+    say('capiSays',`כל הכבוד. עכשיו קדימה ל<b>${names[next]}</b>.`);
+    highlightNext(next);show('map');setActiveTab('map');
   }
 
   function startLead(){
@@ -483,11 +505,10 @@
     [...cs.children].forEach(c=>{
       c.classList.remove('picked');
       c.onclick=()=>{
-        [...cs.children].forEach(x=>x.classList.remove('picked'));
-        c.classList.add('picked');
+        [...cs.children].forEach(x=>x.classList.remove('picked'));c.classList.add('picked');
         document.getElementById('heartFill').style.width='78%';
         capiFor('capiLead','cheer');
-        say('leadSays','הפקדת ללב 💛 הקשרים שלך מרגישים את זה. <b>ההרגל הזה בונה מנהיגת אמת.</b>');
+        say('leadSays',pick(HEART,'h'));
         document.getElementById('leadCapiWrap').style.display='flex';
         document.getElementById('leadNext').disabled=false;
       };
@@ -496,67 +517,57 @@
     document.getElementById('leadNext').onclick=()=>{S.done.lead=true;markNode('lead');updateProgress();finish();};
   }
 
-  // ---------- map helpers ----------
-  function markNode(st){
-    const map={core:'.n-core',lang:'.n-lang',future:'.n-future',lead:'.n-lead'};
-    const n=document.querySelector(map[st]); if(n){n.classList.add('done');n.classList.remove('locked');n.querySelector('button').classList.remove('pulse');}
-  }
-  function highlightNext(st){
-    document.querySelectorAll('.node button').forEach(b=>b.classList.remove('pulse'));
-    const map={core:'.n-core',lang:'.n-lang',future:'.n-future',lead:'.n-lead'};
-    const n=document.querySelector(map[st]); if(n && !n.classList.contains('done')) n.querySelector('button').classList.add('pulse');
-  }
-  function updateProgress(){
-    const c=Object.values(S.done).filter(Boolean).length;
-    document.getElementById('progressTxt').textContent=`${c}/4 הושלמו`;
-  }
-
-  // ---------- capi/bubble ----------
+  function markNode(st){const m={core:'.n-core',lang:'.n-lang',future:'.n-future',lead:'.n-lead'};const n=document.querySelector(m[st]);if(n){n.classList.add('done');n.querySelector('button').classList.remove('pulse');}}
+  function highlightNext(st){document.querySelectorAll('.node button').forEach(b=>b.classList.remove('pulse'));const m={core:'.n-core',lang:'.n-lang',future:'.n-future',lead:'.n-lead'};const n=document.querySelector(m[st]);if(n&&!n.classList.contains('done'))n.querySelector('button').classList.add('pulse');}
+  function updateProgress(){const c=Object.values(S.done).filter(Boolean).length;document.getElementById('progressTxt').textContent=`${c}/4 הושלמו`;}
   function capiFor(id,mood){const el=document.getElementById(id);if(el)el.innerHTML=capiSVG(mood);}
   function say(id,html){document.getElementById(id).innerHTML=html;}
 
-  // ---------- finish ----------
   function finish(){
     document.getElementById('earnCoins').textContent='+'+S.earned;
     document.getElementById('streak').textContent='7';
-    capiFor('capiDone','cheer');
-    show('done');
-    burst();
+    capiFor('capiDone','cheer');show('done');burst();
   }
   function burst(){
     const box=document.getElementById('confetti');box.innerHTML='';
     const cols=['#FF2A85','#FACC15','#38BDF8','#2FBF8F','#C49A6C'];
-    for(let i=0;i<70;i++){
-      const s=document.createElement('i');
-      s.style.left=Math.random()*100+'%';
-      s.style.background=cols[i%cols.length];
-      s.style.animationDuration=(1.6+Math.random()*1.8)+'s';
-      s.style.animationDelay=(Math.random()*.6)+'s';
-      s.style.transform='rotate('+(Math.random()*360)+'deg)';
-      box.appendChild(s);
-    }
+    for(let i=0;i<70;i++){const s=document.createElement('i');
+      s.style.left=Math.random()*100+'%';s.style.background=cols[i%cols.length];
+      s.style.animationDuration=(1.6+Math.random()*1.8)+'s';s.style.animationDelay=(Math.random()*.6)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';box.appendChild(s);}
   }
 
-  // ---------- wire nodes ----------
-  document.querySelectorAll('.node').forEach(n=>{
-    n.querySelector('button').addEventListener('click',()=>{
-      if(n.classList.contains('locked')) return;
-      openStation(n.dataset.station);
+  // ---------- nav ----------
+  const nav=document.getElementById('nav');
+  function setActiveTab(tab){[...nav.children].forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));}
+  [...nav.children].forEach(b=>b.onclick=()=>{const t=b.dataset.tab;setActiveTab(t);show(t);});
+  document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>{const t=b.dataset.goto;setActiveTab(t);show(t);});
+
+  // ---------- nodes ----------
+  document.querySelectorAll('.node').forEach(n=>{n.querySelector('button').addEventListener('click',()=>openStation(n.dataset.station));});
+  document.querySelector('.n-core button').classList.add('pulse');
+
+  // ---------- shop redemption (auto voucher) ----------
+  document.querySelectorAll('.redeem').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const cost=+btn.dataset.cost; if(btn.disabled||S.coins<cost)return;
+      setCoins(S.coins-cost);
+      const code='QL-'+Math.random().toString(36).slice(2,6).toUpperCase();
+      document.getElementById('voucherCode').textContent=code;
+      const v=document.getElementById('voucher');v.style.display='flex';
+      btn.textContent='מומש';btn.disabled=true;
     });
   });
-  document.querySelector('.n-core button').classList.add('pulse');
 
   // ---------- reset ----------
   function reset(){
     S.coins=120;S.earned=0;S.done={core:false,lang:false,future:false,lead:false};
     setCoins(120);document.getElementById('streak').textContent='6';
-    ['n-core','n-lang','n-future','n-lead'].forEach(c=>{const n=document.querySelector('.'+c);n.classList.remove('done');});
+    ['n-core','n-lang','n-future','n-lead'].forEach(c=>document.querySelector('.'+c).classList.remove('done'));
     document.getElementById('heartFill').style.width='60%';
-    updateProgress();
-    capiFor('capiMap','chill');
-    say('capiSays','אהלן מילי! מוכנה למסע של היום? נתחיל ב<b>חשבון</b> 🎯');
-    highlightNext('core');
-    show('map');
+    updateProgress();capiFor('capiMap','chill');
+    say('capiSays','אהלן מילי. מוכנה למסע של היום? נתחיל ב<b>חשבון</b>.');
+    highlightNext('core');setActiveTab('map');show('map');
   }
   document.getElementById('replayOut').onclick=reset;
   document.getElementById('replayIn').onclick=reset;
