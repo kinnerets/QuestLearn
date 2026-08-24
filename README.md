@@ -11,12 +11,31 @@
 - **פרטיות ילדים תחילה:** מינימום מידע, מחיקת הקלטות אוטומטית, אימות הורה.
 
 ## מבנה
-- [`docs/spec.md`](./docs/spec.md) — מסמך האפיון המלא (v5) + מפת דרכים.
+- [`docs/spec.md`](./docs/spec.md) — מסמך האפיון המלא (v5.2) + מפת דרכים.
 - [`docs/character-capi.md`](./docs/character-capi.md) — מדריך הדמות המנחה קפי.
-- [`docs/leadership-worlds.md`](./docs/leadership-worlds.md) — עולם המנהיגות: 4 מודולים למנהיגות אישית, ניהול זמן ומודעות עצמית.
+- [`docs/leadership-worlds.md`](./docs/leadership-worlds.md) — עולם המנהיגות: 4 מודולים למנהיגות אישית.
+- [`design/`](./design) — קובצי מקור לקנבס העיצוב (Claude Design).
+- `app/`, `components/`, `lib/` — אפליקציית Next.js (App Router, TypeScript, RTL).
+- [`supabase/migrations/`](./supabase/migrations) — סכמת מסד הנתונים (PostgreSQL/Supabase).
 
-## סטטוס
-שלב אפיון. ראו את מפת הדרכים (סעיף 7 באפיון) לשלבי הפיתוח.
+## הרצה (פיתוח)
+```bash
+npm install
+cp .env.example .env.local   # מלאו פרטי Supabase (אופציונלי לשלב 0 — רץ על מוק-דאטה)
+npm run dev                  # http://localhost:3000
+npm run build && npm start   # בילד + הרצת production
+npm run typecheck            # בדיקת טיפוסים
+```
+מסד נתונים: הריצו את `supabase/migrations/0001_init.sql` בפרויקט Supabase (SQL Editor או Supabase CLI).
 
-## סטאק מתוכנן
-Next.js (PWA) · NestJS · PostgreSQL/Supabase · LLM (Claude/OpenAI) · Whisper/Web Speech API
+## סטטוס — שלב 0 בוצע
+- שלד Next.js (PWA) + TypeScript, RTL, מערכת עיצוב של קפי (טוקנים, גופנים Rubik/Assistant).
+- **מסך הבית חי** (הפריסה הסופית: בוקר טוב ורוד + מלבני מטבעות/רצף + כרטיסי משימות) — נבנה, טופס ורונדר.
+- **אווטאר מודולרי** כרכיב React (`components/Avatar.tsx`) ודמות **קפי** (`components/Capi.tsx`) עם מצבי הבעה.
+- **סכמת DB מלאה** לכל הטבלאות (כולל טבלאות האווטאר) + טיפוסי TypeScript (`lib/types.ts`).
+- מסכי placeholder לניווט (המצב שלי / חנות / תרגול).
+
+**הבא בתור:** חיבור Supabase אמיתי + Auth, זירת תרגול end-to-end עם שאלה אחת ומנוע רמזים, ומנוע ה-Composer.
+
+## סטאק
+Next.js (App Router, PWA) · PostgreSQL/Supabase · LLM (Claude) · Whisper/Web Speech API
