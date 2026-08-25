@@ -54,6 +54,23 @@ export const GiftIcon = () => (
 export const ChevronIcon = () => (
   <Svg><path d="M15 6l-6 6 6 6" /></Svg>
 );
+export const StarIcon = () => (
+  <Svg><path d="M12 4l2.2 4.6 5 .7-3.6 3.6.9 5-4.5-2.4L7.5 18l.9-5L4.8 9.3l5-.7z" /></Svg>
+);
+export const HomeIcon = () => (
+  <Svg><path d="M4 11l8-6 8 6" /><path d="M6 10v9h12v-9" /></Svg>
+);
+export const EarIcon = () => (
+  <Svg><path d="M8.5 9a3.5 3.5 0 1 1 7 0c0 3-3 3-3 5.5a2 2 0 0 1-4 0" /><path d="M17.5 6.5c1.2 1 1.8 2.3 1.8 3.8" /></Svg>
+);
+export const CheckIcon = () => (
+  <Svg><path d="M5 13l4 4L19 7" /></Svg>
+);
+export const CloseIcon = () => (
+  <Svg><line x1="7" y1="7" x2="17" y2="17" /><line x1="17" y1="7" x2="7" y2="17" /></Svg>
+);
+
+export const LEAD_ICON = { star: StarIcon, home: HomeIcon, ear: EarIcon } as const;
 
 export const STATION_ICON = {
   core: CalcIcon,

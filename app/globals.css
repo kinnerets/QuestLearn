@@ -159,3 +159,61 @@ a { color: inherit; text-decoration: none; }
 .placeholder { padding: 24px 16px; }
 .placeholder h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; }
 .placeholder p { color: var(--muted); font-weight: 600; }
+
+/* ── exercise arena ── */
+.ex-bar { display: flex; align-items: center; gap: 12px; padding: 14px 16px 10px; }
+.ex-back { color: var(--muted); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+.ex-progress { flex: 1; display: flex; gap: 6px; }
+.pip { flex: 1; height: 6px; border-radius: 99px; background: var(--line); }
+.pip.fill { background: var(--mint); }
+.pip.cur { background: var(--magenta); }
+.ex-coins { display: flex; align-items: center; gap: 5px; font-family: var(--font-display); font-weight: 700; color: var(--gold-ink); font-variant-numeric: tabular-nums; }
+.ex-coins .i { width: 16px; height: 16px; }
+.ex-body { padding: 4px 16px 12px; display: flex; flex-direction: column; }
+.ex-head { display: flex; align-items: center; margin: 2px 2px 10px; }
+.ex-title { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
+.ex-pos { margin-inline-start: auto; font-weight: 600; color: var(--muted); font-size: .8rem; }
+
+.qcard { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: 0 8px 20px -14px rgba(0,0,0,.3); }
+.qtag { font-family: var(--font-display); font-weight: 700; font-size: .68rem; letter-spacing: .1em; color: var(--muted); }
+.qtext { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin-top: 6px; text-wrap: balance; }
+.qnote { color: var(--muted); font-weight: 600; font-size: .85rem; margin-top: 4px; }
+
+.answers { display: grid; gap: 10px; }
+.ans { display: flex; align-items: center; justify-content: space-between; text-align: start; background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 14px 16px; font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; color: var(--ink); cursor: pointer; transition: transform .12s, border-color .12s, background .12s; }
+.ans:hover:not(:disabled) { transform: translateX(-3px); border-color: var(--magenta); }
+.ans:disabled { cursor: default; }
+.ans .i { width: 20px; height: 20px; }
+.ans.correct { border-color: var(--mint); background: color-mix(in srgb, var(--mint) 16%, var(--surface)); color: var(--mint); }
+.ans.wrong { border-color: var(--magenta); background: color-mix(in srgb, var(--magenta) 12%, var(--surface)); color: var(--magenta); }
+
+.choices { display: grid; gap: 10px; }
+.choice { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 13px 15px; cursor: pointer; font-weight: 600; font-size: 1rem; color: var(--ink); text-align: start; transition: transform .12s, border-color .12s; }
+.choice:hover { transform: translateX(-3px); border-color: var(--caramel-deep, #A67C52); }
+.choice.picked { border-color: #A67C52; background: color-mix(in srgb, #C49A6C 18%, var(--surface)); }
+.choice-ico { width: 38px; height: 38px; border-radius: 11px; flex: none; display: grid; place-items: center; background: color-mix(in srgb, #C49A6C 22%, var(--surface)); color: #A67C52; }
+.choice-ico .i { width: 20px; height: 20px; }
+
+.heartbank { display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin-bottom: 12px; font-weight: 600; font-size: .9rem; }
+.hlabel { display: flex; align-items: center; gap: 6px; color: var(--magenta-deep); }
+.hlabel .i { width: 18px; height: 18px; }
+.heartbar { flex: 1; height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.heartbar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #FF6FA6, var(--magenta)); transition: width .6s ease; }
+
+.foot { margin-top: auto; padding-top: 14px; }
+.cta { width: 100%; border: none; border-radius: 16px; padding: 15px; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; background: var(--magenta); color: #fff; cursor: pointer; box-shadow: 0 10px 22px -10px var(--magenta); }
+.cta.ghost { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
+
+/* ── celebration ── */
+.cele { align-items: center; justify-content: center; text-align: center; display: flex; flex-direction: column; gap: 2px; position: relative; padding: 24px 16px; }
+.cele h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.55rem; margin: 14px 0 4px; }
+.cele p { color: var(--muted); margin: 0 0 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.cele p .i { width: 18px; height: 18px; color: var(--magenta); }
+.rewardrow { display: flex; gap: 10px; margin: 6px 0 18px; }
+.rw { background: var(--surface-2); border: 1px solid var(--line); border-radius: 16px; padding: 12px 16px; min-width: 96px; }
+.rw b { display: flex; align-items: center; justify-content: center; gap: 4px; font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.rw b .i { width: 20px; height: 20px; color: var(--gold-ink); }
+.rw span { font-size: .75rem; color: var(--muted); font-weight: 600; }
+.confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.confetti i { position: absolute; top: -14px; width: 9px; height: 14px; border-radius: 2px; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(760px) rotate(540deg); opacity: .9; } }
