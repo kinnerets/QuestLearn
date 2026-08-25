@@ -1,20 +1,37 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Capi, type CapiMood } from '@/components/Capi';
 import {
   CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON,
 } from '@/components/icons';
 import {
-  lesson, PRAISE, GENTLE, HEART, pick,
-  type AcademicStation, type LeadStation,
+  lesson as bundledLesson, PRAISE, GENTLE, HEART, pick,
+  type Station, type AcademicStation, type LeadStation,
 } from '@/lib/lessonData';
+import type { DbStation } from '@/lib/db';
 import { mili } from '@/lib/mockData';
 
 type Phase = 'playing' | 'done';
 
+function mapDbLesson(db: DbStation[]): Station[] {
+  const n = db.length;
+  return db.map((s, i): Station => {
+    const position = s.kind === 'lead' ? 'אי המצפן · מנהיגות' : `תחנה ${i + 1} מתוך ${n}`;
+    if (s.kind === 'lead') {
+      return { kind: 'lead', title: s.title, position, prompt: s.prompt, note: s.note, choices: s.choices };
+    }
+    return {
+      kind: s.kind, title: s.title, position, tag: s.tag, stem: s.stem,
+      choices: s.choices.map((c) => ({ id: c.id, text: c.text })),
+      correctId: s.correctId, hint: s.hint, coins: s.coins,
+    };
+  });
+}
+
 export default function ExercisePage() {
+  const [stations, setStations] = useState<Station[]>(bundledLesson);
   const [index, setIndex] = useState(0);
   const [coins, setCoins] = useState(mili.quest_coins);
   const [earned, setEarned] = useState(0);
@@ -30,7 +47,19 @@ export default function ExercisePage() {
   const [message, setMessage] = useState<string>('');
   const [heartFilled, setHeartFilled] = useState(false);
 
-  const station = lesson[index];
+  // Load the day's questions from the DB; fall back to the bundled lesson.
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/lesson')
+      .then((r) => r.json())
+      .then((j) => {
+        if (alive && Array.isArray(j?.lesson) && j.lesson.length) setStations(mapDbLesson(j.lesson));
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
+  const station = stations[index];
 
   function resetStation() {
     setTries(0); setChosenId(null); setWrongIds([]); setRevealed(false);
@@ -38,7 +67,14 @@ export default function ExercisePage() {
   }
 
   function next() {
-    if (index + 1 >= lesson.length) { setFinished(true); return; }
+    if (index + 1 >= stations.length) {
+      fetch('/api/quest/complete', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ coins: earned }),
+      }).catch(() => {});
+      setFinished(true);
+      return;
+    }
     setIndex(index + 1);
     resetStation();
   }
@@ -68,8 +104,9 @@ export default function ExercisePage() {
     }
   }
 
-  function chooseLead() {
+  function chooseLead(id: string) {
     if (phase === 'done') return;
+    setChosenId(id);
     setHeartFilled(true);
     setMood('cheer');
     setMessage(pick(HEART));
@@ -77,16 +114,17 @@ export default function ExercisePage() {
   }
 
   if (finished) {
-    return <Celebration earned={earned} onReplay={() => { setIndex(0); setEarned(0); setCoins(mili.quest_coins); setFinished(false); resetStation(); }} />;
+    return <Celebration earned={earned} onReplay={() => {
+      setIndex(0); setEarned(0); setCoins(mili.quest_coins); setFinished(false); resetStation();
+    }} />;
   }
 
   return (
     <main className="app-shell">
-      {/* top bar */}
       <div className="ex-bar">
         <Link href="/" className="ex-back" aria-label="חזרה"><CloseIcon /></Link>
         <div className="ex-progress">
-          {lesson.map((_, i) => (
+          {stations.map((_, i) => (
             <span key={i} className={`pip${i < index ? ' fill' : ''}${i === index ? ' cur' : ''}`} />
           ))}
         </div>
@@ -100,8 +138,7 @@ export default function ExercisePage() {
         </div>
 
         {station.kind === 'lead'
-          ? <LeadView st={station} picked={chosenId} heartFilled={heartFilled}
-              onPick={(id) => { setChosenId(id); chooseLead(); }} />
+          ? <LeadView st={station} picked={chosenId} heartFilled={heartFilled} onPick={chooseLead} />
           : <AcademicView st={station} chosenId={chosenId} wrongIds={wrongIds}
               revealed={revealed} locked={phase === 'done'} onAnswer={(id) => answer(station, id)} />}
 
@@ -115,7 +152,7 @@ export default function ExercisePage() {
         <div className="foot">
           {phase === 'done' && (
             <button className="cta" onClick={next}>
-              {index + 1 >= lesson.length ? 'לסיום המסע' : 'ממשיכות'}
+              {index + 1 >= stations.length ? 'לסיום המסע' : 'ממשיכות'}
             </button>
           )}
         </div>
