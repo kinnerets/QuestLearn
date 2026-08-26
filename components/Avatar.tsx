@@ -14,8 +14,9 @@ export function Avatar({
   size?: number;
   crop?: boolean;
 }) {
-  const { base, skin_tone: skin, hair_color: hair, top_color: top, accessory_id } = config;
+  const { base, skin_tone: skin, hair_color: hair, top_color: top, accessory_id, hairstyle_id } = config;
   const isGirl = base === 'girl';
+  const longHair = hairstyle_id !== 'short';
   const viewBox = crop ? '46 32 108 108' : '0 0 200 168';
 
   return (
@@ -27,7 +28,7 @@ export function Avatar({
       <path d="M88 118 h24 v16 a12 12 0 0 1 -24 0 Z" fill={skin} />
       <path d="M88 118 h24 v6 a12 12 0 0 1 -24 0 Z" fill="rgba(0,0,0,.08)" />
       {/* hair back (long styles only) */}
-      {isGirl && (
+      {isGirl && longHair && (
         <path
           d="M52 94 C52 52 74 34 100 34 C126 34 148 52 148 94 L148 152 C140 146 132 144 126 144 L74 144 C68 144 60 146 52 152 Z"
           fill={hair}
@@ -64,6 +65,15 @@ export function Avatar({
           <path d="M128 44 l14 -6 0 14 z" fill="#FF2A85" />
           <path d="M128 44 l14 6 0 -14 z" fill="#FF2A85" />
           <circle cx="128" cy="44" r="4.5" fill="#C21361" />
+        </g>
+      )}
+      {/* accessory: glasses */}
+      {accessory_id === 'glasses' && (
+        <g fill="none" stroke="#2A1D1A" strokeWidth="3">
+          <circle cx="84" cy="98" r="12" />
+          <circle cx="116" cy="98" r="12" />
+          <path d="M96 98 h8" strokeLinecap="round" />
+          <path d="M72 96 l-9 -3M128 96 l9 -3" strokeLinecap="round" />
         </g>
       )}
     </svg>

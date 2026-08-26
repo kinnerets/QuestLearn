@@ -108,6 +108,22 @@ export async function getChildProfile(): Promise<ChildProfile | null> {
   return all?.[0] ?? null;
 }
 
+/** Persist a new avatar for a child. Best-effort. */
+export async function saveAvatar(childId: string, config: AvatarConfig): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { error } = await sb
+      .from('users')
+      .update({ avatar_config: config })
+      .eq('id', childId)
+      .eq('role', 'child');
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 export async function getDailyLesson(grade = 'grade_3'): Promise<DbStation[] | null> {
   const sb = getSupabase();
   if (!sb) return null;

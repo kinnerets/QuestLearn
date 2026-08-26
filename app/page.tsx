@@ -64,13 +64,9 @@ export default async function HomePage() {
       <div className="screen-body">
         <section className="hero">
           <div className="hero-row">
-            {multiProfile ? (
-              <Link href="/profiles" className="hero-avatar switchable" aria-label="החלפת פרופיל">
-                <Avatar config={avatar} crop size={52} />
-              </Link>
-            ) : (
-              <div className="hero-avatar"><Avatar config={avatar} crop size={52} /></div>
-            )}
+            <Link href="/avatar" className="hero-avatar switchable" aria-label="עריכת אווטאר">
+              <Avatar config={avatar} crop size={52} />
+            </Link>
             <div style={{ flex: 1 }}>
               <div className="hero-title">בוקר טוב, {name}</div>
               <div className="hero-sub">
