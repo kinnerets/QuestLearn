@@ -52,39 +52,72 @@ const SUBTITLE: Record<StationKind, string> = {
 // The daily path is these subjects in order (until the Composer exists).
 const DAILY_SUBJECTS: Subject[] = ['math', 'arabic', 'future_skills', 'leadership'];
 
-export async function getChildProfile(): Promise<ChildProfile | null> {
+const CHILD_COLUMNS =
+  'id,display_name,grade_level,quest_coins,current_streak,avatar_config,daily_goal_minutes';
+
+function toChild(data: Record<string, unknown>): ChildProfile {
+  return {
+    id: data.id as string,
+    name: data.display_name as string,
+    grade: (data.grade_level as string) ?? null,
+    coins: (data.quest_coins as number) ?? 0,
+    streak: (data.current_streak as number) ?? 0,
+    avatar: data.avatar_config as AvatarConfig,
+    goalMinutes: (data.daily_goal_minutes as number) ?? 15,
+  };
+}
+
+/** All children in the family, oldest grade last — for the profile picker. */
+export async function getChildren(): Promise<ChildProfile[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
     const { data, error } = await sb
       .from('users')
-      .select('id,display_name,grade_level,quest_coins,current_streak,avatar_config,daily_goal_minutes')
+      .select(CHILD_COLUMNS)
       .eq('role', 'child')
-      .limit(1)
-      .maybeSingle();
-    if (error || !data) return null;
-    return {
-      id: data.id,
-      name: data.display_name,
-      grade: data.grade_level,
-      coins: data.quest_coins,
-      streak: data.current_streak,
-      avatar: data.avatar_config as AvatarConfig,
-      goalMinutes: data.daily_goal_minutes,
-    };
+      .order('grade_level', { ascending: true });
+    if (error || !data?.length) return null;
+    return data.map(toChild);
   } catch {
     return null;
   }
 }
 
-export async function getDailyLesson(): Promise<DbStation[] | null> {
+/** A single child by id (from the selected-profile cookie). */
+export async function getChildProfileById(id: string): Promise<ChildProfile | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
+    const { data, error } = await sb
+      .from('users')
+      .select(CHILD_COLUMNS)
+      .eq('id', id)
+      .eq('role', 'child')
+      .maybeSingle();
+    if (error || !data) return null;
+    return toChild(data);
+  } catch {
+    return null;
+  }
+}
+
+/** First child — fallback when no profile has been selected yet. */
+export async function getChildProfile(): Promise<ChildProfile | null> {
+  const all = await getChildren();
+  return all?.[0] ?? null;
+}
+
+export async function getDailyLesson(grade = 'grade_3'): Promise<DbStation[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    // Core/lang subjects are grade-specific; enrichment (future_skills, leadership) is shared.
     const { data: topics, error } = await sb
       .from('curriculum_topics')
-      .select('id,subject,sub_topic')
-      .in('subject', DAILY_SUBJECTS);
+      .select('id,subject,sub_topic,grade')
+      .in('subject', DAILY_SUBJECTS)
+      .in('grade', [grade, 'enrichment']);
     if (error || !topics?.length) return null;
 
     const stations: DbStation[] = [];
@@ -122,24 +155,43 @@ export async function getDailyLesson(): Promise<DbStation[] | null> {
   }
 }
 
-/** Persist a completed daily quest: add coins and advance the streak. Best-effort. */
-export async function completeQuest(coinsEarned: number): Promise<boolean> {
+/** Daily coin ceiling — anti-gaming, so extra quests can't farm unlimited coins. */
+export const DAILY_COIN_CAP = 60;
+
+/**
+ * Persist a completed quest round. Idempotent for the day: streak advances only
+ * on the first completion, and coins are capped so extra rounds hit diminishing
+ * returns then stop earning. Returns the coins actually granted after the cap.
+ */
+export async function completeQuest(coinsEarned: number, childId?: string): Promise<number> {
   const sb = getSupabase();
-  if (!sb) return false;
+  if (!sb) return 0;
   try {
-    const child = await getChildProfile();
-    if (!child) return false;
+    const child = childId ? await getChildProfileById(childId) : await getChildProfile();
+    if (!child) return 0;
     const today = new Date().toISOString().slice(0, 10);
+
+    const { data: row } = await sb
+      .from('daily_progress')
+      .select('quest_completed,coins_awarded_today')
+      .eq('user_id', child.id).eq('date', today)
+      .maybeSingle();
+
+    const alreadyAwarded = row?.coins_awarded_today ?? 0;
+    const firstToday = !row?.quest_completed;
+    const grant = Math.max(0, Math.min(coinsEarned, DAILY_COIN_CAP - alreadyAwarded));
+
     await sb.from('users').update({
-      quest_coins: child.coins + coinsEarned,
-      current_streak: child.streak + 1,
+      quest_coins: child.coins + grant,
+      current_streak: firstToday ? child.streak + 1 : child.streak,
     }).eq('id', child.id);
+
     await sb.from('daily_progress').upsert({
       user_id: child.id, date: today, stations_completed: 4,
-      quest_completed: true, coins_awarded_today: coinsEarned,
+      quest_completed: true, coins_awarded_today: alreadyAwarded + grant,
     });
-    return true;
+    return grant;
   } catch {
-    return false;
+    return 0;
   }
 }

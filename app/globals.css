@@ -217,3 +217,39 @@ a { color: inherit; text-decoration: none; }
 .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .confetti i { position: absolute; top: -14px; width: 9px; height: 14px; border-radius: 2px; animation: fall linear forwards; }
 @keyframes fall { to { transform: translateY(760px) rotate(540deg); opacity: .9; } }
+
+/* ── Home: profile switch + goal ── */
+.hero-avatar.switchable { display: block; cursor: pointer; }
+.hero-switch {
+  display: inline-block; margin-top: 5px; font-size: .74rem; font-weight: 700;
+  color: #fff; opacity: .9; text-decoration: underline; text-underline-offset: 2px;
+}
+
+/* ── Celebration extra note ── */
+.cele-note {
+  color: var(--muted); font-weight: 600; font-size: .8rem;
+  max-width: 300px; margin: 4px auto 14px; line-height: 1.4; display: block;
+}
+
+/* ── Profile picker ── */
+.profiles { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 28px 18px; gap: 20px; }
+.profiles-head h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; margin: 10px 0 4px; color: var(--ink); }
+.profiles-head p { color: var(--muted); font-weight: 600; font-size: .9rem; }
+.profile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; max-width: 420px; }
+.profile-card {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius);
+  padding: 18px 12px 14px; cursor: pointer; color: var(--ink);
+  box-shadow: 0 12px 26px -18px rgba(0,0,0,.4); transition: transform .12s, border-color .12s;
+}
+.profile-card:hover { transform: translateY(-2px); border-color: var(--magenta); }
+.profile-av {
+  width: 96px; height: 96px; border-radius: 50%; overflow: hidden;
+  background: #FFE0EC; border: 3px solid var(--surface-2); display: grid; place-items: center;
+}
+.profile-name { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; }
+.profile-grade { color: var(--muted); font-weight: 600; font-size: .78rem; }
+.profile-stats { display: flex; gap: 12px; margin-top: 4px; font-weight: 700; font-size: .82rem; color: var(--muted); }
+.profile-stats span { display: inline-flex; align-items: center; gap: 3px; }
+.profile-stats .i { width: 15px; height: 15px; }
+.profile-loading { grid-column: 1 / -1; color: var(--muted); font-weight: 600; padding: 20px; }

@@ -15,6 +15,10 @@ import { mili } from '@/lib/mockData';
 
 type Phase = 'playing' | 'done';
 
+// Coin multiplier per extra quest of the day — diminishing returns (anti-gaming).
+const ROUND_MULT = [1, 0.5, 0.25];
+const roundMult = (r: number) => ROUND_MULT[Math.min(r - 1, ROUND_MULT.length - 1)];
+
 function mapDbLesson(db: DbStation[]): Station[] {
   const n = db.length;
   return db.map((s, i): Station => {
@@ -36,6 +40,7 @@ export default function ExercisePage() {
   const [coins, setCoins] = useState(mili.quest_coins);
   const [earned, setEarned] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [round, setRound] = useState(1);
 
   // per-station state
   const [tries, setTries] = useState(0);
@@ -53,7 +58,9 @@ export default function ExercisePage() {
     fetch('/api/lesson')
       .then((r) => r.json())
       .then((j) => {
-        if (alive && Array.isArray(j?.lesson) && j.lesson.length) setStations(mapDbLesson(j.lesson));
+        if (!alive) return;
+        if (Array.isArray(j?.lesson) && j.lesson.length) setStations(mapDbLesson(j.lesson));
+        if (typeof j?.coins === 'number') setCoins(j.coins);
       })
       .catch(() => {});
     return () => { alive = false; };
@@ -82,11 +89,12 @@ export default function ExercisePage() {
   function answer(st: AcademicStation, choiceId: string) {
     if (phase === 'done') return;
     if (choiceId === st.correctId) {
+      const gained = Math.max(2, Math.round(st.coins * roundMult(round)));
       setChosenId(choiceId);
-      setCoins((c) => c + st.coins);
-      setEarned((e) => e + st.coins);
+      setCoins((c) => c + gained);
+      setEarned((e) => e + gained);
       setMood('cheer');
-      setMessage(`${pick(PRAISE)} +${st.coins} מטבעות.`);
+      setMessage(`${pick(PRAISE)} +${gained} מטבעות.`);
       setPhase('done');
     } else {
       const t = tries + 1;
@@ -114,9 +122,20 @@ export default function ExercisePage() {
   }
 
   if (finished) {
-    return <Celebration earned={earned} onReplay={() => {
-      setIndex(0); setEarned(0); setCoins(mili.quest_coins); setFinished(false); resetStation();
-    }} />;
+    return (
+      <Celebration
+        earned={earned}
+        round={round}
+        nextPct={Math.round(roundMult(round + 1) * 100)}
+        onReplay={() => {
+          setRound((r) => r + 1);
+          setEarned(0);
+          setIndex(0);
+          setFinished(false);
+          resetStation();
+        }}
+      />
+    );
   }
 
   return (
@@ -224,7 +243,9 @@ function LeadView({
   );
 }
 
-function Celebration({ earned, onReplay }: { earned: number; onReplay: () => void }) {
+function Celebration({
+  earned, round, nextPct, onReplay,
+}: { earned: number; round: number; nextPct: number; onReplay: () => void }) {
   const confetti = useMemo(
     () => Array.from({ length: 46 }, (_, i) => ({
       left: Math.random() * 100,
@@ -243,15 +264,16 @@ function Celebration({ earned, onReplay }: { earned: number; onReplay: () => voi
           ))}
         </div>
         <Capi mood="cheer" size={120} />
-        <h2>סיימת את המסע היומי</h2>
-        <p>הרצף שלך עלה ל‑7 ימים <FlameIcon /></p>
+        <h2>{round === 1 ? 'סיימת את המסע היומי' : `כל הכבוד! סבב ${round} הושלם`}</h2>
+        <p>שמרת על הרצף שלך <FlameIcon /></p>
         <div className="rewardrow">
           <div className="rw"><b><CoinIcon /> +{earned}</b><span>מטבעות</span></div>
           <div className="rw"><b>+45</b><span>XP לאווטאר</span></div>
           <div className="rw"><b><HeartIcon /></b><span>הפקדה ללב</span></div>
         </div>
+        <p className="cele-note">עוד מסע ייתן {nextPct}% מהמטבעות — אבל התרגול שווה בדיוק אותו דבר.</p>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button className="cta ghost" onClick={onReplay}>למסע חדש</button>
+          <button className="cta ghost" onClick={onReplay}>עוד מסע</button>
           <Link href="/" className="cta" style={{ textAlign: 'center' }}>לבית</Link>
         </div>
       </div>

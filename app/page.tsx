@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import { CoinIcon, FlameIcon, ChevronIcon, STATION_ICON } from '@/components/icons';
 import { mili, todayStations } from '@/lib/mockData';
-import { getChildProfile, getDailyLesson } from '@/lib/db';
+import { getChildren, getDailyLesson } from '@/lib/db';
+import { selectedChildId } from '@/lib/session';
 import type { DailyStation } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -27,12 +29,22 @@ function GoalRing({ done, total }: { done: number; total: number }) {
 }
 
 export default async function HomePage() {
-  const [child, dbLesson] = await Promise.all([getChildProfile(), getDailyLesson()]);
+  const selectedId = selectedChildId();
+  const children = await getChildren();
+
+  // With a live DB, always run through the profile picker so Mili and Lia stay separate.
+  if (children && children.length && (!selectedId || !children.some((c) => c.id === selectedId))) {
+    redirect('/profiles');
+  }
+  const child = children?.find((c) => c.id === selectedId) ?? children?.[0] ?? null;
+  const dbLesson = await getDailyLesson(child?.grade ?? 'grade_3');
 
   const name = child?.name ?? mili.display_name;
   const coins = child?.coins ?? mili.quest_coins;
   const streak = child?.streak ?? mili.current_streak;
   const avatar = child?.avatar ?? mili.avatar_config;
+  const goalMinutes = child?.goalMinutes ?? mili.daily_goal_minutes;
+  const multiProfile = (children?.length ?? 0) > 1;
 
   const stations: DailyStation[] = dbLesson
     ? dbLesson.map((s, i) => ({
@@ -45,7 +57,6 @@ export default async function HomePage() {
       }))
     : todayStations;
 
-  const totalMinutes = stations.reduce((sum, st) => sum + st.minutes, 0);
   const firstActive = stations.find((s) => s.status === 'active') ?? stations[0];
 
   return (
@@ -53,12 +64,21 @@ export default async function HomePage() {
       <div className="screen-body">
         <section className="hero">
           <div className="hero-row">
-            <div className="hero-avatar">
-              <Avatar config={avatar} crop size={52} />
-            </div>
+            {multiProfile ? (
+              <Link href="/profiles" className="hero-avatar switchable" aria-label="החלפת פרופיל">
+                <Avatar config={avatar} crop size={52} />
+              </Link>
+            ) : (
+              <div className="hero-avatar"><Avatar config={avatar} crop size={52} /></div>
+            )}
             <div style={{ flex: 1 }}>
               <div className="hero-title">בוקר טוב, {name}</div>
-              <div className="hero-sub">{stations.length} תחנות היום · בערך {totalMinutes} דקות</div>
+              <div className="hero-sub">
+                {stations.length} תחנות · יעד יומי ~{goalMinutes} דקות
+              </div>
+              {multiProfile && (
+                <Link href="/profiles" className="hero-switch">החלפת פרופיל</Link>
+              )}
             </div>
             <GoalRing done={0} total={stations.length} />
           </div>
