@@ -55,6 +55,32 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('aaaaaaaa-0000-0000-0000-000000000004', 'choice_scenario', 1, 'curated', 'auto_passed',
    '{"prompt":"מה תעשי היום בשביל מישהו אחר?","note":"אין כאן תשובה נכונה — כל בחירה היא הפקדה טובה ללב.","choices":[{"id":"a","label":"לפרגן לחברה על משהו","icon":"star"},{"id":"b","label":"לעזור במשהו בבית","icon":"home"},{"id":"c","label":"להקשיב לחברה בלי להפריע","icon":"ear"}]}'::jsonb);
 
+-- Extra questions per topic — variety for "עוד מסע" and spaced review.
+insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
+  -- Mili math (grade 3)
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"כפל","stem":"כמה זה 8 × 4 ?","hint":"ספרי בקפיצות של 8: 8, 16, 24… כמה קפיצות עד ארבע?","choices":[{"id":"a","text":"32"},{"id":"b","text":"28","misconception":"off_by_one_multiple"},{"id":"c","text":"36"},{"id":"d","text":"24"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"כפל","stem":"כמה זה 9 × 3 ?","hint":"9 ועוד 9 זה 18, ועוד 9 עוד פעם?","choices":[{"id":"a","text":"27"},{"id":"b","text":"24","misconception":"off_by_one_multiple"},{"id":"c","text":"21"},{"id":"d","text":"29"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  -- Mili arabic spoken (grade 3)
+  ('aaaaaaaa-0000-0000-0000-000000000002', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"ברכות","stem":"איך אומרים \"תודה\" בערבית מדוברת?","hint":"מילת נימוס נפוצה מאוד, מתחילה ב-\"שׁ\".","choices":[{"id":"a","text":"שׁוּכְּרַן"},{"id":"b","text":"מַרְחַבָּא"},{"id":"c","text":"מַעַ סַלַאמֶה"},{"id":"d","text":"עַפְוַן"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('aaaaaaaa-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"ברכות","stem":"איך אומרים \"להתראות\" בערבית מדוברת?","hint":"אומרים את זה כשנפרדים — שתי מילים, מסתיים ב-\"סַלַאמֶה\".","choices":[{"id":"a","text":"מַעַ סַלַאמֶה"},{"id":"b","text":"שׁוּכְּרַן"},{"id":"c","text":"מַרְחַבָּא"},{"id":"d","text":"תְפַצַّ׳ל"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  -- Shared future skills
+  ('aaaaaaaa-0000-0000-0000-000000000003', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"המצאות","stem":"אחרי שמצאת בעיה — מה הצעד הבא של ממציאה?","hint":"לא מתאהבים ברעיון הראשון. מה עושים כדי לא לפספס רעיון טוב יותר?","choices":[{"id":"a","text":"לחשוב על כמה רעיונות שונים"},{"id":"b","text":"לבחור מיד את הרעיון הראשון"},{"id":"c","text":"לוותר אם זה קשה"},{"id":"d","text":"לחכות שמישהו אחר יפתור"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  -- Lia math (grade 5)
+  ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"שברים","stem":"כמה זה 1/4 + 1/4 ?","hint":"שני רבעים יחד — כמה זה מתוך שלם? אפשר לצמצם.","choices":[{"id":"a","text":"1/2"},{"id":"b","text":"1/8","misconception":"add_denominators"},{"id":"c","text":"1/4"},{"id":"d","text":"2/8"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"שברים","stem":"איזה שבר שווה ל-1/2 ?","hint":"מחפשים שבר שאם מצמצמים אותו מקבלים חצי.","choices":[{"id":"a","text":"2/4"},{"id":"b","text":"1/3"},{"id":"c","text":"2/3"},{"id":"d","text":"3/4"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  -- Lia arabic literary (grade 5)
+  ('bbbbbbbb-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"אוצר מילים","stem":"איך אומרים \"מים\" בערבית ספרותית?","hint":"מילה קצרה שמסתיימת בהברה פתוחה — \"...אא\".","choices":[{"id":"a","text":"מַאא׳"},{"id":"b","text":"שַׁמְס","misconception":"confuse_water_sun"},{"id":"c","text":"נַאר"},{"id":"d","text":"הַוַאא׳"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('bbbbbbbb-0000-0000-0000-000000000002', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"אוצר מילים","stem":"מה הפירוש של המילה \"מַדְרַסֶה\"?","hint":"אותו שורש כמו \"דַרְס\" (שיעור). לאן הולכים ללמוד?","choices":[{"id":"a","text":"בית ספר"},{"id":"b","text":"בית חולים"},{"id":"c","text":"ספרייה"},{"id":"d","text":"גן חיות"}],"correct_choice_id":"a","coins":12}'::jsonb);
+
 -- Reward store (shared family catalog)
 insert into reward_store (family_id, title, category, cost_coins) values
   ('11111111-1111-1111-1111-111111111111', 'חצי שעה זמן מסך', 'screen_time', 150),

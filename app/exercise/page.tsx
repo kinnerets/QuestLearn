@@ -28,8 +28,9 @@ function mapDbLesson(db: DbStation[]): Station[] {
     }
     return {
       kind: s.kind, title: s.title, position, tag: s.tag, stem: s.stem,
-      choices: s.choices.map((c) => ({ id: c.id, text: c.text })),
+      choices: s.choices.map((c) => ({ id: c.id, text: c.text, misconception: c.misconception })),
       correctId: s.correctId, hint: s.hint, coins: s.coins,
+      questionId: s.questionId, topicId: s.topicId,
     };
   });
 }
@@ -52,19 +53,31 @@ export default function ExercisePage() {
   const [message, setMessage] = useState<string>('');
   const [heartFilled, setHeartFilled] = useState(false);
 
-  // Load the day's questions from the DB; fall back to the bundled lesson.
+  // Load the round's questions from the Composer; fall back to the bundled lesson.
+  // Refetches when the round changes ("עוד מסע") so questions stay fresh.
   useEffect(() => {
     let alive = true;
-    fetch('/api/lesson')
+    fetch(`/api/lesson?round=${round}`)
       .then((r) => r.json())
       .then((j) => {
         if (!alive) return;
         if (Array.isArray(j?.lesson) && j.lesson.length) setStations(mapDbLesson(j.lesson));
-        if (typeof j?.coins === 'number') setCoins(j.coins);
+        if (round === 1 && typeof j?.coins === 'number') setCoins(j.coins);
       })
       .catch(() => {});
     return () => { alive = false; };
-  }, []);
+  }, [round]);
+
+  function logAttempt(st: AcademicStation, isCorrect: boolean, hintsUsed: number, misconception?: string) {
+    if (!st.questionId || !st.topicId) return; // bundled fallback has no ids
+    fetch('/api/attempt', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        questionId: st.questionId, topicId: st.topicId,
+        isCorrect, hintsUsed, misconception: misconception ?? null,
+      }),
+    }).catch(() => {});
+  }
 
   const station = stations[index];
 
@@ -96,6 +109,7 @@ export default function ExercisePage() {
       setMood('cheer');
       setMessage(`${pick(PRAISE)} +${gained} מטבעות.`);
       setPhase('done');
+      logAttempt(st, true, tries); // tries = wrong attempts before getting it
     } else {
       const t = tries + 1;
       setTries(t);
@@ -105,6 +119,8 @@ export default function ExercisePage() {
         setMood('chill');
         setMessage(pick(GENTLE));
         setPhase('done');
+        const mis = st.choices.find((c) => c.id === choiceId)?.misconception;
+        logAttempt(st, false, 1, mis);
       } else {
         setMood('hint');
         setMessage('כמעט. ' + st.hint);

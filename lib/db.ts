@@ -1,5 +1,15 @@
 import { getSupabase } from './supabaseClient';
+import { sm2, qualityFrom, updateMastery } from './composer';
 import type { AvatarConfig, StationKind, Subject } from './types';
+
+export interface AttemptInput {
+  questionId: string;
+  topicId: string;
+  isCorrect: boolean;
+  misconception?: string | null;
+  hintsUsed?: number;
+  chosenAnswer?: unknown;
+}
 
 export interface ChildProfile {
   id: string;
@@ -14,6 +24,7 @@ export interface ChildProfile {
 export interface DbAcademicStation {
   kind: 'core' | 'lang' | 'future';
   topicId: string;
+  questionId: string;
   title: string;
   subtitle: string;
   minutes: number;
@@ -124,7 +135,13 @@ export async function saveAvatar(childId: string, config: AvatarConfig): Promise
   }
 }
 
-export async function getDailyLesson(grade = 'grade_3'): Promise<DbStation[] | null> {
+/**
+ * Compose a day's path: one station per subject, in order. `round` (1-based)
+ * rotates through each topic's question bank so "עוד מסע" serves fresh
+ * questions instead of repeating. Questions are ordered by difficulty, so
+ * earlier rounds are gentler.
+ */
+export async function getDailyLesson(grade = 'grade_3', round = 1): Promise<DbStation[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
@@ -142,11 +159,12 @@ export async function getDailyLesson(grade = 'grade_3'): Promise<DbStation[] | n
       if (!topic) continue;
       const { data: qs } = await sb
         .from('questions_bank')
-        .select('type,payload')
+        .select('id,type,difficulty,payload')
         .eq('topic_id', topic.id)
-        .limit(1);
-      const q = qs?.[0];
-      if (!q) continue;
+        .order('difficulty', { ascending: true })
+        .order('id', { ascending: true });
+      if (!qs?.length) continue;
+      const q = qs[(round - 1) % qs.length]; // rotate per round
       const kind = KIND_BY_SUBJECT[subject as Subject] ?? 'core';
       const p = q.payload as Record<string, unknown>;
       if (kind === 'lead') {
@@ -157,7 +175,7 @@ export async function getDailyLesson(grade = 'grade_3'): Promise<DbStation[] | n
         });
       } else {
         stations.push({
-          kind, topicId: topic.id, title: topic.sub_topic, subtitle: SUBTITLE[kind], minutes: 2,
+          kind, topicId: topic.id, questionId: q.id, title: topic.sub_topic, subtitle: SUBTITLE[kind], minutes: 2,
           tag: String(p.tag ?? ''), stem: String(p.stem), hint: String(p.hint ?? ''),
           choices: p.choices as DbAcademicStation['choices'],
           correctId: String(p.correct_choice_id),
@@ -209,5 +227,60 @@ export async function completeQuest(coinsEarned: number, childId?: string): Prom
     return grant;
   } catch {
     return 0;
+  }
+}
+
+/**
+ * Log one answer and advance the child's mastery for that topic (SM-2).
+ * This is what makes the Composer adaptive over time. Best-effort.
+ */
+export async function logAttempt(childId: string, a: AttemptInput): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const hints = a.hintsUsed ?? 0;
+    await sb.from('attempts_log').insert({
+      user_id: childId,
+      question_id: a.questionId,
+      topic_id: a.topicId,
+      is_correct: a.isCorrect,
+      chosen_answer: a.chosenAnswer ?? null,
+      misconception_tag: a.misconception ?? null,
+      hints_used: hints,
+    });
+
+    const { data: m } = await sb
+      .from('user_mastery')
+      .select('mastery_score,attempts_count,ease_factor,interval_days,misconception_tags')
+      .eq('user_id', childId).eq('topic_id', a.topicId)
+      .maybeSingle();
+
+    const quality = qualityFrom(a.isCorrect, hints);
+    const next = sm2(
+      { ease: Number(m?.ease_factor ?? 2.5), interval: Number(m?.interval_days ?? 0) },
+      quality,
+    );
+    const mastery = updateMastery(Number(m?.mastery_score ?? 0), a.isCorrect);
+
+    // Track misconception tags on wrong answers (unique-ish, capped).
+    const tags: string[] = Array.isArray(m?.misconception_tags) ? [...m!.misconception_tags] : [];
+    if (!a.isCorrect && a.misconception && !tags.includes(a.misconception)) {
+      tags.push(a.misconception);
+    }
+
+    await sb.from('user_mastery').upsert({
+      user_id: childId,
+      topic_id: a.topicId,
+      mastery_score: mastery,
+      attempts_count: Number(m?.attempts_count ?? 0) + 1,
+      last_attempt: new Date().toISOString(),
+      next_review_at: next.nextReviewAt,
+      ease_factor: next.ease,
+      interval_days: next.interval,
+      misconception_tags: tags.slice(-8),
+    });
+    return true;
+  } catch {
+    return false;
   }
 }

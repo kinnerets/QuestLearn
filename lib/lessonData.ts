@@ -3,6 +3,7 @@ import type { StationKind } from './types';
 export interface Choice {
   id: string;
   text: string;
+  misconception?: string;
 }
 
 export interface AcademicStation {
@@ -15,6 +16,8 @@ export interface AcademicStation {
   correctId: string;
   hint: string;
   coins: number;
+  questionId?: string;
+  topicId?: string;
 }
 
 export interface LeadChoice {
