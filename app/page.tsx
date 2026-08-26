@@ -114,6 +114,8 @@ export default async function HomePage() {
           <Capi mood="chill" size={70} />
           <div className="bubble">אהלן {name}. נתחיל ב<b>{firstActive.title.split(' — ')[0]}</b>?</div>
         </div>
+
+        <Link href="/parent" className="parent-link">אזור הורים</Link>
       </div>
 
       <BottomNav active="/" />
