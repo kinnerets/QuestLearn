@@ -528,3 +528,62 @@ export async function logAttempt(childId: string, a: AttemptInput): Promise<bool
     return false;
   }
 }
+
+export interface Reward {
+  id: string;
+  title: string;
+  category: string;
+  cost: number;
+}
+
+/** Active family rewards, cheapest first. */
+export async function getRewards(): Promise<Reward[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data } = await sb
+      .from('reward_store')
+      .select('id,title,category,cost_coins')
+      .eq('is_active', true)
+      .order('cost_coins', { ascending: true });
+    if (!data) return null;
+    return data.map((r) => ({ id: r.id, title: r.title, category: r.category, cost: r.cost_coins }));
+  } catch {
+    return null;
+  }
+}
+
+export interface RedeemResult {
+  ok: boolean;
+  reason?: string;
+  voucher?: string;
+  coins?: number;
+}
+
+/** Redeem a reward: deduct coins and issue a voucher (zero parent friction). */
+export async function redeemReward(childId: string, rewardId: string): Promise<RedeemResult> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, reason: 'no-db' };
+  try {
+    const child = await getChildProfileById(childId);
+    if (!child) return { ok: false, reason: 'no-child' };
+    const { data: reward } = await sb
+      .from('reward_store')
+      .select('id,cost_coins,title')
+      .eq('id', rewardId)
+      .maybeSingle();
+    if (!reward) return { ok: false, reason: 'no-reward' };
+    if (child.coins < reward.cost_coins) return { ok: false, reason: 'not-enough' };
+
+    const voucher = 'QL-' + Math.random().toString(36).slice(2, 7).toUpperCase();
+    const left = child.coins - reward.cost_coins;
+    await sb.from('users').update({ quest_coins: left }).eq('id', child.id);
+    await sb.from('reward_redemptions').insert({
+      reward_id: reward.id, child_id: child.id,
+      coins_spent: reward.cost_coins, voucher_code: voucher, status: 'issued',
+    });
+    return { ok: true, voucher, coins: left };
+  } catch {
+    return { ok: false, reason: 'error' };
+  }
+}
