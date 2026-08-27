@@ -14,7 +14,12 @@ delete from curriculum_topics where id in (
   'cccccccc-0000-0000-0000-000000000002',
   'cccccccc-0000-0000-0000-000000000003',
   'cccccccc-0000-0000-0000-000000000004',
-  'cccccccc-0000-0000-0000-000000000005'
+  'cccccccc-0000-0000-0000-000000000005',
+  'dddddddd-0000-0000-0000-000000000001',
+  'dddddddd-0000-0000-0000-000000000002',
+  'dddddddd-0000-0000-0000-000000000003',
+  'dddddddd-0000-0000-0000-000000000004',
+  'dddddddd-0000-0000-0000-000000000005'
 );
 delete from reward_store where family_id = '11111111-1111-1111-1111-111111111111';
 
@@ -45,7 +50,12 @@ insert into curriculum_topics (id, grade, subject, sub_topic, order_index, arabi
   ('cccccccc-0000-0000-0000-000000000002', 'grade_3', 'hebrew', 'אוצר מילים', 1, null),
   ('cccccccc-0000-0000-0000-000000000003', 'grade_5', 'geometry', 'שטח והיקף', 1, null),
   ('cccccccc-0000-0000-0000-000000000004', 'grade_5', 'hebrew', 'שורשים וכתיב', 1, null),
-  ('cccccccc-0000-0000-0000-000000000005', 'enrichment', 'science', 'עולם החי', 1, null);
+  ('cccccccc-0000-0000-0000-000000000005', 'enrichment', 'science', 'עולם החי', 1, null),
+  ('dddddddd-0000-0000-0000-000000000001', 'grade_3', 'english', 'מילים ראשונות', 1, null),
+  ('dddddddd-0000-0000-0000-000000000002', 'grade_5', 'english', 'קריאה והבנה', 1, null),
+  ('dddddddd-0000-0000-0000-000000000003', 'grade_3', 'bible', 'סיפורי בראשית', 1, null),
+  ('dddddddd-0000-0000-0000-000000000004', 'grade_5', 'bible', 'דמויות בתנ״ך', 1, null),
+  ('dddddddd-0000-0000-0000-000000000005', 'enrichment', 'geography', 'ארץ ישראל', 1, null);
 
 -- Questions
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
@@ -118,6 +128,34 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"צמחים","stem":"מה נותן לצמח אנרגיה כדי לגדול?","hint":"בלי זה בבוקר לא היינו רואים כלום — וגם הצמח לא היה גדל.","choices":[{"id":"a","text":"אור השמש"},{"id":"b","text":"חושך"},{"id":"c","text":"רעש"},{"id":"d","text":"פלסטיק"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000005', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"בעלי חיים","stem":"איזו חיה היא יונק, למרות שהיא חיה בים?","hint":"היא נושמת אוויר, מניקה את גוריה, וקופצת מעל הגלים.","choices":[{"id":"a","text":"דולפין"},{"id":"b","text":"כריש","misconception":"shark_is_mammal"},{"id":"c","text":"צפרדע"},{"id":"d","text":"נחש"}],"correct_choice_id":"a","coins":10}'::jsonb);
+
+-- Missing subjects: english, bible (cultural), geography.
+insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
+  -- English (grade 3)
+  ('dddddddd-0000-0000-0000-000000000001', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"אוצר מילים","stem":"איך אומרים \"כלב\" באנגלית?","hint":"מילה קצרה בת שלוש אותיות, מתחילה ב-D.","choices":[{"id":"a","text":"Dog"},{"id":"b","text":"Cat","misconception":"confuse_dog_cat"},{"id":"c","text":"Fish"},{"id":"d","text":"Bird"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000001', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"אוצר מילים","stem":"איך אומרים \"ספר\" באנגלית?","hint":"מתחיל ב-B, וזה מה שאת קוראת.","choices":[{"id":"a","text":"Book"},{"id":"b","text":"Table"},{"id":"c","text":"Door"},{"id":"d","text":"Apple"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  -- English (grade 5)
+  ('dddddddd-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"הבנה","stem":"מה הפירוש של המשפט \"I am happy\"?","hint":"happy = שמח.","choices":[{"id":"a","text":"אני שמח/ה"},{"id":"b","text":"אני עייף/ה"},{"id":"c","text":"אני רעב/ה"},{"id":"d","text":"אני עצוב/ה"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"דקדוק","stem":"מה צורת הרבים של המילה \"child\" באנגלית?","hint":"זו מילה יוצאת דופן — לא מוסיפים סתם s.","choices":[{"id":"a","text":"children"},{"id":"b","text":"childs","misconception":"regular_plural_overgeneralization"},{"id":"c","text":"childes"},{"id":"d","text":"child"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  -- Bible (grade 3, cultural)
+  ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"בראשית","stem":"מי בנה את התיבה לפי הסיפור?","hint":"אותו אדם אסף זוגות של כל בעלי החיים.","choices":[{"id":"a","text":"נח"},{"id":"b","text":"אברהם"},{"id":"c","text":"משה"},{"id":"d","text":"דוד"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"בראשית","stem":"בכמה ימים נברא העולם לפי הסיפור?","hint":"ביום השביעי נחו — אז כמה ימי בריאה היו?","choices":[{"id":"a","text":"שבעה"},{"id":"b","text":"שלושה"},{"id":"c","text":"עשרה"},{"id":"d","text":"אחד"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  -- Bible (grade 5)
+  ('dddddddd-0000-0000-0000-000000000004', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"דמויות","stem":"איזה מלך בנה את בית המקדש הראשון בירושלים?","hint":"בנו של דוד המלך, נודע בחוכמתו.","choices":[{"id":"a","text":"שלמה"},{"id":"b","text":"דוד","misconception":"david_built_temple"},{"id":"c","text":"שאול"},{"id":"d","text":"חזקיהו"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000004', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"דמויות","stem":"מי הייתה אחותם של משה ואהרן?","hint":"היא שמרה על משה כשהיה תינוק בתיבה על היאור.","choices":[{"id":"a","text":"מרים"},{"id":"b","text":"רות"},{"id":"c","text":"אסתר"},{"id":"d","text":"דבורה"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  -- Geography (shared enrichment)
+  ('dddddddd-0000-0000-0000-000000000005', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"ארץ ישראל","stem":"מהי בירת ישראל?","hint":"עיר עתיקה עם החומות, במרכז הארץ.","choices":[{"id":"a","text":"ירושלים"},{"id":"b","text":"תל אביב","misconception":"largest_city_is_capital"},{"id":"c","text":"חיפה"},{"id":"d","text":"אילת"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000005', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"ארץ ישראל","stem":"איזה מקום בישראל הוא הנקודה הנמוכה ביותר ביבשה בעולם?","hint":"ים מלוח מאוד שאפשר לצוף בו בקלות.","choices":[{"id":"a","text":"ים המלח"},{"id":"b","text":"הכנרת"},{"id":"c","text":"הים התיכון"},{"id":"d","text":"ים סוף"}],"correct_choice_id":"a","coins":12}'::jsonb);
 
 -- Reward store (shared family catalog)
 insert into reward_store (family_id, title, category, cost_coins) values
