@@ -4,9 +4,9 @@ import { Avatar } from '@/components/Avatar';
 import { Greeting } from '@/components/Greeting';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
-import { CoinIcon, FlameIcon, ChevronIcon, STATION_ICON } from '@/components/icons';
+import { CoinIcon, FlameIcon, ChevronIcon, CheckIcon, STATION_ICON } from '@/components/icons';
 import { mili, todayStations } from '@/lib/mockData';
-import { getChildren, getDailyLesson } from '@/lib/db';
+import { getChildren, getDailyLesson, getTodaySubjects } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import type { DailyStation } from '@/lib/types';
 
@@ -38,7 +38,10 @@ export default async function HomePage() {
     redirect('/profiles');
   }
   const child = children?.find((c) => c.id === selectedId) ?? children?.[0] ?? null;
-  const dbLesson = await getDailyLesson(child?.grade ?? 'grade_3');
+  const [dbLesson, doneSubjects] = await Promise.all([
+    getDailyLesson(child?.grade ?? 'grade_3'),
+    child ? getTodaySubjects(child.id) : Promise.resolve([]),
+  ]);
 
   const name = child?.name ?? mili.display_name;
   const coins = child?.coins ?? mili.quest_coins;
@@ -47,17 +50,26 @@ export default async function HomePage() {
   const goalMinutes = child?.goalMinutes ?? mili.daily_goal_minutes;
   const multiProfile = (children?.length ?? 0) > 1;
 
-  const stations: DailyStation[] = dbLesson
-    ? dbLesson.map((s, i) => ({
+  const base: DailyStation[] = dbLesson
+    ? dbLesson.map((s) => ({
         kind: s.kind,
         subject: s.subject as DailyStation['subject'],
         title: s.title,
         subtitle: s.subtitle,
         minutes: s.minutes,
-        status: i === 0 ? 'active' : 'upcoming',
+        status: 'upcoming',
       }))
     : todayStations;
 
+  // Mark subjects already practised today as done; first undone is "active".
+  let markedActive = false;
+  const stations: DailyStation[] = base.map((s) => {
+    if (doneSubjects.includes(s.subject)) return { ...s, status: 'done' };
+    if (!markedActive) { markedActive = true; return { ...s, status: 'active' }; }
+    return { ...s, status: 'upcoming' };
+  });
+
+  const doneCount = stations.filter((s) => s.status === 'done').length;
   const firstActive = stations.find((s) => s.status === 'active') ?? stations[0];
 
   return (
@@ -71,13 +83,13 @@ export default async function HomePage() {
             <div style={{ flex: 1 }}>
               <div className="hero-title"><Greeting name={name} /></div>
               <div className="hero-sub">
-                {stations.length} תחנות · יעד יומי ~{goalMinutes} דקות
+                {doneCount}/{stations.length} נושאים היום · יעד ~{goalMinutes} דק׳
               </div>
               {multiProfile && (
                 <Link href="/profiles" className="hero-switch">החלפת פרופיל</Link>
               )}
             </div>
-            <GoalRing done={0} total={stations.length} />
+            <GoalRing done={doneCount} total={stations.length} />
           </div>
         </section>
 
@@ -96,16 +108,19 @@ export default async function HomePage() {
           {stations.map((s, i) => {
             const Icon = STATION_ICON[s.kind];
             const active = s.status === 'active';
+            const done = s.status === 'done';
             return (
-              <Link key={`${s.kind}-${i}`} href="/exercise" className={`mission${active ? ' active' : ''}`}>
+              <Link key={`${s.subject}-${i}`} href={`/exercise?focus=${s.subject}`} className={`mission${active ? ' active' : ''}${done ? ' done' : ''}`}>
                 <span className={`mission-ico ico-${s.kind}`}><Icon /></span>
                 <span className="mission-txt">
                   <span className="mission-title">{s.title}</span>
                   <span className="mission-sub" style={{ display: 'block' }}>{s.subtitle} · {s.minutes} דקות</span>
                 </span>
-                {active
-                  ? <span className="mission-cta">התחילי</span>
-                  : <span className="mission-chevron"><ChevronIcon /></span>}
+                {done
+                  ? <span className="mission-done"><CheckIcon /></span>
+                  : active
+                    ? <span className="mission-cta">התחילי</span>
+                    : <span className="mission-chevron"><ChevronIcon /></span>}
               </Link>
             );
           })}
@@ -118,7 +133,11 @@ export default async function HomePage() {
 
         <div className="capi-row">
           <Capi mood="chill" size={70} />
-          <div className="bubble">אהלן {name}. נתחיל ב<b>{firstActive.title.split(' — ')[0]}</b>?</div>
+          <div className="bubble">
+            {doneCount >= stations.length
+              ? <>כל הכבוד {name}, סיימת את כל הנושאים להיום!</>
+              : <>אהלן {name}. נתחיל ב<b>{firstActive.title}</b>?</>}
+          </div>
         </div>
 
         <Link href="/parent" className="parent-link">אזור הורים</Link>

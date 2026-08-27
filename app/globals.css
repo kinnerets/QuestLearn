@@ -393,3 +393,28 @@ a { color: inherit; text-decoration: none; }
 .subject-bar i.low { background: var(--magenta); }
 .subject-meta { grid-area: meta; font-size: .7rem; color: var(--muted); font-weight: 600; }
 .map-back { display: block; text-align: center; color: var(--muted); font-weight: 700; font-size: .85rem; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Loader ── */
+.loader { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; }
+.loader p { color: var(--muted); font-weight: 600; }
+.loader-dots { display: flex; gap: 8px; }
+.loader-dots i { width: 11px; height: 11px; border-radius: 50%; background: var(--magenta); animation: bounce 1s infinite ease-in-out; }
+.loader-dots i:nth-child(2) { animation-delay: .15s; }
+.loader-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%, 80%, 100% { transform: scale(.5); opacity: .5; } 40% { transform: scale(1); opacity: 1; } }
+
+/* ── Completed subject on home ── */
+.mission.done { opacity: .85; }
+.mission.done .mission-title { text-decoration: line-through; text-decoration-color: var(--line); }
+.mission-done { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--mint); color: #fff; }
+.mission-done .i { width: 18px; height: 18px; }
+
+/* ── Celebration WOW ── */
+.wow {
+  font-family: var(--font-display); font-weight: 800; font-size: 2.6rem; color: var(--magenta);
+  letter-spacing: .02em; animation: pop .5s cubic-bezier(.2,1.4,.4,1) both; margin-bottom: 2px;
+}
+@keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.cele-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; margin-top: 6px; }
+.cta-ico { display: inline-grid; place-items: center; vertical-align: -3px; margin-inline-end: 6px; }
+.cta-ico .i { width: 18px; height: 18px; }

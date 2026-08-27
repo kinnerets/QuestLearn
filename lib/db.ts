@@ -291,11 +291,36 @@ export async function getDailyLesson(grade = 'grade_3', round = 1): Promise<DbSt
   }
 }
 
+/** Question ids this child has already answered correctly — never shown again. */
+async function solvedQuestionIds(
+  sb: NonNullable<ReturnType<typeof getSupabase>>,
+  childId: string,
+): Promise<Set<string>> {
+  try {
+    const { data } = await sb
+      .from('attempts_log')
+      .select('question_id')
+      .eq('user_id', childId)
+      .eq('is_correct', true);
+    return new Set((data ?? []).map((r) => r.question_id as string));
+  } catch {
+    return new Set();
+  }
+}
+
+/** Session length by grade — older kids get longer sessions. */
+function focusLength(grade: string): number {
+  return grade === 'grade_5' ? 6 : 4;
+}
+
 /**
- * A focused single-subject session for the subject map. Pulls up to 4
- * questions from that subject's topic(s), rotated by round.
+ * A focused single-subject session. Serves only questions the child has NOT
+ * already solved, length scaled by grade. Returns [] when the subject is fully
+ * solved (caller shows a "completed" screen), null on error/no content.
  */
-export async function composeFocus(grade = 'grade_3', subject = 'math', round = 1): Promise<DbStation[] | null> {
+export async function composeFocus(
+  grade = 'grade_3', subject = 'math', childId?: string,
+): Promise<DbStation[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
@@ -303,20 +328,44 @@ export async function composeFocus(grade = 'grade_3', subject = 'math', round = 
     const subjectTopics = topics.filter((t) => t.subject === subject);
     if (!subjectTopics.length) return null;
     const kind = SUBJECT_KIND[subject] ?? 'core';
+    const solved = childId ? await solvedQuestionIds(sb, childId) : new Set<string>();
 
-    // Flatten questions across the subject's topics, keep their topic alongside.
     const pool: { topic: TopicRow; q: QRow }[] = [];
     for (const topic of subjectTopics) {
-      for (const q of qByTopic.get(topic.id) ?? []) pool.push({ topic, q });
+      for (const q of qByTopic.get(topic.id) ?? []) {
+        if (!solved.has(q.id)) pool.push({ topic, q });
+      }
     }
-    if (!pool.length) return null;
+    if (!(qByTopic.size)) return null;   // subject has no content at all
+    if (!pool.length) return [];         // everything solved
 
-    const start = (round - 1) % pool.length;
-    const rotated = [...pool.slice(start), ...pool.slice(0, start)];
-    const stations = rotated.slice(0, 4).map(({ topic, q }) => buildStation(kind, subject, topic, q));
-    return stations.length ? stations : null;
+    const stations = pool.slice(0, focusLength(grade)).map(({ topic, q }) => buildStation(kind, subject, topic, q));
+    return stations;
   } catch {
     return null;
+  }
+}
+
+/** Subjects the child has practised today — for the home "completed" marks. */
+export async function getTodaySubjects(childId: string): Promise<string[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  try {
+    const since = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z';
+    const { data } = await sb
+      .from('attempts_log')
+      .select('topic_id,created_at')
+      .eq('user_id', childId)
+      .gte('created_at', since);
+    if (!data?.length) return [];
+    const topicIds = [...new Set(data.map((r) => r.topic_id as string))];
+    const { data: topics } = await sb
+      .from('curriculum_topics')
+      .select('id,subject')
+      .in('id', topicIds);
+    return [...new Set((topics ?? []).map((t) => t.subject as string))];
+  } catch {
+    return [];
   }
 }
 

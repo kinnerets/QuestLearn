@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Capi, type CapiMood } from '@/components/Capi';
 import {
-  CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON,
+  CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon,
 } from '@/components/icons';
 import {
   lesson as bundledLesson, PRAISE, GENTLE, HEART, pick,
@@ -15,14 +15,10 @@ import { mili } from '@/lib/mockData';
 
 type Phase = 'playing' | 'done';
 
-// Coin multiplier per extra quest of the day — diminishing returns (anti-gaming).
-const ROUND_MULT = [1, 0.5, 0.25];
-const roundMult = (r: number) => ROUND_MULT[Math.min(r - 1, ROUND_MULT.length - 1)];
-
 function mapDbLesson(db: DbStation[]): Station[] {
   const n = db.length;
   return db.map((s, i): Station => {
-    const position = s.kind === 'lead' ? 'אי המצפן · מנהיגות' : `תחנה ${i + 1} מתוך ${n}`;
+    const position = s.kind === 'lead' ? 'אי המצפן · מנהיגות' : `שאלה ${i + 1} מתוך ${n}`;
     if (s.kind === 'lead') {
       return { kind: 'lead', title: s.title, position, subjectLabel: s.subtitle, prompt: s.prompt, note: s.note, choices: s.choices };
     }
@@ -36,12 +32,13 @@ function mapDbLesson(db: DbStation[]): Station[] {
 }
 
 export default function ExercisePage() {
-  const [stations, setStations] = useState<Station[]>(bundledLesson);
+  const [stations, setStations] = useState<Station[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [allSolved, setAllSolved] = useState(false);
   const [index, setIndex] = useState(0);
   const [coins, setCoins] = useState(mili.quest_coins);
   const [earned, setEarned] = useState(0);
   const [finished, setFinished] = useState(false);
-  const [round, setRound] = useState(1);
 
   // per-station state
   const [tries, setTries] = useState(0);
@@ -53,24 +50,27 @@ export default function ExercisePage() {
   const [message, setMessage] = useState<string>('');
   const [heartFilled, setHeartFilled] = useState(false);
 
-  // Load the round's questions from the Composer; fall back to the bundled lesson.
-  // Refetches when the round changes ("עוד מסע") so questions stay fresh.
+  // Load this session's questions (a focused subject, or the daily journey).
   useEffect(() => {
     let alive = true;
     const focus = new URLSearchParams(window.location.search).get('focus');
-    const url = focus
-      ? `/api/lesson?round=${round}&focus=${encodeURIComponent(focus)}`
-      : `/api/lesson?round=${round}`;
+    const url = focus ? `/api/lesson?focus=${encodeURIComponent(focus)}` : '/api/lesson';
     fetch(url)
       .then((r) => r.json())
       .then((j) => {
         if (!alive) return;
-        if (Array.isArray(j?.lesson) && j.lesson.length) setStations(mapDbLesson(j.lesson));
-        if (round === 1 && typeof j?.coins === 'number') setCoins(j.coins);
+        const lesson = Array.isArray(j?.lesson) ? (j.lesson as DbStation[]) : null;
+        if (lesson && lesson.length) setStations(mapDbLesson(lesson));
+        else if (focus && lesson && lesson.length === 0) setAllSolved(true); // solved everything
+        else setStations(bundledLesson); // mock / no DB
+        if (typeof j?.coins === 'number') setCoins(j.coins);
+        setLoading(false);
       })
-      .catch(() => {});
+      .catch(() => { if (alive) { setStations(bundledLesson); setLoading(false); } });
     return () => { alive = false; };
-  }, [round]);
+  }, []);
+
+  const station = stations[index];
 
   function logAttempt(st: AcademicStation, isCorrect: boolean, hintsUsed: number, misconception?: string) {
     if (!st.questionId || !st.topicId) return; // bundled fallback has no ids
@@ -82,8 +82,6 @@ export default function ExercisePage() {
       }),
     }).catch(() => {});
   }
-
-  const station = stations[index];
 
   function resetStation() {
     setTries(0); setChosenId(null); setWrongIds([]); setRevealed(false);
@@ -106,14 +104,13 @@ export default function ExercisePage() {
   function answer(st: AcademicStation, choiceId: string) {
     if (phase === 'done') return;
     if (choiceId === st.correctId) {
-      const gained = Math.max(2, Math.round(st.coins * roundMult(round)));
       setChosenId(choiceId);
-      setCoins((c) => c + gained);
-      setEarned((e) => e + gained);
+      setCoins((c) => c + st.coins);
+      setEarned((e) => e + st.coins);
       setMood('cheer');
-      setMessage(`${pick(PRAISE)} +${gained} מטבעות.`);
+      setMessage(`${pick(PRAISE)} +${st.coins} מטבעות.`);
       setPhase('done');
-      logAttempt(st, true, tries); // tries = wrong attempts before getting it
+      logAttempt(st, true, tries);
     } else {
       const t = tries + 1;
       setTries(t);
@@ -141,22 +138,10 @@ export default function ExercisePage() {
     setPhase('done');
   }
 
-  if (finished) {
-    return (
-      <Celebration
-        earned={earned}
-        round={round}
-        nextPct={Math.round(roundMult(round + 1) * 100)}
-        onReplay={() => {
-          setRound((r) => r + 1);
-          setEarned(0);
-          setIndex(0);
-          setFinished(false);
-          resetStation();
-        }}
-      />
-    );
-  }
+  if (loading) return <Loader />;
+  if (allSolved) return <SubjectDone />;
+  if (finished) return <Celebration earned={earned} />;
+  if (!station) return <Loader />;
 
   return (
     <main className="app-shell">
@@ -192,10 +177,22 @@ export default function ExercisePage() {
         <div className="foot">
           {phase === 'done' && (
             <button className="cta" onClick={next}>
-              {index + 1 >= stations.length ? 'לסיום המסע' : 'ממשיכות'}
+              {index + 1 >= stations.length ? 'סיום' : 'ממשיכות'}
             </button>
           )}
         </div>
+      </div>
+    </main>
+  );
+}
+
+function Loader() {
+  return (
+    <main className="app-shell">
+      <div className="screen-body loader">
+        <Capi mood="chill" size={92} />
+        <div className="loader-dots"><i /><i /><i /></div>
+        <p>מכינות לך תרגול…</p>
       </div>
     </main>
   );
@@ -264,38 +261,60 @@ function LeadView({
   );
 }
 
-function Celebration({
-  earned, round, nextPct, onReplay,
-}: { earned: number; round: number; nextPct: number; onReplay: () => void }) {
-  const confetti = useMemo(
-    () => Array.from({ length: 46 }, (_, i) => ({
+function Confetti() {
+  const bits = useMemo(
+    () => Array.from({ length: 60 }, (_, i) => ({
       left: Math.random() * 100,
       delay: Math.random() * 0.6,
-      dur: 1.6 + Math.random() * 1.6,
+      dur: 1.6 + Math.random() * 1.8,
       color: ['#FF2A85', '#FACC15', '#38BDF8', '#2FBF8F', '#C49A6C'][i % 5],
     })),
     [],
   );
   return (
+    <div className="confetti">
+      {bits.map((c, i) => (
+        <i key={i} style={{ left: `${c.left}%`, background: c.color, animationDelay: `${c.delay}s`, animationDuration: `${c.dur}s` }} />
+      ))}
+    </div>
+  );
+}
+
+function Celebration({ earned }: { earned: number }) {
+  return (
     <main className="app-shell">
       <div className="screen-body cele">
-        <div className="confetti">
-          {confetti.map((c, i) => (
-            <i key={i} style={{ left: `${c.left}%`, background: c.color, animationDelay: `${c.delay}s`, animationDuration: `${c.dur}s` }} />
-          ))}
-        </div>
-        <Capi mood="cheer" size={120} />
-        <h2>{round === 1 ? 'סיימת את המסע היומי' : `כל הכבוד! סבב ${round} הושלם`}</h2>
+        <Confetti />
+        <div className="wow">וואו!</div>
+        <Capi mood="cheer" size={132} />
+        <h2>סיימת את הנושא!</h2>
         <p>שמרת על הרצף שלך <FlameIcon /></p>
         <div className="rewardrow">
           <div className="rw"><b><CoinIcon /> +{earned}</b><span>מטבעות</span></div>
           <div className="rw"><b>+45</b><span>XP לאווטאר</span></div>
           <div className="rw"><b><HeartIcon /></b><span>הפקדה ללב</span></div>
         </div>
-        <p className="cele-note">עוד מסע ייתן {nextPct}% מהמטבעות — אבל התרגול שווה בדיוק אותו דבר.</p>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button className="cta ghost" onClick={onReplay}>עוד מסע</button>
-          <Link href="/" className="cta" style={{ textAlign: 'center' }}>לבית</Link>
+        <div className="cele-actions">
+          <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
+          <Link href="/" className="cta ghost" style={{ textAlign: 'center' }}>לבית</Link>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function SubjectDone() {
+  return (
+    <main className="app-shell">
+      <div className="screen-body cele">
+        <Confetti />
+        <div className="wow">כל הכבוד!</div>
+        <Capi mood="cheer" size={132} />
+        <h2>סיימת את כל השאלות בנושא הזה</h2>
+        <p>בואי נבחר נושא חדש להיום</p>
+        <div className="cele-actions">
+          <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
+          <Link href="/" className="cta ghost" style={{ textAlign: 'center' }}>לבית</Link>
         </div>
       </div>
     </main>
