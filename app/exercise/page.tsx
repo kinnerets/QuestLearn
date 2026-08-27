@@ -70,7 +70,7 @@ export default function ExercisePage() {
         if (!alive) return;
         const lesson = Array.isArray(j?.lesson) ? (j.lesson as DbStation[]) : null;
         if (lesson && lesson.length) setStations(mapDbLesson(lesson));
-        else if (focus && lesson && lesson.length === 0) setAllSolved(true); // solved everything
+        else if (focus && lesson && lesson.length === 0) { setAllSolved(true); fireRefill(); } // solved everything → make more
         else setStations(bundledLesson); // mock / no DB
         if (typeof j?.coins === 'number') setCoins(j.coins);
         setLoading(false);
@@ -97,12 +97,23 @@ export default function ExercisePage() {
     setPhase('playing'); setMood('chill'); setMessage(''); setHeartFilled(false);
   }
 
+  // Ask the server to top up this subject's question bank (fire-and-forget).
+  function fireRefill() {
+    const focus = new URLSearchParams(window.location.search).get('focus');
+    if (!focus) return;
+    fetch('/api/refill', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ subject: focus }), keepalive: true,
+    }).catch(() => {});
+  }
+
   function next() {
     if (index + 1 >= stations.length) {
       fetch('/api/quest/complete', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ coins: earned }),
       }).catch(() => {});
+      fireRefill();
       setFinished(true);
       return;
     }

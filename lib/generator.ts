@@ -1,0 +1,180 @@
+import Anthropic from '@anthropic-ai/sdk';
+import { getSupabase } from './supabaseClient';
+import { SUBJECT_LABEL } from './constants';
+
+// Cheap + fast model for question generation.
+const MODEL = 'claude-haiku-4-5';
+
+// Buffer thresholds — generate when a topic runs low, up to a healthy bank.
+const LOW_WATER = 8;   // if a child has fewer than this many unsolved questions…
+const GENERATE = 15;   // …ask for this many new ones.
+
+const norm = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
+
+interface GenResult { inserted: number; reason?: string }
+
+const QUESTION_TOOL = {
+  name: 'emit_questions',
+  description: 'החזר את השאלות שנוצרו במבנה מובנה',
+  input_schema: {
+    type: 'object' as const,
+    additionalProperties: false,
+    required: ['questions'],
+    properties: {
+      questions: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['tag', 'stem', 'hint', 'choices', 'correct_choice_id'],
+          properties: {
+            tag: { type: 'string' },
+            stem: { type: 'string' },
+            hint: { type: 'string' },
+            correct_choice_id: { type: 'string', enum: ['a', 'b', 'c', 'd'] },
+            choices: {
+              type: 'array',
+              items: {
+                type: 'object',
+                additionalProperties: false,
+                required: ['id', 'text'],
+                properties: {
+                  id: { type: 'string', enum: ['a', 'b', 'c', 'd'] },
+                  text: { type: 'string' },
+                  misconception: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+/** Generate fresh questions for one topic, skipping anything already in the bank. */
+export async function generateForTopic(topicId: string, count = GENERATE): Promise<GenResult> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return { inserted: 0, reason: 'no-api-key' };
+  const sb = getSupabase();
+  if (!sb) return { inserted: 0, reason: 'no-db' };
+
+  const { data: topic } = await sb
+    .from('curriculum_topics')
+    .select('id,grade,subject,sub_topic,arabic_variant')
+    .eq('id', topicId).maybeSingle();
+  if (!topic) return { inserted: 0, reason: 'no-topic' };
+
+  const { data: existing } = await sb.from('questions_bank').select('payload').eq('topic_id', topicId);
+  const existingStems = new Set(
+    (existing ?? []).map((r) => norm(String((r.payload as Record<string, unknown>)?.stem ?? ''))),
+  );
+
+  const gradeLabel = topic.grade === 'grade_5' ? 'כיתה ה׳' : topic.grade === 'grade_3' ? 'כיתה ג׳' : 'העשרה';
+  const subjectLabel = SUBJECT_LABEL[topic.subject] ?? topic.subject;
+  const arabicNote = topic.subject === 'arabic'
+    ? (topic.arabic_variant === 'msa'
+        ? ' זו ערבית ספרותית (MSA). כתוב את התשובות בתעתיק עברי מנוקד.'
+        : ' זו ערבית מדוברת. כתוב את התשובות בתעתיק עברי מנוקד.')
+    : '';
+
+  const system = `אתה יוצר שאלות לימוד לילדים בעברית לאפליקציה חינוכית.
+כל שאלה: רב-ברירה עם 4 תשובות (מזהים a,b,c,d), בדיוק תשובה נכונה אחת, רמז קצר ומועיל, ולפחות מסיח שגוי אחד עם שדה misconception קצר באנגלית שמסביר את הטעות הנפוצה.
+עברית תקנית וידידותית, מותאמת ל${gradeLabel}. בלי אימוגי. גיוון בין השאלות.`;
+
+  const avoid = [...existingStems].slice(0, 40);
+  const userMsg = `נושא: ${subjectLabel} — ${topic.sub_topic} (${gradeLabel}).${arabicNote}
+צור ${count} שאלות חדשות ומגוונות ברמה מתאימה.
+אל תחזור על השאלות הקיימות (גם לא בניסוח שונה): ${avoid.length ? avoid.map((s) => `"${s}"`).join('; ') : '—'}`;
+
+  let questions: unknown;
+  try {
+    const anthropic = new Anthropic({ apiKey });
+    const resp = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 4096,
+      system,
+      tools: [QUESTION_TOOL],
+      tool_choice: { type: 'tool', name: 'emit_questions' },
+      messages: [{ role: 'user', content: userMsg }],
+    });
+    const block = resp.content.find((b) => b.type === 'tool_use');
+    questions = block && 'input' in block ? (block.input as { questions?: unknown }).questions : undefined;
+  } catch {
+    return { inserted: 0, reason: 'api-error' };
+  }
+  if (!Array.isArray(questions)) return { inserted: 0, reason: 'no-output' };
+
+  type Q = { tag?: string; stem?: string; hint?: string; correct_choice_id?: string;
+    choices?: { id?: string; text?: string; misconception?: string }[] };
+  const rows: Record<string, unknown>[] = [];
+  for (const raw of questions as Q[]) {
+    if (!raw?.stem || !Array.isArray(raw.choices) || raw.choices.length !== 4) continue;
+    const cid = raw.correct_choice_id;
+    if (!cid || !['a', 'b', 'c', 'd'].includes(cid)) continue;
+    if (!raw.choices.some((c) => c.id === cid && c.text)) continue;
+    if (raw.choices.some((c) => !c.id || !c.text)) continue;
+    const key = norm(String(raw.stem));
+    if (existingStems.has(key)) continue; // dedup vs old bank + this batch
+    existingStems.add(key);
+    rows.push({
+      topic_id: topicId, type: 'multiple_choice', difficulty: 2,
+      source: 'ai_generated', verification_status: 'auto_passed',
+      payload: {
+        tag: String(raw.tag ?? ''),
+        stem: String(raw.stem),
+        hint: String(raw.hint ?? ''),
+        choices: raw.choices.map((c) => ({
+          id: c.id, text: String(c.text),
+          ...(c.misconception ? { misconception: String(c.misconception) } : {}),
+        })),
+        correct_choice_id: cid,
+        coins: topic.grade === 'grade_5' ? 12 : 10,
+      },
+    });
+  }
+  if (!rows.length) return { inserted: 0, reason: 'all-duplicates' };
+  const { error } = await sb.from('questions_bank').insert(rows);
+  if (error) return { inserted: 0, reason: 'insert-failed' };
+  return { inserted: rows.length };
+}
+
+/**
+ * Keep a subject's bank ahead of a child's consumption: for each topic where the
+ * child has fewer than LOW_WATER unsolved questions, generate a fresh batch.
+ * Self-limiting — stops generating once the buffer is healthy.
+ */
+export async function ensureBufferForSubject(childId: string, grade: string, subject: string): Promise<number> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return 0;
+  const sb = getSupabase();
+  if (!sb) return 0;
+  try {
+    const { data: topics } = await sb
+      .from('curriculum_topics')
+      .select('id')
+      .eq('subject', subject)
+      .in('grade', [grade, 'enrichment']);
+    if (!topics?.length) return 0;
+
+    const { data: solvedRows } = await sb
+      .from('attempts_log')
+      .select('question_id')
+      .eq('user_id', childId)
+      .eq('is_correct', true);
+    const solved = new Set((solvedRows ?? []).map((r) => r.question_id as string));
+
+    let generated = 0;
+    for (const t of topics) {
+      const { data: qs } = await sb.from('questions_bank').select('id').eq('topic_id', t.id);
+      const unsolved = (qs ?? []).filter((q) => !solved.has(q.id as string)).length;
+      if (unsolved < LOW_WATER) {
+        const r = await generateForTopic(t.id, GENERATE);
+        generated += r.inserted;
+      }
+    }
+    return generated;
+  } catch {
+    return 0;
+  }
+}
