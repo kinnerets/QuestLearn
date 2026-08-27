@@ -10,10 +10,10 @@ export const dynamic = 'force-dynamic';
 
 // Shown when there's no live DB yet (mock mode) so the map isn't empty.
 const MOCK_CATALOG: SubjectCard[] = [
-  { subject: 'math', label: 'חשבון', kind: 'core', mastery: 0.6, questionCount: 3 },
-  { subject: 'arabic', label: 'ערבית', kind: 'lang', mastery: 0.4, questionCount: 3 },
-  { subject: 'future_skills', label: 'שער העתיד', kind: 'future', mastery: 0.5, questionCount: 2 },
-  { subject: 'leadership', label: 'מנהיגות', kind: 'lead', mastery: 0.7, questionCount: 1 },
+  { subject: 'math', label: 'חשבון', kind: 'core', accuracy: 0.6, answered: 5, solved: 3, total: 4 },
+  { subject: 'arabic', label: 'ערבית', kind: 'lang', accuracy: 0.4, answered: 0, solved: 0, total: 3 },
+  { subject: 'future_skills', label: 'שער העתיד', kind: 'future', accuracy: 0.5, answered: 0, solved: 0, total: 2 },
+  { subject: 'leadership', label: 'מנהיגות', kind: 'lead', accuracy: 0.7, answered: 0, solved: 0, total: 1 },
 ];
 
 function tier(m: number) { return m >= 0.7 ? 'good' : m >= 0.4 ? 'mid' : 'low'; }
@@ -46,8 +46,12 @@ export default async function MapPage() {
               <Link key={s.subject} href={`/exercise?focus=${s.subject}`} className="subject-card">
                 <span className={`subject-ico ico-${s.kind}`}><Icon /></span>
                 <span className="subject-name">{s.label}</span>
-                <span className="subject-bar"><i className={tier(s.mastery)} style={{ width: `${Math.round(s.mastery * 100)}%` }} /></span>
-                <span className="subject-meta">{Math.round(s.mastery * 100)}% שליטה</span>
+                <span className="subject-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.round(s.accuracy * 100)}%` }} /></span>
+                <span className="subject-meta">
+                  {s.answered > 0
+                    ? `${Math.round(s.accuracy * 100)}% הצלחה · פתרת ${s.solved}/${s.total}`
+                    : `${s.total} שאלות · טרם התחלת`}
+                </span>
                 <span className="subject-go"><ChevronIcon /></span>
               </Link>
             );

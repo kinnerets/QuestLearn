@@ -373,8 +373,10 @@ export interface SubjectCard {
   subject: string;
   label: string;
   kind: StationKind;
-  mastery: number;      // 0..1, averaged over the subject's topics
-  questionCount: number;
+  accuracy: number;   // 0..1, correct answers / total answers (review success)
+  answered: number;   // total answers given in this subject
+  solved: number;     // distinct questions answered correctly
+  total: number;      // questions available in the bank
 }
 
 /** The subject map: every subject with content, plus this child's mastery. */
@@ -394,23 +396,35 @@ export async function getSubjectCatalog(grade: string, childId: string): Promise
     }
     if (!bySubject.size) return null;
 
-    const { data: mastery } = await sb
-      .from('user_mastery')
-      .select('topic_id,mastery_score')
+    // Accuracy per subject from the attempts log (correct vs total answers).
+    const topicToSubject = new Map(topics.map((t) => [t.id, t.subject]));
+    const { data: attempts } = await sb
+      .from('attempts_log')
+      .select('topic_id,question_id,is_correct')
       .eq('user_id', childId);
-    const mByTopic = new Map((mastery ?? []).map((m) => [m.topic_id as string, Number(m.mastery_score)]));
+    const tally = new Map<string, { answered: number; correct: number; solved: Set<string> }>();
+    for (const a of attempts ?? []) {
+      const subject = topicToSubject.get(a.topic_id as string);
+      if (!subject) continue;
+      const e = tally.get(subject) ?? { answered: 0, correct: 0, solved: new Set<string>() };
+      e.answered += 1;
+      if (a.is_correct) { e.correct += 1; e.solved.add(a.question_id as string); }
+      tally.set(subject, e);
+    }
 
     const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography', 'future_skills', 'leadership'];
     const cards: SubjectCard[] = [];
     for (const subject of order) {
       const e = bySubject.get(subject);
       if (!e) continue;
-      const scores = e.topicIds.map((id) => mByTopic.get(id)).filter((x): x is number => typeof x === 'number');
-      const m = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+      const t = tally.get(subject);
+      const answered = t?.answered ?? 0;
+      const correct = t?.correct ?? 0;
       cards.push({
         subject, label: SUBJECT_LABEL[subject] ?? subject,
         kind: SUBJECT_KIND[subject] ?? 'core',
-        mastery: Number(m.toFixed(2)), questionCount: e.count,
+        accuracy: answered ? Number((correct / answered).toFixed(2)) : 0,
+        answered, solved: t?.solved.size ?? 0, total: e.count,
       });
     }
     return cards;

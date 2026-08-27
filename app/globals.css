@@ -418,3 +418,11 @@ a { color: inherit; text-decoration: none; }
 .cele-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; margin-top: 6px; }
 .cta-ico { display: inline-grid; place-items: center; vertical-align: -3px; margin-inline-end: 6px; }
 .cta-ico .i { width: 18px; height: 18px; }
+
+/* ── Celebration score ring ── */
+.score-ring { position: relative; display: grid; place-items: center; margin: 6px 0; }
+.score-ring svg { display: block; }
+.score-ring span {
+  position: absolute; font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: var(--ink);
+}
+.cele-score { color: var(--muted); font-weight: 700; font-size: .92rem; margin: 0 0 12px; }

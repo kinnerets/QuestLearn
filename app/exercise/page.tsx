@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Capi, type CapiMood } from '@/components/Capi';
+import { BottomNav } from '@/components/BottomNav';
 import {
   CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon,
 } from '@/components/icons';
@@ -39,6 +40,8 @@ export default function ExercisePage() {
   const [coins, setCoins] = useState(mili.quest_coins);
   const [earned, setEarned] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [correct, setCorrect] = useState(0);
+  const [answered, setAnswered] = useState(0);
 
   // per-station state
   const [tries, setTries] = useState(0);
@@ -107,6 +110,8 @@ export default function ExercisePage() {
       setChosenId(choiceId);
       setCoins((c) => c + st.coins);
       setEarned((e) => e + st.coins);
+      setCorrect((n) => n + 1);
+      setAnswered((n) => n + 1);
       setMood('cheer');
       setMessage(`${pick(PRAISE)} +${st.coins} מטבעות.`);
       setPhase('done');
@@ -117,6 +122,7 @@ export default function ExercisePage() {
       setWrongIds((w) => [...w, choiceId]);
       if (t >= 2) {
         setRevealed(true);
+        setAnswered((n) => n + 1);
         setMood('chill');
         setMessage(pick(GENTLE));
         setPhase('done');
@@ -140,7 +146,7 @@ export default function ExercisePage() {
 
   if (loading) return <Loader />;
   if (allSolved) return <SubjectDone />;
-  if (finished) return <Celebration earned={earned} />;
+  if (finished) return <Celebration earned={earned} correct={correct} answered={answered} />;
   if (!station) return <Loader />;
 
   return (
@@ -280,25 +286,47 @@ function Confetti() {
   );
 }
 
-function Celebration({ earned }: { earned: number }) {
+function ScoreRing({ pct }: { pct: number }) {
+  const c = 2 * Math.PI * 32;
+  const offset = c * (1 - pct / 100);
+  const tier = pct >= 70 ? '#2FBF8F' : pct >= 40 ? '#FACC15' : '#FF2A85';
+  return (
+    <div className="score-ring">
+      <svg width={92} height={92} viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="32" fill="none" stroke="var(--line)" strokeWidth="8" />
+        <circle cx="40" cy="40" r="32" fill="none" stroke={tier} strokeWidth="8" strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={offset} transform="rotate(-90 40 40)" />
+      </svg>
+      <span>{pct}%</span>
+    </div>
+  );
+}
+
+function Celebration({ earned, correct, answered }: { earned: number; correct: number; answered: number }) {
+  const pct = answered ? Math.round((correct / answered) * 100) : 100;
   return (
     <main className="app-shell">
       <div className="screen-body cele">
         <Confetti />
         <div className="wow">וואו!</div>
-        <Capi mood="cheer" size={132} />
+        <Capi mood="cheer" size={120} />
         <h2>סיימת את הנושא!</h2>
-        <p>שמרת על הרצף שלך <FlameIcon /></p>
+        {answered > 0 && (
+          <>
+            <ScoreRing pct={pct} />
+            <p className="cele-score">ענית נכון על {correct} מתוך {answered}</p>
+          </>
+        )}
         <div className="rewardrow">
           <div className="rw"><b><CoinIcon /> +{earned}</b><span>מטבעות</span></div>
-          <div className="rw"><b>+45</b><span>XP לאווטאר</span></div>
+          <div className="rw"><b><FlameIcon /></b><span>שמרת על הרצף</span></div>
           <div className="rw"><b><HeartIcon /></b><span>הפקדה ללב</span></div>
         </div>
         <div className="cele-actions">
           <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
-          <Link href="/" className="cta ghost" style={{ textAlign: 'center' }}>לבית</Link>
         </div>
       </div>
+      <BottomNav active="/map" />
     </main>
   );
 }
@@ -309,14 +337,14 @@ function SubjectDone() {
       <div className="screen-body cele">
         <Confetti />
         <div className="wow">כל הכבוד!</div>
-        <Capi mood="cheer" size={132} />
+        <Capi mood="cheer" size={120} />
         <h2>סיימת את כל השאלות בנושא הזה</h2>
         <p>בואי נבחר נושא חדש להיום</p>
         <div className="cele-actions">
           <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
-          <Link href="/" className="cta ghost" style={{ textAlign: 'center' }}>לבית</Link>
         </div>
       </div>
+      <BottomNav active="/map" />
     </main>
   );
 }
