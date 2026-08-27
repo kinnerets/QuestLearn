@@ -43,7 +43,7 @@ export default async function MapPage() {
           {subjects.map((s) => {
             const Icon = STATION_ICON[s.kind];
             return (
-              <Link key={s.subject} href={`/exercise?focus=${s.subject}`} className="subject-card">
+              <Link key={s.subject} href={`/subject/${s.subject}`} className="subject-card">
                 <span className={`subject-ico ico-${s.kind}`}><Icon /></span>
                 <span className="subject-name">{s.label}</span>
                 <span className="subject-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.round(s.accuracy * 100)}%` }} /></span>

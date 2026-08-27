@@ -56,8 +56,14 @@ export default function ExercisePage() {
   // Load this session's questions (a focused subject, or the daily journey).
   useEffect(() => {
     let alive = true;
-    const focus = new URLSearchParams(window.location.search).get('focus');
-    const url = focus ? `/api/lesson?focus=${encodeURIComponent(focus)}` : '/api/lesson';
+    const params = new URLSearchParams(window.location.search);
+    const focus = params.get('focus');
+    const topic = params.get('topic');
+    let url = '/api/lesson';
+    if (focus) {
+      url += `?focus=${encodeURIComponent(focus)}`;
+      if (topic) url += `&topic=${encodeURIComponent(topic)}`;
+    }
     fetch(url)
       .then((r) => r.json())
       .then((j) => {

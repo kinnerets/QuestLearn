@@ -319,13 +319,13 @@ function focusLength(grade: string): number {
  * solved (caller shows a "completed" screen), null on error/no content.
  */
 export async function composeFocus(
-  grade = 'grade_3', subject = 'math', childId?: string,
+  grade = 'grade_3', subject = 'math', childId?: string, topicId?: string,
 ): Promise<DbStation[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
     const { topics, qByTopic } = await fetchBank(sb, grade);
-    const subjectTopics = topics.filter((t) => t.subject === subject);
+    const subjectTopics = topics.filter((t) => t.subject === subject && (!topicId || t.id === topicId));
     if (!subjectTopics.length) return null;
     const kind = SUBJECT_KIND[subject] ?? 'core';
     const solved = childId ? await solvedQuestionIds(sb, childId) : new Set<string>();
@@ -341,6 +341,55 @@ export async function composeFocus(
 
     const stations = pool.slice(0, focusLength(grade)).map(({ topic, q }) => buildStation(kind, subject, topic, q));
     return stations;
+  } catch {
+    return null;
+  }
+}
+
+export interface TopicCard {
+  id: string;
+  subTopic: string;
+  accuracy: number;
+  answered: number;
+  solved: number;
+  total: number;
+}
+
+/** Sub-topics within a subject, with per-topic progress — for the drill-down. */
+export async function getSubjectTopics(
+  grade: string, subject: string, childId: string,
+): Promise<{ label: string; topics: TopicCard[] } | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { topics, qByTopic } = await fetchBank(sb, grade);
+    const st = topics.filter((t) => t.subject === subject && (qByTopic.get(t.id)?.length ?? 0) > 0);
+    if (!st.length) return null;
+
+    const { data: attempts } = await sb
+      .from('attempts_log')
+      .select('topic_id,question_id,is_correct')
+      .eq('user_id', childId);
+    const tally = new Map<string, { answered: number; correct: number; solved: Set<string> }>();
+    for (const a of attempts ?? []) {
+      const e = tally.get(a.topic_id as string) ?? { answered: 0, correct: 0, solved: new Set<string>() };
+      e.answered += 1;
+      if (a.is_correct) { e.correct += 1; e.solved.add(a.question_id as string); }
+      tally.set(a.topic_id as string, e);
+    }
+
+    const cards: TopicCard[] = st.map((t) => {
+      const total = qByTopic.get(t.id)?.length ?? 0;
+      const e = tally.get(t.id);
+      const answered = e?.answered ?? 0;
+      const correct = e?.correct ?? 0;
+      return {
+        id: t.id, subTopic: t.sub_topic,
+        accuracy: answered ? Number((correct / answered).toFixed(2)) : 0,
+        answered, solved: e?.solved.size ?? 0, total,
+      };
+    });
+    return { label: SUBJECT_LABEL[subject] ?? subject, topics: cards };
   } catch {
     return null;
   }
