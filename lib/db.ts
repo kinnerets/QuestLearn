@@ -119,6 +119,75 @@ export async function getChildProfile(): Promise<ChildProfile | null> {
   return all?.[0] ?? null;
 }
 
+export interface SubjectMastery {
+  subject: string;
+  subTopic: string;
+  mastery: number;   // 0..1
+  attempts: number;
+}
+
+export interface ChildReport {
+  activeDays: number;   // distinct days with activity, last 7 days
+  answered: number;     // questions answered, last 7 days
+  correct: number;
+  accuracy: number;     // 0..1
+  subjects: SubjectMastery[];
+  misconceptions: string[];
+}
+
+/** Weekly parent report for one child, aggregated from attempts + mastery. */
+export async function getChildReport(childId: string): Promise<ChildReport | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const since = new Date(Date.now() - 7 * 86_400_000).toISOString();
+    const { data: attempts } = await sb
+      .from('attempts_log')
+      .select('is_correct,created_at')
+      .eq('user_id', childId)
+      .gte('created_at', since);
+    const answered = attempts?.length ?? 0;
+    const correct = attempts?.filter((a) => a.is_correct).length ?? 0;
+    const activeDays = new Set((attempts ?? []).map((a) => String(a.created_at).slice(0, 10))).size;
+
+    const { data: mastery } = await sb
+      .from('user_mastery')
+      .select('topic_id,mastery_score,attempts_count,misconception_tags')
+      .eq('user_id', childId);
+
+    let subjects: SubjectMastery[] = [];
+    const misc = new Set<string>();
+    if (mastery?.length) {
+      const ids = mastery.map((m) => m.topic_id);
+      const { data: topics } = await sb
+        .from('curriculum_topics')
+        .select('id,subject,sub_topic')
+        .in('id', ids);
+      const byId = new Map((topics ?? []).map((t) => [t.id, t]));
+      subjects = mastery
+        .map((m) => {
+          const t = byId.get(m.topic_id);
+          (m.misconception_tags ?? []).forEach((x: string) => misc.add(x));
+          return {
+            subject: (t?.subject as string) ?? '',
+            subTopic: (t?.sub_topic as string) ?? '',
+            mastery: Number(m.mastery_score),
+            attempts: Number(m.attempts_count),
+          };
+        })
+        .sort((a, b) => a.mastery - b.mastery);
+    }
+
+    return {
+      activeDays, answered, correct,
+      accuracy: answered ? correct / answered : 0,
+      subjects, misconceptions: [...misc],
+    };
+  } catch {
+    return null;
+  }
+}
+
 /** Persist a new avatar for a child. Best-effort. */
 export async function saveAvatar(childId: string, config: AvatarConfig): Promise<boolean> {
   const sb = getSupabase();

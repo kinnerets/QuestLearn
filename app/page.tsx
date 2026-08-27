@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
+import { Greeting } from '@/components/Greeting';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import { CoinIcon, FlameIcon, ChevronIcon, STATION_ICON } from '@/components/icons';
@@ -68,7 +69,7 @@ export default async function HomePage() {
               <Avatar config={avatar} crop size={52} />
             </Link>
             <div style={{ flex: 1 }}>
-              <div className="hero-title">בוקר טוב, {name}</div>
+              <div className="hero-title"><Greeting name={name} /></div>
               <div className="hero-sub">
                 {stations.length} תחנות · יעד יומי ~{goalMinutes} דקות
               </div>
