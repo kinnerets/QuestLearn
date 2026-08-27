@@ -9,7 +9,12 @@ delete from curriculum_topics where id in (
   'aaaaaaaa-0000-0000-0000-000000000003',
   'aaaaaaaa-0000-0000-0000-000000000004',
   'bbbbbbbb-0000-0000-0000-000000000001',
-  'bbbbbbbb-0000-0000-0000-000000000002'
+  'bbbbbbbb-0000-0000-0000-000000000002',
+  'cccccccc-0000-0000-0000-000000000001',
+  'cccccccc-0000-0000-0000-000000000002',
+  'cccccccc-0000-0000-0000-000000000003',
+  'cccccccc-0000-0000-0000-000000000004',
+  'cccccccc-0000-0000-0000-000000000005'
 );
 delete from reward_store where family_id = '11111111-1111-1111-1111-111111111111';
 
@@ -35,7 +40,12 @@ insert into curriculum_topics (id, grade, subject, sub_topic, order_index, arabi
   ('bbbbbbbb-0000-0000-0000-000000000001', 'grade_5', 'math', 'שברים', 1, null),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'grade_5', 'arabic', 'קריאה ספרותית', 1, 'msa'),
   ('aaaaaaaa-0000-0000-0000-000000000003', 'enrichment', 'future_skills', 'יזמות: המצאות', 1, null),
-  ('aaaaaaaa-0000-0000-0000-000000000004', 'enrichment', 'leadership', 'בנק הלב', 1, null);
+  ('aaaaaaaa-0000-0000-0000-000000000004', 'enrichment', 'leadership', 'בנק הלב', 1, null),
+  ('cccccccc-0000-0000-0000-000000000001', 'grade_3', 'geometry', 'צורות', 1, null),
+  ('cccccccc-0000-0000-0000-000000000002', 'grade_3', 'hebrew', 'אוצר מילים', 1, null),
+  ('cccccccc-0000-0000-0000-000000000003', 'grade_5', 'geometry', 'שטח והיקף', 1, null),
+  ('cccccccc-0000-0000-0000-000000000004', 'grade_5', 'hebrew', 'שורשים וכתיב', 1, null),
+  ('cccccccc-0000-0000-0000-000000000005', 'enrichment', 'science', 'עולם החי', 1, null);
 
 -- Questions
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
@@ -80,6 +90,34 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"אוצר מילים","stem":"איך אומרים \"מים\" בערבית ספרותית?","hint":"מילה קצרה שמסתיימת בהברה פתוחה — \"...אא\".","choices":[{"id":"a","text":"מַאא׳"},{"id":"b","text":"שַׁמְס","misconception":"confuse_water_sun"},{"id":"c","text":"נַאר"},{"id":"d","text":"הַוַאא׳"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'multiple_choice', 3, 'curated', 'auto_passed',
    '{"tag":"אוצר מילים","stem":"מה הפירוש של המילה \"מַדְרַסֶה\"?","hint":"אותו שורש כמו \"דַרְס\" (שיעור). לאן הולכים ללמוד?","choices":[{"id":"a","text":"בית ספר"},{"id":"b","text":"בית חולים"},{"id":"c","text":"ספרייה"},{"id":"d","text":"גן חיות"}],"correct_choice_id":"a","coins":12}'::jsonb);
+
+-- New subjects for the subject map (geometry, hebrew, science).
+insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
+  -- Geometry (grade 3)
+  ('cccccccc-0000-0000-0000-000000000001', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"צורות","stem":"לכמה צלעות יש משולש?","hint":"הרמז נמצא בשם עצמו — \"מְשׁוּלָּשׁ\", כמו שלוש.","choices":[{"id":"a","text":"3"},{"id":"b","text":"4"},{"id":"c","text":"5"},{"id":"d","text":"2"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"צורות","stem":"לאיזו צורה יש 4 צלעות באותו אורך בדיוק?","hint":"כל הצלעות שוות וכל הזוויות ישרות.","choices":[{"id":"a","text":"ריבוע"},{"id":"b","text":"מלבן","misconception":"rectangle_is_square"},{"id":"c","text":"משולש"},{"id":"d","text":"עיגול"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  -- Hebrew vocabulary (grade 3)
+  ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"מילים נרדפות","stem":"איזו מילה דומה במשמעות ל\"שָׂמֵחַ\"?","hint":"מחפשים מילה שאומרת בערך אותו דבר — הרגשה טובה.","choices":[{"id":"a","text":"עַלִּיז"},{"id":"b","text":"עָצוּב"},{"id":"c","text":"כּוֹעֵס"},{"id":"d","text":"עָיֵף"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"הפכים","stem":"מה ההפך מהמילה \"גָּדוֹל\"?","hint":"מה אומרים על משהו זעיר?","choices":[{"id":"a","text":"קָטָן"},{"id":"b","text":"רָחָב"},{"id":"c","text":"גָּבוֹהַּ"},{"id":"d","text":"כָּבֵד"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  -- Geometry (grade 5)
+  ('cccccccc-0000-0000-0000-000000000003', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"שטח","stem":"מה השטח של ריבוע שאורך צלעו 4 ס\"מ?","hint":"שטח ריבוע = צלע כפול צלע.","choices":[{"id":"a","text":"16"},{"id":"b","text":"8","misconception":"perimeter_instead_of_area"},{"id":"c","text":"12"},{"id":"d","text":"4"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000003', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"היקף","stem":"מה ההיקף של ריבוע שאורך צלעו 5 ס\"מ?","hint":"היקף = סכום כל ארבע הצלעות.","choices":[{"id":"a","text":"20"},{"id":"b","text":"25","misconception":"area_instead_of_perimeter"},{"id":"c","text":"10"},{"id":"d","text":"15"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  -- Hebrew roots/spelling (grade 5)
+  ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"שורשים","stem":"מה השורש של המילה \"מִכְתָּב\"?","hint":"מורידים את אותיות השירות ומחפשים את שלוש אותיות הבסיס.","choices":[{"id":"a","text":"כ.ת.ב"},{"id":"b","text":"מ.כ.ת"},{"id":"c","text":"כ.ב.ת"},{"id":"d","text":"ת.ב.כ"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"כתיב","stem":"איך כותבים נכון?","hint":"מהמילה \"רואים\" — לְהִתְרָאוֹת.","choices":[{"id":"a","text":"להתראות"},{"id":"b","text":"להטראות"},{"id":"c","text":"לחתראות"},{"id":"d","text":"להתראת"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  -- Science (shared enrichment)
+  ('cccccccc-0000-0000-0000-000000000005', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"צמחים","stem":"מה נותן לצמח אנרגיה כדי לגדול?","hint":"בלי זה בבוקר לא היינו רואים כלום — וגם הצמח לא היה גדל.","choices":[{"id":"a","text":"אור השמש"},{"id":"b","text":"חושך"},{"id":"c","text":"רעש"},{"id":"d","text":"פלסטיק"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000005', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"בעלי חיים","stem":"איזו חיה היא יונק, למרות שהיא חיה בים?","hint":"היא נושמת אוויר, מניקה את גוריה, וקופצת מעל הגלים.","choices":[{"id":"a","text":"דולפין"},{"id":"b","text":"כריש","misconception":"shark_is_mammal"},{"id":"c","text":"צפרדע"},{"id":"d","text":"נחש"}],"correct_choice_id":"a","coins":10}'::jsonb);
 
 -- Reward store (shared family catalog)
 insert into reward_store (family_id, title, category, cost_coins) values

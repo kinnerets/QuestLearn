@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { MapIcon, ChartIcon, GiftIcon } from './icons';
+import { MapIcon, GridIcon, GiftIcon } from './icons';
 
 const TABS = [
   { href: '/', label: 'מסע', Icon: MapIcon },
-  { href: '/status', label: 'המצב שלי', Icon: ChartIcon },
+  { href: '/map', label: 'נושאים', Icon: GridIcon },
   { href: '/shop', label: 'חנות', Icon: GiftIcon },
 ] as const;
 

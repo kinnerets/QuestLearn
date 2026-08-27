@@ -1,5 +1,6 @@
 import { getSupabase } from './supabaseClient';
 import { sm2, qualityFrom, updateMastery } from './composer';
+import { SUBJECT_LABEL, SUBJECT_KIND } from './constants';
 import type { AvatarConfig, StationKind, Subject } from './types';
 
 export interface AttemptInput {
@@ -23,6 +24,7 @@ export interface ChildProfile {
 
 export interface DbAcademicStation {
   kind: 'core' | 'lang' | 'future';
+  subject: string;
   topicId: string;
   questionId: string;
   title: string;
@@ -38,6 +40,7 @@ export interface DbAcademicStation {
 
 export interface DbLeadStation {
   kind: 'lead';
+  subject: string;
   topicId: string;
   title: string;
   subtitle: string;
@@ -49,19 +52,70 @@ export interface DbLeadStation {
 
 export type DbStation = DbAcademicStation | DbLeadStation;
 
-const KIND_BY_SUBJECT: Partial<Record<Subject, StationKind>> = {
-  math: 'core', geometry: 'core', hebrew: 'core', bible: 'core', science: 'core',
-  arabic: 'lang', english: 'lang',
-  future_skills: 'future', geography: 'future',
-  leadership: 'lead',
-};
+// The daily journey has 4 slots. Each slot rotates day-to-day through its
+// candidate subjects (whichever have content), so the mix changes and breadth
+// is covered across the week. Leadership is always the 4th micro-station.
+const DAILY_SLOTS: { kind: StationKind; subjects: Subject[] }[] = [
+  { kind: 'core', subjects: ['math', 'geometry', 'hebrew', 'bible'] },
+  { kind: 'lang', subjects: ['arabic', 'english'] },
+  { kind: 'future', subjects: ['future_skills', 'science', 'geography'] },
+  { kind: 'lead', subjects: ['leadership'] },
+];
 
-const SUBTITLE: Record<StationKind, string> = {
-  core: 'חובה', lang: 'שפות', future: 'העשרה', lead: 'מנהיגות',
-};
+interface TopicRow { id: string; subject: string; sub_topic: string; grade: string }
+interface QRow { id: string; topic_id: string; type: string; difficulty: number; payload: Record<string, unknown> }
 
-// The daily path is these subjects in order (until the Composer exists).
-const DAILY_SUBJECTS: Subject[] = ['math', 'arabic', 'future_skills', 'leadership'];
+/** Days since the year start — stable within a day, changes daily. */
+function daySeed(): number {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  return Math.floor((now.getTime() - start.getTime()) / 86_400_000);
+}
+
+/** Fetch every topic + question available to a grade (grade-specific + shared). */
+async function fetchBank(
+  sb: NonNullable<ReturnType<typeof getSupabase>>,
+  grade: string,
+): Promise<{ topics: TopicRow[]; qByTopic: Map<string, QRow[]> }> {
+  const { data: topics } = await sb
+    .from('curriculum_topics')
+    .select('id,subject,sub_topic,grade')
+    .in('grade', [grade, 'enrichment']);
+  const list = (topics ?? []) as TopicRow[];
+  const qByTopic = new Map<string, QRow[]>();
+  if (list.length) {
+    const { data: qs } = await sb
+      .from('questions_bank')
+      .select('id,topic_id,type,difficulty,payload')
+      .in('topic_id', list.map((t) => t.id))
+      .order('difficulty', { ascending: true })
+      .order('id', { ascending: true });
+    for (const q of (qs ?? []) as QRow[]) {
+      const arr = qByTopic.get(q.topic_id) ?? [];
+      arr.push(q);
+      qByTopic.set(q.topic_id, arr);
+    }
+  }
+  return { topics: list, qByTopic };
+}
+
+function buildStation(kind: StationKind, subject: string, topic: TopicRow, q: QRow): DbStation {
+  const p = q.payload;
+  const subtitle = SUBJECT_LABEL[subject] ?? '';
+  if (kind === 'lead') {
+    return {
+      kind: 'lead', subject, topicId: topic.id, title: topic.sub_topic, subtitle, minutes: 1,
+      prompt: String(p.prompt), note: String(p.note),
+      choices: p.choices as DbLeadStation['choices'],
+    };
+  }
+  return {
+    kind, subject, topicId: topic.id, questionId: q.id, title: topic.sub_topic, subtitle, minutes: 2,
+    tag: String(p.tag ?? ''), stem: String(p.stem), hint: String(p.hint ?? ''),
+    choices: p.choices as DbAcademicStation['choices'],
+    correctId: String(p.correct_choice_id), coins: Number(p.coins ?? 10),
+  };
+}
 
 const CHILD_COLUMNS =
   'id,display_name,grade_level,quest_coins,current_streak,avatar_config,daily_goal_minutes';
@@ -205,54 +259,112 @@ export async function saveAvatar(childId: string, config: AvatarConfig): Promise
 }
 
 /**
- * Compose a day's path: one station per subject, in order. `round` (1-based)
- * rotates through each topic's question bank so "עוד מסע" serves fresh
- * questions instead of repeating. Questions are ordered by difficulty, so
- * earlier rounds are gentler.
+ * Compose the day's journey: 4 slots (core / lang / enrichment / leadership).
+ * Each slot rotates day-to-day through its candidate subjects that have
+ * content, so the subject mix changes daily and breadth is covered across the
+ * week. `round` (1-based) shifts both the subject and the question within a
+ * topic, so "עוד מסע" serves fresh, gently harder material.
  */
 export async function getDailyLesson(grade = 'grade_3', round = 1): Promise<DbStation[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    // Core/lang subjects are grade-specific; enrichment (future_skills, leadership) is shared.
-    const { data: topics, error } = await sb
-      .from('curriculum_topics')
-      .select('id,subject,sub_topic,grade')
-      .in('subject', DAILY_SUBJECTS)
-      .in('grade', [grade, 'enrichment']);
-    if (error || !topics?.length) return null;
+    const { topics, qByTopic } = await fetchBank(sb, grade);
+    if (!topics.length) return null;
+    const seed = daySeed();
 
     const stations: DbStation[] = [];
-    for (const subject of DAILY_SUBJECTS) {
-      const topic = topics.find((t) => t.subject === subject);
-      if (!topic) continue;
-      const { data: qs } = await sb
-        .from('questions_bank')
-        .select('id,type,difficulty,payload')
-        .eq('topic_id', topic.id)
-        .order('difficulty', { ascending: true })
-        .order('id', { ascending: true });
-      if (!qs?.length) continue;
-      const q = qs[(round - 1) % qs.length]; // rotate per round
-      const kind = KIND_BY_SUBJECT[subject as Subject] ?? 'core';
-      const p = q.payload as Record<string, unknown>;
-      if (kind === 'lead') {
-        stations.push({
-          kind: 'lead', topicId: topic.id, title: topic.sub_topic, subtitle: SUBTITLE.lead, minutes: 1,
-          prompt: String(p.prompt), note: String(p.note),
-          choices: p.choices as DbLeadStation['choices'],
-        });
-      } else {
-        stations.push({
-          kind, topicId: topic.id, questionId: q.id, title: topic.sub_topic, subtitle: SUBTITLE[kind], minutes: 2,
-          tag: String(p.tag ?? ''), stem: String(p.stem), hint: String(p.hint ?? ''),
-          choices: p.choices as DbAcademicStation['choices'],
-          correctId: String(p.correct_choice_id),
-          coins: Number(p.coins ?? 10),
-        });
-      }
-    }
+    DAILY_SLOTS.forEach((slot, slotIdx) => {
+      // Candidate subjects in this slot that actually have a playable topic.
+      const candidates = slot.subjects
+        .map((subject) => topics.find((t) => t.subject === subject && (qByTopic.get(t.id)?.length ?? 0) > 0))
+        .filter((t): t is TopicRow => !!t);
+      if (!candidates.length) return;
+      const topic = candidates[(seed + slotIdx + round - 1) % candidates.length];
+      const qs = qByTopic.get(topic.id)!;
+      const q = qs[(round - 1) % qs.length];
+      stations.push(buildStation(slot.kind, topic.subject, topic, q));
+    });
     return stations.length ? stations : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * A focused single-subject session for the subject map. Pulls up to 4
+ * questions from that subject's topic(s), rotated by round.
+ */
+export async function composeFocus(grade = 'grade_3', subject = 'math', round = 1): Promise<DbStation[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { topics, qByTopic } = await fetchBank(sb, grade);
+    const subjectTopics = topics.filter((t) => t.subject === subject);
+    if (!subjectTopics.length) return null;
+    const kind = SUBJECT_KIND[subject] ?? 'core';
+
+    // Flatten questions across the subject's topics, keep their topic alongside.
+    const pool: { topic: TopicRow; q: QRow }[] = [];
+    for (const topic of subjectTopics) {
+      for (const q of qByTopic.get(topic.id) ?? []) pool.push({ topic, q });
+    }
+    if (!pool.length) return null;
+
+    const start = (round - 1) % pool.length;
+    const rotated = [...pool.slice(start), ...pool.slice(0, start)];
+    const stations = rotated.slice(0, 4).map(({ topic, q }) => buildStation(kind, subject, topic, q));
+    return stations.length ? stations : null;
+  } catch {
+    return null;
+  }
+}
+
+export interface SubjectCard {
+  subject: string;
+  label: string;
+  kind: StationKind;
+  mastery: number;      // 0..1, averaged over the subject's topics
+  questionCount: number;
+}
+
+/** The subject map: every subject with content, plus this child's mastery. */
+export async function getSubjectCatalog(grade: string, childId: string): Promise<SubjectCard[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { topics, qByTopic } = await fetchBank(sb, grade);
+    const bySubject = new Map<string, { topicIds: string[]; count: number }>();
+    for (const t of topics) {
+      const n = qByTopic.get(t.id)?.length ?? 0;
+      if (!n) continue;
+      const e = bySubject.get(t.subject) ?? { topicIds: [], count: 0 };
+      e.topicIds.push(t.id);
+      e.count += n;
+      bySubject.set(t.subject, e);
+    }
+    if (!bySubject.size) return null;
+
+    const { data: mastery } = await sb
+      .from('user_mastery')
+      .select('topic_id,mastery_score')
+      .eq('user_id', childId);
+    const mByTopic = new Map((mastery ?? []).map((m) => [m.topic_id as string, Number(m.mastery_score)]));
+
+    const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography', 'future_skills', 'leadership'];
+    const cards: SubjectCard[] = [];
+    for (const subject of order) {
+      const e = bySubject.get(subject);
+      if (!e) continue;
+      const scores = e.topicIds.map((id) => mByTopic.get(id)).filter((x): x is number => typeof x === 'number');
+      const m = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+      cards.push({
+        subject, label: SUBJECT_LABEL[subject] ?? subject,
+        kind: SUBJECT_KIND[subject] ?? 'core',
+        mastery: Number(m.toFixed(2)), questionCount: e.count,
+      });
+    }
+    return cards;
   } catch {
     return null;
   }

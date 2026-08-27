@@ -24,10 +24,10 @@ function mapDbLesson(db: DbStation[]): Station[] {
   return db.map((s, i): Station => {
     const position = s.kind === 'lead' ? 'אי המצפן · מנהיגות' : `תחנה ${i + 1} מתוך ${n}`;
     if (s.kind === 'lead') {
-      return { kind: 'lead', title: s.title, position, prompt: s.prompt, note: s.note, choices: s.choices };
+      return { kind: 'lead', title: s.title, position, subjectLabel: s.subtitle, prompt: s.prompt, note: s.note, choices: s.choices };
     }
     return {
-      kind: s.kind, title: s.title, position, tag: s.tag, stem: s.stem,
+      kind: s.kind, title: s.title, position, subjectLabel: s.subtitle, tag: s.tag, stem: s.stem,
       choices: s.choices.map((c) => ({ id: c.id, text: c.text, misconception: c.misconception })),
       correctId: s.correctId, hint: s.hint, coins: s.coins,
       questionId: s.questionId, topicId: s.topicId,
@@ -57,7 +57,11 @@ export default function ExercisePage() {
   // Refetches when the round changes ("עוד מסע") so questions stay fresh.
   useEffect(() => {
     let alive = true;
-    fetch(`/api/lesson?round=${round}`)
+    const focus = new URLSearchParams(window.location.search).get('focus');
+    const url = focus
+      ? `/api/lesson?round=${round}&focus=${encodeURIComponent(focus)}`
+      : `/api/lesson?round=${round}`;
+    fetch(url)
       .then((r) => r.json())
       .then((j) => {
         if (!alive) return;
@@ -168,6 +172,7 @@ export default function ExercisePage() {
 
       <div className="screen-body ex-body">
         <div className="ex-head">
+          {station.subjectLabel && <span className="ex-subject">{station.subjectLabel}</span>}
           <span className="ex-title">{station.kind === 'lead' ? 'בנק הלב' : station.title}</span>
           <span className="ex-pos">{station.position}</span>
         </div>

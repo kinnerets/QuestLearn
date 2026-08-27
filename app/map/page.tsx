@@ -1,0 +1,63 @@
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { Capi } from '@/components/Capi';
+import { BottomNav } from '@/components/BottomNav';
+import { STATION_ICON, ChevronIcon } from '@/components/icons';
+import { getChildren, getSubjectCatalog, type SubjectCard } from '@/lib/db';
+import { selectedChildId } from '@/lib/session';
+
+export const dynamic = 'force-dynamic';
+
+// Shown when there's no live DB yet (mock mode) so the map isn't empty.
+const MOCK_CATALOG: SubjectCard[] = [
+  { subject: 'math', label: 'חשבון', kind: 'core', mastery: 0.6, questionCount: 3 },
+  { subject: 'arabic', label: 'ערבית', kind: 'lang', mastery: 0.4, questionCount: 3 },
+  { subject: 'future_skills', label: 'שער העתיד', kind: 'future', mastery: 0.5, questionCount: 2 },
+  { subject: 'leadership', label: 'מנהיגות', kind: 'lead', mastery: 0.7, questionCount: 1 },
+];
+
+function tier(m: number) { return m >= 0.7 ? 'good' : m >= 0.4 ? 'mid' : 'low'; }
+
+export default async function MapPage() {
+  const selectedId = selectedChildId();
+  const children = await getChildren();
+  if (children && children.length && (!selectedId || !children.some((c) => c.id === selectedId))) {
+    redirect('/profiles');
+  }
+  const child = children?.find((c) => c.id === selectedId) ?? children?.[0] ?? null;
+  const catalog = child ? await getSubjectCatalog(child.grade ?? 'grade_3', child.id) : null;
+  const subjects = catalog ?? MOCK_CATALOG;
+
+  return (
+    <main className="app-shell">
+      <div className="screen-body map">
+        <div className="map-head">
+          <Capi mood="chill" size={64} />
+          <div>
+            <h1>כל הנושאים</h1>
+            <p>בחרי על מה בא לך לתרגל היום</p>
+          </div>
+        </div>
+
+        <div className="subject-grid">
+          {subjects.map((s) => {
+            const Icon = STATION_ICON[s.kind];
+            return (
+              <Link key={s.subject} href={`/exercise?focus=${s.subject}`} className="subject-card">
+                <span className={`subject-ico ico-${s.kind}`}><Icon /></span>
+                <span className="subject-name">{s.label}</span>
+                <span className="subject-bar"><i className={tier(s.mastery)} style={{ width: `${Math.round(s.mastery * 100)}%` }} /></span>
+                <span className="subject-meta">{Math.round(s.mastery * 100)}% שליטה</span>
+                <span className="subject-go"><ChevronIcon /></span>
+              </Link>
+            );
+          })}
+        </div>
+
+        <Link href="/" className="map-back">חזרה למסע היומי</Link>
+      </div>
+
+      <BottomNav active="/map" />
+    </main>
+  );
+}

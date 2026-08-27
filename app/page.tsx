@@ -50,7 +50,7 @@ export default async function HomePage() {
   const stations: DailyStation[] = dbLesson
     ? dbLesson.map((s, i) => ({
         kind: s.kind,
-        subject: 'math',
+        subject: s.subject as DailyStation['subject'],
         title: s.title,
         subtitle: s.subtitle,
         minutes: s.minutes,
@@ -110,6 +110,11 @@ export default async function HomePage() {
             );
           })}
         </div>
+
+        <Link href="/map" className="map-cta">
+          <span>רוצה נושא אחר? כל הנושאים</span>
+          <ChevronIcon />
+        </Link>
 
         <div className="capi-row">
           <Capi mood="chill" size={70} />

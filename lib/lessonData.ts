@@ -10,6 +10,7 @@ export interface AcademicStation {
   kind: Exclude<StationKind, 'lead'>;
   title: string;
   position: string;
+  subjectLabel?: string;
   tag: string;
   stem: string;
   choices: Choice[];
@@ -30,6 +31,7 @@ export interface LeadStation {
   kind: 'lead';
   title: string;
   position: string;
+  subjectLabel?: string;
   prompt: string;
   note: string;
   choices: LeadChoice[];
