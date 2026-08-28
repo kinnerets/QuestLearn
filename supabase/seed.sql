@@ -22,7 +22,10 @@ delete from curriculum_topics where id in (
   'dddddddd-0000-0000-0000-000000000005',
   'eeeeeeee-0000-0000-0000-000000000001',
   'eeeeeeee-0000-0000-0000-000000000002',
-  'eeeeeeee-0000-0000-0000-000000000003'
+  'eeeeeeee-0000-0000-0000-000000000003',
+  'ffffffff-0000-0000-0000-000000000001',
+  'ffffffff-0000-0000-0000-000000000002',
+  'ffffffff-0000-0000-0000-000000000003'
 );
 delete from reward_store where family_id = '11111111-1111-1111-1111-111111111111';
 
@@ -47,7 +50,7 @@ insert into curriculum_topics (id, grade, subject, sub_topic, order_index, arabi
   ('aaaaaaaa-0000-0000-0000-000000000002', 'grade_3', 'arabic', 'ברכות', 1, 'spoken'),
   ('bbbbbbbb-0000-0000-0000-000000000001', 'grade_5', 'math', 'שברים', 1, null),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'grade_5', 'arabic', 'קריאה ספרותית', 1, 'msa'),
-  ('aaaaaaaa-0000-0000-0000-000000000003', 'enrichment', 'future_skills', 'יזמות: המצאות', 1, null),
+  ('aaaaaaaa-0000-0000-0000-000000000003', 'grade_3', 'future_skills', 'יזמות: המצאות', 1, null),
   ('eeeeeeee-0000-0000-0000-000000000001', 'enrichment', 'leadership', 'דרכון החלומות', 1, null),
   ('eeeeeeee-0000-0000-0000-000000000002', 'enrichment', 'leadership', 'מטבעות הזמן', 2, null),
   ('eeeeeeee-0000-0000-0000-000000000003', 'enrichment', 'leadership', 'חדר המנכ״לית', 3, null),
@@ -56,12 +59,15 @@ insert into curriculum_topics (id, grade, subject, sub_topic, order_index, arabi
   ('cccccccc-0000-0000-0000-000000000002', 'grade_3', 'hebrew', 'אוצר מילים', 1, null),
   ('cccccccc-0000-0000-0000-000000000003', 'grade_5', 'geometry', 'שטח והיקף', 1, null),
   ('cccccccc-0000-0000-0000-000000000004', 'grade_5', 'hebrew', 'הבנה וטיעון', 1, null),
-  ('cccccccc-0000-0000-0000-000000000005', 'enrichment', 'science', 'עולם החי', 1, null),
+  ('cccccccc-0000-0000-0000-000000000005', 'grade_3', 'science', 'עולם החי', 1, null),
   ('dddddddd-0000-0000-0000-000000000001', 'grade_3', 'english', 'מילים ראשונות', 1, null),
   ('dddddddd-0000-0000-0000-000000000002', 'grade_5', 'english', 'קריאה והבנה', 1, null),
   ('dddddddd-0000-0000-0000-000000000003', 'grade_3', 'bible', 'סיפורי בראשית', 1, null),
   ('dddddddd-0000-0000-0000-000000000004', 'grade_5', 'bible', 'דמויות בתנ״ך', 1, null),
-  ('dddddddd-0000-0000-0000-000000000005', 'enrichment', 'geography', 'ארץ ישראל', 1, null);
+  ('dddddddd-0000-0000-0000-000000000005', 'grade_3', 'geography', 'ארץ ישראל', 1, null),
+  ('ffffffff-0000-0000-0000-000000000001', 'grade_5', 'future_skills', 'יזמות: מ‑MVP לשוק', 1, null),
+  ('ffffffff-0000-0000-0000-000000000002', 'grade_5', 'science', 'אנרגיה וגוף האדם', 1, null),
+  ('ffffffff-0000-0000-0000-000000000003', 'grade_5', 'geography', 'אקלים ויבשות', 1, null);
 
 -- Questions
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
@@ -164,6 +170,24 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"ארץ ישראל","stem":"מהי בירת ישראל?","hint":"עיר עתיקה עם החומות, במרכז הארץ.","choices":[{"id":"a","text":"ירושלים"},{"id":"b","text":"תל אביב","misconception":"largest_city_is_capital"},{"id":"c","text":"חיפה"},{"id":"d","text":"אילת"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000005', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"ארץ ישראל","stem":"איזה מקום בישראל הוא הנקודה הנמוכה ביותר ביבשה בעולם?","hint":"ים מלוח מאוד שאפשר לצוף בו בקלות.","choices":[{"id":"a","text":"ים המלח"},{"id":"b","text":"הכנרת"},{"id":"c","text":"הים התיכון"},{"id":"d","text":"ים סוף"}],"correct_choice_id":"a","coins":12}'::jsonb);
+
+-- Grade-5 enrichment — deeper than the grade-3 versions (age-adapted).
+insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
+  -- Future skills (grade 5): entrepreneurship, MVP
+  ('ffffffff-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"יזמות","stem":"מה זה MVP (מוצר ראשוני מינימלי)?","hint":"הגרסה הכי פשוטה שאפשר להוציא כדי לבדוק אם הרעיון עובד — לפני שמשקיעים הרבה.","choices":[{"id":"a","text":"גרסה ראשונית ופשוטה שבודקים איתה אם הרעיון עובד"},{"id":"b","text":"המוצר המושלם והסופי"},{"id":"c","text":"הפרסומת של המוצר"},{"id":"d","text":"השם של החברה"}],"correct_choice_id":"a","coins":14}'::jsonb),
+  ('ffffffff-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"יזמות","stem":"למה כדאי לעשות סקר שוק לפני שמפתחים מוצר?","hint":"עדיף לגלות מה אנשים באמת צריכים לפני שמשקיעים זמן וכסף.","choices":[{"id":"a","text":"כדי לבדוק אם יש אנשים שבאמת רוצים את המוצר"},{"id":"b","text":"כדי לבחור צבע ללוגו"},{"id":"c","text":"כדי לחסוך בחשמל"},{"id":"d","text":"כי זה מה שכולם עושים"}],"correct_choice_id":"a","coins":14}'::jsonb),
+  -- Science (grade 5): energy + human body
+  ('ffffffff-0000-0000-0000-000000000002', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"אנרגיה","stem":"איזו המרת אנרגיה מתרחשת בפנס שעובד על סוללה?","hint":"בסוללה אצורה אנרגיה כימית; הפנס בסוף נותן אור.","choices":[{"id":"a","text":"מאנרגיה כימית לאנרגיית אור"},{"id":"b","text":"מאנרגיית אור לאנרגיה כימית"},{"id":"c","text":"מאנרגיית קול לחום"},{"id":"d","text":"מאנרגיית תנועה לקול"}],"correct_choice_id":"a","coins":14}'::jsonb),
+  ('ffffffff-0000-0000-0000-000000000002', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"גוף האדם","stem":"מה תפקיד הריאות בגוף?","hint":"קשור לנשימה — מה נכנס ומה יוצא מהגוף.","choices":[{"id":"a","text":"להכניס חמצן לגוף ולהוציא פחמן דו-חמצני"},{"id":"b","text":"לעכל את האוכל"},{"id":"c","text":"לשאוב את הדם"},{"id":"d","text":"לסנן פסולת מהדם"}],"correct_choice_id":"a","coins":14}'::jsonb),
+  -- Geography (grade 5): climate + continents
+  ('ffffffff-0000-0000-0000-000000000003', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"יבשות","stem":"כמה יבשות יש בכדור הארץ?","hint":"אסיה, אפריקה, אירופה, אמריקה הצפונית והדרומית, אוסטרליה ואנטארקטיקה.","choices":[{"id":"a","text":"שבע"},{"id":"b","text":"חמש"},{"id":"c","text":"שש"},{"id":"d","text":"תשע"}],"correct_choice_id":"a","coins":14}'::jsonb),
+  ('ffffffff-0000-0000-0000-000000000003', 'multiple_choice', 4, 'curated', 'auto_passed',
+   '{"tag":"אקלים","stem":"מהו אקלים ים-תיכוני, כמו בישראל?","hint":"תחשבי על מזג האוויר לאורך השנה — מתי גשום ומתי חם ויבש.","choices":[{"id":"a","text":"חורף גשום וקריר, קיץ חם ויבש"},{"id":"b","text":"גשום וקר כל השנה"},{"id":"c","text":"חם וגשום כל השנה"},{"id":"d","text":"שלג רוב השנה"}],"correct_choice_id":"a","coins":16}'::jsonb);
 
 -- Leadership worlds ("אי המצפן"): reflective micro-missions, no right/wrong.
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
