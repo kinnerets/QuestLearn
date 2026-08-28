@@ -22,9 +22,20 @@ export function Avatar({
 
   return (
     <svg width={size} height={size} viewBox={viewBox} role="img" aria-label="אווטאר">
+      <defs>
+        {/* soft top-left key light → gives every surface claymation volume */}
+        <radialGradient id="avLight" cx="34%" cy="28%" r="72%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.55" />
+          <stop offset="55%" stopColor="#fff" stopOpacity="0.08" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+      </defs>
       {/* shoulders / top */}
       <path d="M34 200 C34 156 62 138 100 138 C138 138 166 156 166 200 Z" fill={top} />
+      {/* shoulder shading: soft highlight on the left, gentle shadow at the fold */}
+      <path d="M34 200 C34 156 62 138 100 138 C138 138 166 156 166 200 Z" fill="url(#avLight)" />
       <path d="M84 140 L100 156 L116 140 Z" fill="rgba(0,0,0,.14)" />
+      <path d="M100 138 C138 138 166 156 166 200 L150 200 C150 164 128 148 100 146 Z" fill="rgba(0,0,0,.10)" />
       {/* neck */}
       <path d="M88 118 h24 v16 a12 12 0 0 1 -24 0 Z" fill={skin} />
       <path d="M88 118 h24 v6 a12 12 0 0 1 -24 0 Z" fill="rgba(0,0,0,.08)" />
@@ -48,12 +59,18 @@ export function Avatar({
       <circle cx="138" cy="98" r="9" fill={skin} />
       {/* face */}
       <ellipse cx="100" cy="94" rx="40" ry="44" fill={skin} />
+      {/* face volume: jaw ambient shadow + top-left key highlight */}
+      <ellipse cx="100" cy="112" rx="34" ry="22" fill="rgba(0,0,0,.07)" />
+      <ellipse cx="100" cy="94" rx="40" ry="44" fill="url(#avLight)" />
       {/* fringe / hair top */}
       {isGirl ? (
         <path d="M60 82 C64 50 82 40 100 40 C118 40 136 50 140 82 C128 66 116 60 100 60 C84 60 72 66 60 82 Z" fill={hair} />
       ) : (
         <path d="M58 84 C58 46 78 36 100 36 C122 36 142 46 142 84 C130 66 116 60 100 60 C84 60 70 66 58 84 Z" fill={hair} />
       )}
+      {/* glossy hair sheen streak (claymation shine) */}
+      <path d="M72 58 C80 46 92 42 104 44 C96 48 88 54 82 64 C78 62 75 60 72 58 Z"
+        fill="#fff" opacity="0.22" />
       {/* brows */}
       <path d="M76 86 q9 -5 18 -1" fill="none" stroke="rgba(0,0,0,.4)" strokeWidth="3" strokeLinecap="round" />
       <path d="M106 85 q9 -4 18 1" fill="none" stroke="rgba(0,0,0,.4)" strokeWidth="3" strokeLinecap="round" />
