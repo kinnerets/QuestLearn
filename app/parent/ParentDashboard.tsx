@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
-import { CoinIcon, FlameIcon } from '@/components/icons';
+import { CoinIcon, FlameIcon, CloseIcon } from '@/components/icons';
 import type { AvatarConfig } from '@/lib/types';
 import type { ChildReport, TopicOverview } from '@/lib/db';
 import { ContentPanel } from './ContentPanel';
@@ -49,10 +49,15 @@ export function ParentDashboard({ kids, topics }: { kids: Kid[]; topics: TopicOv
 
   return (
     <main className="app-shell">
+      <div className="ex-bar">
+        <button className="ex-back" aria-label="יציאה" onClick={lock}><CloseIcon /></button>
+        <div className="ex-head-title">אזור הורים</div>
+        <div style={{ width: 34 }} />
+      </div>
       <div className="screen-body parent">
         <div className="parent-head">
-          <h1>אזור הורים</h1>
-          <button className="lock-btn" onClick={lock}>נעילה</button>
+          <h1>סקירה</h1>
+          <button className="lock-btn" onClick={lock}>יציאה ונעילה</button>
         </div>
 
         {kids.length === 0 && <div className="parent-empty">עדיין אין פרופילים במאגר.</div>}
