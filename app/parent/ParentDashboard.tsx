@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
 import { CoinIcon, FlameIcon } from '@/components/icons';
 import type { AvatarConfig } from '@/lib/types';
-import type { ChildReport } from '@/lib/db';
+import type { ChildReport, TopicOverview } from '@/lib/db';
+import { ContentPanel } from './ContentPanel';
 
 interface Kid {
   id: string;
@@ -37,7 +38,7 @@ const MISCONCEPTION_LABEL: Record<string, string> = {
 function pct(x: number) { return Math.round(x * 100); }
 function masteryClass(m: number) { return m >= 0.7 ? 'good' : m >= 0.4 ? 'mid' : 'low'; }
 
-export function ParentDashboard({ kids }: { kids: Kid[] }) {
+export function ParentDashboard({ kids, topics }: { kids: Kid[]; topics: TopicOverview[] }) {
   const router = useRouter();
 
   async function lock() {
@@ -61,6 +62,8 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
             <ReportCard key={k.id} kid={k} />
           ))}
         </div>
+
+        {topics.length > 0 && <ContentPanel topics={topics} />}
 
         <Link href="/" className="cta ghost" style={{ textAlign: 'center' }}>חזרה לאפליקציה</Link>
       </div>

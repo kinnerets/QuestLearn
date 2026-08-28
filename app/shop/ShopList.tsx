@@ -33,8 +33,12 @@ export function ShopList({ rewards, coins: initialCoins }: { rewards: Reward[]; 
         if (typeof j.coins === 'number') setCoins(j.coins);
         setVoucher({ title: r.title, code: j.voucher });
         router.refresh();
+      } else if (j?.reason === 'not-enough') {
+        setError('אין מספיק מטבעות');
+      } else if (j?.reason === 'already-today') {
+        setError('כבר מימשת את הפרס הזה היום — אפשר שוב מחר');
       } else {
-        setError(j?.reason === 'not-enough' ? 'אין מספיק מטבעות' : 'לא הצלחנו לממש, נסי שוב');
+        setError('לא הצלחנו לממש, נסי שוב');
       }
     } catch { setError('לא הצלחנו לממש, נסי שוב'); }
     setBusy(null);

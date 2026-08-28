@@ -7,7 +7,7 @@ const MODEL = 'claude-haiku-4-5';
 
 // Buffer thresholds — generate when a topic runs low, up to a healthy bank.
 const LOW_WATER = 8;   // if a child has fewer than this many unsolved questions…
-const GENERATE = 15;   // …ask for this many new ones.
+const GENERATE = 12;   // …ask for this many new ones (kept modest to fit fn time).
 
 const norm = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
 
@@ -26,10 +26,11 @@ const QUESTION_TOOL = {
         items: {
           type: 'object',
           additionalProperties: false,
-          required: ['tag', 'stem', 'hints', 'explanation', 'choices', 'correct_choice_id'],
+          required: ['tag', 'stem', 'difficulty', 'hints', 'explanation', 'choices', 'correct_choice_id'],
           properties: {
             tag: { type: 'string' },
             stem: { type: 'string' },
+            difficulty: { type: 'integer', minimum: 1, maximum: 5 },
             hints: { type: 'array', items: { type: 'string' } },
             explanation: { type: 'string' },
             correct_choice_id: { type: 'string', enum: ['a', 'b', 'c', 'd'] },
@@ -79,12 +80,17 @@ export async function generateForTopic(topicId: string, count = GENERATE): Promi
         : ' זו ערבית מדוברת. כתוב את התשובות בתעתיק עברי מנוקד.')
     : '';
 
+  const gradeAge = topic.grade === 'grade_5' ? 'בני 10–11, כיתה ה׳ — רמה מאתגרת שמתאימה באמת לגיל, לא חומר של כיתות ב׳–ג׳'
+    : topic.grade === 'grade_3' ? 'בני 8–9, כיתה ג׳'
+    : 'העשרה, בני 8–11';
   const system = `אתה יוצר שאלות לימוד לילדים בעברית לאפליקציה חינוכית.
+קהל היעד: ${gradeAge}. חשוב מאוד: התאם את רמת הקושי לגיל האמיתי — שאלות לכיתה ה׳ צריכות להיות מאתגרות ובעומק המתאים (למשל בעברית: הבחנה בין עובדה לדעה, משמעות בהקשר, מבנה טיעון; בחשבון: שברים, אחוזים, בעיות מילוליות רב-שלביות), לא ידע בסיסי מדי.
 כל שאלה: רב-ברירה עם 4 תשובות (מזהים a,b,c,d), בדיוק תשובה נכונה אחת.
-hints: מערך של בדיוק 2 רמזים מדורגים — רמז 1 נותן כיוון עדין, רמז 2 חזק וממוקד יותר (כמעט חצי פתרון). אל תחשוף את התשובה ברמזים.
-explanation: משפט קצר שמסביר למה התשובה נכונה (מוצג רק אחרי חשיפת הפתרון).
-לפחות מסיח שגוי אחד עם שדה misconception קצר באנגלית שמסביר את הטעות הנפוצה.
-עברית תקנית וידידותית, מותאמת ל${gradeLabel}. בלי אימוגי. גיוון בין השאלות.`;
+difficulty: דרג את קושי השאלה 1–5 ביחס לגיל.
+hints: מערך של בדיוק 2 רמזים מדורגים — רמז 1 כיוון עדין, רמז 2 חזק וממוקד יותר. אל תחשוף את התשובה ברמזים.
+explanation: משפט קצר שמסביר למה התשובה נכונה.
+לפחות מסיח שגוי אחד עם שדה misconception קצר באנגלית.
+עברית תקנית וידידותית. בלי אימוגי. גיוון גבוה בין השאלות.`;
 
   const avoid = [...existingStems].slice(0, 40);
   const userMsg = `נושא: ${subjectLabel} — ${topic.sub_topic} (${gradeLabel}).${arabicNote}
@@ -109,7 +115,7 @@ explanation: משפט קצר שמסביר למה התשובה נכונה (מוצ
   }
   if (!Array.isArray(questions)) return { inserted: 0, reason: 'no-output' };
 
-  type Q = { tag?: string; stem?: string; hints?: string[]; explanation?: string; correct_choice_id?: string;
+  type Q = { tag?: string; stem?: string; difficulty?: number; hints?: string[]; explanation?: string; correct_choice_id?: string;
     choices?: { id?: string; text?: string; misconception?: string }[] };
   const rows: Record<string, unknown>[] = [];
   for (const raw of questions as Q[]) {
@@ -122,8 +128,9 @@ explanation: משפט קצר שמסביר למה התשובה נכונה (מוצ
     if (existingStems.has(key)) continue; // dedup vs old bank + this batch
     existingStems.add(key);
     const hints = Array.isArray(raw.hints) ? raw.hints.map(String).filter(Boolean).slice(0, 2) : [];
+    const diff = Math.min(5, Math.max(1, Math.round(Number(raw.difficulty ?? 2))));
     rows.push({
-      topic_id: topicId, type: 'multiple_choice', difficulty: 2,
+      topic_id: topicId, type: 'multiple_choice', difficulty: diff,
       source: 'ai_generated', verification_status: 'auto_passed',
       payload: {
         tag: String(raw.tag ?? ''),
@@ -171,17 +178,34 @@ export async function ensureBufferForSubject(childId: string, grade: string, sub
       .eq('is_correct', true);
     const solved = new Set((solvedRows ?? []).map((r) => r.question_id as string));
 
-    let generated = 0;
+    // Find the emptiest topic below the threshold and refill just that one,
+    // so a single fired request stays within the serverless time budget.
+    let lowestId: string | null = null;
+    let lowestCount = LOW_WATER;
     for (const t of topics) {
       const { data: qs } = await sb.from('questions_bank').select('id').eq('topic_id', t.id);
       const unsolved = (qs ?? []).filter((q) => !solved.has(q.id as string)).length;
-      if (unsolved < LOW_WATER) {
-        const r = await generateForTopic(t.id, GENERATE);
-        generated += r.inserted;
-      }
+      if (unsolved < lowestCount) { lowestCount = unsolved; lowestId = t.id as string; }
     }
-    return generated;
+    if (!lowestId) return 0;
+    const r = await generateForTopic(lowestId, GENERATE);
+    return r.inserted;
   } catch {
     return 0;
   }
+}
+
+export interface TopicGenResult { topic: string; grade: string; inserted: number; reason?: string }
+
+/** Parent-triggered generation for one topic — returns a visible result. */
+export async function generateTopicReport(topicId: string): Promise<TopicGenResult> {
+  const sb = getSupabase();
+  let name = '—', grade = '';
+  if (sb) {
+    const { data } = await sb.from('curriculum_topics').select('sub_topic,grade').eq('id', topicId).maybeSingle();
+    name = (data?.sub_topic as string) ?? '—';
+    grade = (data?.grade as string) ?? '';
+  }
+  const r = await generateForTopic(topicId, GENERATE);
+  return { topic: name, grade, inserted: r.inserted, reason: r.reason };
 }

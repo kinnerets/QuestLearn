@@ -665,6 +665,16 @@ export async function redeemReward(childId: string, rewardId: string): Promise<R
     if (!reward) return { ok: false, reason: 'no-reward' };
     if (child.coins < reward.cost_coins) return { ok: false, reason: 'not-enough' };
 
+    // One redemption of the same reward per day (e.g. "choose dinner" once).
+    const dayStart = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z';
+    const { data: already } = await sb
+      .from('reward_redemptions')
+      .select('id')
+      .eq('child_id', child.id).eq('reward_id', reward.id)
+      .gte('created_at', dayStart)
+      .limit(1);
+    if (already?.length) return { ok: false, reason: 'already-today' };
+
     const voucher = 'QL-' + Math.random().toString(36).slice(2, 7).toUpperCase();
     const left = child.coins - reward.cost_coins;
     await sb.from('users').update({ quest_coins: left }).eq('id', child.id);
@@ -813,6 +823,33 @@ export async function getChildStatus(childId: string, grade: string): Promise<Ch
       coins: child.coins, streak: child.streak,
       subjects, strengths, toTrain, badges,
     };
+  } catch {
+    return null;
+  }
+}
+
+export interface TopicOverview { id: string; subject: string; subTopic: string; grade: string; count: number }
+
+/** All curriculum topics with their question counts — the parent content panel. */
+export async function getTopicsOverview(): Promise<TopicOverview[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data: topics } = await sb
+      .from('curriculum_topics')
+      .select('id,subject,sub_topic,grade')
+      .order('subject', { ascending: true })
+      .order('grade', { ascending: true });
+    if (!topics?.length) return null;
+    const { data: qs } = await sb
+      .from('questions_bank').select('topic_id').in('topic_id', topics.map((t) => t.id));
+    const counts = new Map<string, number>();
+    for (const q of qs ?? []) counts.set(q.topic_id as string, (counts.get(q.topic_id as string) ?? 0) + 1);
+    return topics.map((t) => ({
+      id: t.id as string, subject: t.subject as string,
+      subTopic: t.sub_topic as string, grade: t.grade as string,
+      count: counts.get(t.id as string) ?? 0,
+    }));
   } catch {
     return null;
   }
