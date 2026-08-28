@@ -18,6 +18,7 @@ export interface ChildProfile {
   grade: string | null;
   coins: number;
   streak: number;
+  xp: number;
   avatar: AvatarConfig;
   goalMinutes: number;
 }
@@ -121,7 +122,7 @@ function buildStation(kind: StationKind, subject: string, topic: TopicRow, q: QR
 }
 
 const CHILD_COLUMNS =
-  'id,display_name,grade_level,quest_coins,current_streak,avatar_config,daily_goal_minutes';
+  'id,display_name,grade_level,quest_coins,current_streak,total_xp,avatar_config,daily_goal_minutes';
 
 function toChild(data: Record<string, unknown>): ChildProfile {
   return {
@@ -130,9 +131,30 @@ function toChild(data: Record<string, unknown>): ChildProfile {
     grade: (data.grade_level as string) ?? null,
     coins: (data.quest_coins as number) ?? 0,
     streak: (data.current_streak as number) ?? 0,
+    xp: (data.total_xp as number) ?? 0,
     avatar: data.avatar_config as AvatarConfig,
     goalMinutes: (data.daily_goal_minutes as number) ?? 15,
   };
+}
+
+/** XP → level. Each level needs XP_PER_LEVEL; returns level (1-based) + progress. */
+export const XP_PER_LEVEL = 120;
+export function levelFromXp(xp: number) {
+  const level = Math.floor(xp / XP_PER_LEVEL) + 1;
+  const inLevel = xp % XP_PER_LEVEL;
+  return { level, inLevel, need: XP_PER_LEVEL };
+}
+
+/** Add XP to a child (best-effort read-modify-write). */
+export async function addXp(childId: string, amount: number): Promise<void> {
+  if (amount <= 0) return;
+  const sb = getSupabase();
+  if (!sb) return;
+  try {
+    const { data } = await sb.from('users').select('total_xp').eq('id', childId).maybeSingle();
+    const cur = Number(data?.total_xp ?? 0);
+    await sb.from('users').update({ total_xp: cur + amount }).eq('id', childId);
+  } catch { /* best effort */ }
 }
 
 /** All children in the family, oldest grade last — for the profile picker. */
@@ -500,7 +522,7 @@ export const DAILY_COIN_CAP = 60;
  * on the first completion, and coins are capped so extra rounds hit diminishing
  * returns then stop earning. Returns the coins actually granted after the cap.
  */
-export async function completeQuest(coinsEarned: number, childId?: string): Promise<number> {
+export async function completeQuest(coinsEarned: number, childId?: string, xpEarned = 0): Promise<number> {
   const sb = getSupabase();
   if (!sb) return 0;
   try {
@@ -521,6 +543,7 @@ export async function completeQuest(coinsEarned: number, childId?: string): Prom
     await sb.from('users').update({
       quest_coins: child.coins + grant,
       current_streak: firstToday ? child.streak + 1 : child.streak,
+      total_xp: child.xp + Math.max(0, xpEarned),
     }).eq('id', child.id);
 
     await sb.from('daily_progress').upsert({
@@ -721,8 +744,68 @@ export async function recordDeposit(childId: string, topicId: string, questionId
       user_id: childId, question_id: questionId, topic_id: topicId,
       is_correct: true, chosen_answer: choice ?? null, hints_used: 0,
     });
+    await addXp(childId, 5); // XP for a leadership deposit (identity, not coins)
     return true;
   } catch {
     return false;
+  }
+}
+
+export interface StatusBadge { key: string; label: string; desc: string; earned: boolean }
+export interface ChildStatus {
+  name: string;
+  xp: number; level: number; inLevel: number; need: number;
+  coins: number; streak: number;
+  subjects: SubjectCard[];
+  strengths: SubjectCard[];
+  toTrain: SubjectCard[];
+  badges: StatusBadge[];
+}
+
+/** Everything the "המצב שלי" screen needs: level, strengths, weak spots, badges. */
+export async function getChildStatus(childId: string, grade: string): Promise<ChildStatus | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const [child, catalog, worlds] = await Promise.all([
+      getChildProfileById(childId),
+      getSubjectCatalog(grade, childId),
+      getCompassWorlds(childId),
+    ]);
+    if (!child) return null;
+    const subjects = catalog ?? [];
+    const lvl = levelFromXp(child.xp);
+
+    const practiced = subjects.filter((s) => s.answered > 0);
+    const strengths = [...practiced].sort((a, b) => b.accuracy - a.accuracy).slice(0, 3);
+    // Weak spots: lowest accuracy among practiced, then unpracticed subjects.
+    const weakPracticed = [...practiced].sort((a, b) => a.accuracy - b.accuracy);
+    const untouched = subjects.filter((s) => s.answered === 0);
+    const toTrain = [...weakPracticed.filter((s) => s.accuracy < 0.8), ...untouched].slice(0, 3);
+
+    const totalAnswered = subjects.reduce((n, s) => n + s.answered, 0);
+    const leadDeposits = (worlds ?? []).reduce((n, w) => n + w.deposits, 0);
+    const heartDeposits = (worlds ?? []).find((w) => w.order === 4)?.deposits ?? 0;
+    const timeDeposits = (worlds ?? []).find((w) => w.order === 2)?.deposits ?? 0;
+    const sharp = subjects.some((s) => s.answered >= 5 && s.accuracy >= 0.9);
+
+    const badges: StatusBadge[] = [
+      { key: 'first_step', label: 'צעד ראשון', desc: 'התחלת לתרגל', earned: totalAnswered > 0 || leadDeposits > 0 },
+      { key: 'streak_3', label: 'רצף שלושה', desc: '3 ימים ברצף', earned: child.streak >= 3 },
+      { key: 'streak_7', label: 'שבוע חזק', desc: '7 ימים ברצף', earned: child.streak >= 7 },
+      { key: 'sharp', label: 'חדה כתער', desc: '90% דיוק בנושא', earned: sharp },
+      { key: 'century', label: 'מאה שאלות', desc: '100 שאלות נענו', earned: totalAnswered >= 100 },
+      { key: 'gold_heart', label: 'לב זהב', desc: '5 הפקדות לב', earned: heartDeposits >= 5 },
+      { key: 'wise_time', label: 'בוחרת חכמה', desc: '3 חלוקות זמן', earned: timeDeposits >= 3 },
+    ];
+
+    return {
+      name: child.name,
+      xp: child.xp, level: lvl.level, inLevel: lvl.inLevel, need: lvl.need,
+      coins: child.coins, streak: child.streak,
+      subjects, strengths, toTrain, badges,
+    };
+  } catch {
+    return null;
   }
 }

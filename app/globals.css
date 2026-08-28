@@ -532,3 +532,43 @@ a { color: inherit; text-decoration: none; }
 .milestone { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 13px 15px; border-radius: 16px; background: color-mix(in srgb, var(--gold) 22%, var(--surface)); border: 1px solid var(--line); font-family: var(--font-display); font-weight: 700; color: var(--ink); }
 .milestone-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--gold-ink); color: #fff; flex: none; }
 .milestone-ico .i { width: 19px; height: 19px; }
+
+/* ── המצב שלי (status) ── */
+.status { padding: 16px 16px 22px; display: flex; flex-direction: column; gap: 14px; }
+.level-hero { display: flex; align-items: center; gap: 13px; background: linear-gradient(150deg, #FF4E97, #C21361); color: #fff; border-radius: 22px; padding: 15px 17px; box-shadow: 0 16px 30px -18px rgba(194,19,97,.7); }
+.level-av { width: 58px; height: 58px; border-radius: 16px; overflow: hidden; background: #FFE0EC; border: 2px solid rgba(255,255,255,.6); flex: none; }
+.level-main { flex: 1; }
+.level-name { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; }
+.level-tag { font-weight: 700; font-size: .8rem; opacity: .92; }
+.xp-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.28); overflow: hidden; margin: 7px 0 4px; }
+.xp-bar i { display: block; height: 100%; background: #fff; border-radius: 999px; }
+.xp-num { font-size: .72rem; font-weight: 600; opacity: .9; }
+.status-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.status-stat { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 6px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--muted); }
+.status-stat .i { width: 20px; height: 20px; }
+.status-stat b { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.status-stat span { font-size: .68rem; font-weight: 600; }
+.status-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 15px; }
+.status-title { font-family: var(--font-display); font-weight: 700; font-size: .78rem; letter-spacing: .05em; color: var(--muted); margin-bottom: 10px; }
+.radar { width: 100%; height: auto; display: block; }
+.radar-grid { fill: none; stroke: var(--line); stroke-width: 1; }
+.radar-shape { fill: color-mix(in srgb, var(--magenta) 30%, transparent); stroke: var(--magenta); stroke-width: 2; stroke-linejoin: round; }
+.radar-label { fill: var(--muted); font-family: var(--font-display); font-weight: 700; font-size: 10px; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.strength-chip { background: color-mix(in srgb, var(--mint) 20%, transparent); color: var(--mint-ink, #1C7A57); font-family: var(--font-display); font-weight: 700; font-size: .84rem; padding: 6px 12px; border-radius: 999px; }
+.train-list { display: flex; flex-direction: column; gap: 10px; }
+.train-row { display: flex; align-items: center; gap: 11px; }
+.train-row .mission-ico { width: 42px; height: 42px; border-radius: 12px; }
+.train-row .mission-ico .i { width: 22px; height: 22px; }
+.train-main { flex: 1; }
+.train-name { font-family: var(--font-display); font-weight: 700; font-size: .98rem; display: block; }
+.train-sub { font-size: .76rem; color: var(--muted); font-weight: 600; }
+.train-btn { background: var(--magenta); color: #fff; border-radius: 12px; padding: 8px 13px; font-family: var(--font-display); font-weight: 700; font-size: .82rem; white-space: nowrap; }
+.badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.badge { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 6px; opacity: .55; filter: grayscale(.6); }
+.badge.earned { opacity: 1; filter: none; background: color-mix(in srgb, var(--gold) 16%, var(--surface)); }
+.badge-ico { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--line); color: var(--muted); }
+.badge.earned .badge-ico { background: var(--gold-ink); color: #fff; }
+.badge-ico .i { width: 19px; height: 19px; }
+.badge-label { font-family: var(--font-display); font-weight: 800; font-size: .8rem; color: var(--ink); }
+.badge-desc { font-size: .64rem; color: var(--muted); font-weight: 600; line-height: 1.2; }

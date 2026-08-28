@@ -111,7 +111,7 @@ export default function ExercisePage() {
     if (index + 1 >= stations.length) {
       fetch('/api/quest/complete', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ coins: earned }),
+        body: JSON.stringify({ coins: earned, xp: correct * 10 }),
       }).catch(() => {});
       fireRefill();
       setFinished(true);
@@ -163,7 +163,7 @@ export default function ExercisePage() {
 
   if (loading) return <Loader />;
   if (allSolved) return <SubjectDone />;
-  if (finished) return <Celebration earned={earned} correct={correct} answered={answered} />;
+  if (finished) return <Celebration earned={earned} correct={correct} answered={answered} xp={correct * 10} />;
   if (!station) return <Loader />;
 
   return (
@@ -319,7 +319,7 @@ function ScoreRing({ pct }: { pct: number }) {
   );
 }
 
-function Celebration({ earned, correct, answered }: { earned: number; correct: number; answered: number }) {
+function Celebration({ earned, correct, answered, xp }: { earned: number; correct: number; answered: number; xp: number }) {
   const pct = answered ? Math.round((correct / answered) * 100) : 100;
   return (
     <main className="app-shell">
@@ -336,8 +336,8 @@ function Celebration({ earned, correct, answered }: { earned: number; correct: n
         )}
         <div className="rewardrow">
           <div className="rw"><b><CoinIcon /> +{earned}</b><span>מטבעות</span></div>
+          <div className="rw"><b>+{xp}</b><span>XP לאווטאר</span></div>
           <div className="rw"><b><FlameIcon /></b><span>שמרת על הרצף</span></div>
-          <div className="rw"><b><HeartIcon /></b><span>הפקדה ללב</span></div>
         </div>
         <div className="cele-actions">
           <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
