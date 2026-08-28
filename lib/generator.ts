@@ -7,7 +7,9 @@ const MODEL = 'claude-haiku-4-5';
 
 // Buffer thresholds — generate when a topic runs low, up to a healthy bank.
 const LOW_WATER = 8;   // if a child has fewer than this many unsolved questions…
-const GENERATE = 12;   // …ask for this many new ones (kept modest to fit fn time).
+const GENERATE = 6;    // …ask for this many new ones per call. Small batches finish
+                       // well inside the serverless time budget, so a click never hangs;
+                       // the background buffer + repeated calls keep the bank growing.
 
 const norm = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
 
@@ -99,10 +101,12 @@ explanation: משפט קצר שמסביר למה התשובה נכונה.
 
   let questions: unknown;
   try {
-    const anthropic = new Anthropic({ apiKey });
+    // Fail cleanly instead of hanging: cap the request time and don't retry so a
+    // slow call surfaces a real error to the UI rather than spinning forever.
+    const anthropic = new Anthropic({ apiKey, timeout: 45_000, maxRetries: 1 });
     const resp = await anthropic.messages.create({
       model: MODEL,
-      max_tokens: 4096,
+      max_tokens: 3500,
       system,
       tools: [QUESTION_TOOL],
       tool_choice: { type: 'tool', name: 'emit_questions' },
