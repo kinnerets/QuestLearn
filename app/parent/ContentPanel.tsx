@@ -89,13 +89,13 @@ export function ContentPanel({ topics }: { topics: TopicOverview[] }) {
         <h2 style={{ fontSize: '1.15rem' }}>בנק השאלות</h2>
         {thinCount > 0 && (
           <button className="content-btn bulk" disabled={busy !== null || bulk} onClick={fillThin}>
-            {bulk ? `ממלא… (${thinCount})` : `מלא ${thinCount} נושאים דלילים`}
+            {bulk ? `מוסיף שאלות… (${thinCount})` : `הוסיפי שאלות ל‑${thinCount} נושאים`}
           </button>
         )}
       </div>
       <p className="content-hint">
-        הבנק מתמלא לבד ברקע כשהבנות מתרגלות מקצוע. כאן אפשר להשלים ידנית — "מלא נושאים דלילים" ממלא
-        הכל בזה אחר זה. דורש מפתח Anthropic ב‑Vercel.
+        הבנק מתמלא לבד ברקע כשהבנות מתרגלות. כאן אפשר להשלים ידנית — הכפתור למעלה מוסיף שאלות
+        לכל הנושאים הדלילים בזה אחר זה. דורש מפתח Anthropic ב‑Vercel.
       </p>
 
       {[...groups.entries()].map(([subject, list]) => (

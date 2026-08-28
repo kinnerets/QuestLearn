@@ -454,9 +454,10 @@ async function solvedQuestionIds(
   }
 }
 
-/** Session length by grade — older kids get longer sessions. */
+/** Session length by grade — older kids get longer sessions. Larger banks let
+ *  a focused subject run 8–10 questions so a sitting feels substantial. */
 function focusLength(grade: string): number {
-  return grade === 'grade_5' ? 6 : 4;
+  return grade === 'grade_5' ? 10 : 8;
 }
 
 /**

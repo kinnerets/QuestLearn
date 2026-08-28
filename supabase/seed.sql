@@ -219,3 +219,60 @@ insert into avatar_items (id, slot, name, svg_layer, unlock_type, cost_coins) va
 on conflict (id) do update set
   slot = excluded.slot, name = excluded.name, svg_layer = excluded.svg_layer,
   unlock_type = excluded.unlock_type, cost_coins = excluded.cost_coins;
+
+-- ─────────── Bigger core banks: real session length without waiting on AI ───────────
+insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
+  -- Math grade 3 — לוח הכפל
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"כפל","stem":"כמה זה 6 × 6 ?","hint":"שש קפיצות של 6.","hints":["ספרי 6, 12, 18…","עוד שלוש קפיצות אחרי 18: 24, 30, 36"],"explanation":"6 כפול 6 שווה 36.","choices":[{"id":"a","text":"36"},{"id":"b","text":"30","misconception":"off_by_one_multiple"},{"id":"c","text":"42"},{"id":"d","text":"12"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"כפל","stem":"כמה זה 7 × 8 ?","hint":"אפשר 7×8 = 7×4 ועוד 7×4.","hints":["7×4 = 28","28 ועוד 28 = 56"],"explanation":"7 כפול 8 שווה 56.","choices":[{"id":"a","text":"56"},{"id":"b","text":"54","misconception":"off_by_one_multiple"},{"id":"c","text":"64"},{"id":"d","text":"49"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"כפל","stem":"בכיתה יש 4 שורות ובכל שורה 6 כיסאות. כמה כיסאות בסך הכל?","hint":"4 קבוצות של 6.","hints":["זה 4 × 6","6, 12, 18, 24"],"explanation":"4 שורות כפול 6 כיסאות = 24.","choices":[{"id":"a","text":"24"},{"id":"b","text":"10"},{"id":"c","text":"46"},{"id":"d","text":"20"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"כפל","stem":"כמה זה 9 × 6 ?","hint":"9 זה כמו 10 פחות 1.","hints":["10 × 6 = 60","60 פחות 6 = 54"],"explanation":"9 כפול 6 שווה 54.","choices":[{"id":"a","text":"54"},{"id":"b","text":"56","misconception":"off_by_one_multiple"},{"id":"c","text":"63"},{"id":"d","text":"48"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  -- Math grade 5 — שברים
+  ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"שברים","stem":"איזה שבר שווה ל‑2/4 ?","hint":"נסי לצמצם — לחלק מונה ומכנה באותו מספר.","hints":["חלקי את 2 ואת 4 ב‑2","2÷2=1, 4÷2=2"],"explanation":"2/4 מצטמצם ל‑1/2.","choices":[{"id":"a","text":"1/2"},{"id":"b","text":"1/4"},{"id":"c","text":"2/3"},{"id":"d","text":"1/3"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"שברים","stem":"כמה זה 1/4 + 2/4 ?","hint":"אותו מכנה — מחברים רק את המונים.","hints":["1+2 = 3","המכנה נשאר 4"],"explanation":"מחברים מונים כשהמכנה זהה: 1/4+2/4 = 3/4.","choices":[{"id":"a","text":"3/4"},{"id":"b","text":"3/8","misconception":"add_denominators"},{"id":"c","text":"1/2"},{"id":"d","text":"2/4"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"שברים","stem":"מה זה 3/5 מתוך 20 ?","hint":"קודם מוצאים חמישית אחת מ‑20.","hints":["20 ÷ 5 = 4 (זה 1/5)","3 חמישיות = 3 × 4"],"explanation":"1/5 מ‑20 הוא 4, ולכן 3/5 הם 12.","choices":[{"id":"a","text":"12"},{"id":"b","text":"15"},{"id":"c","text":"8"},{"id":"d","text":"60"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 4, 'curated', 'auto_passed',
+   '{"tag":"שברים","stem":"איזה שבר גדול יותר: 3/4 או 2/3 ?","hint":"אפשר להביא למכנה משותף 12.","hints":["3/4 = 9/12","2/3 = 8/12"],"explanation":"3/4 שווה 9/12 והוא גדול מ‑8/12 (שהם 2/3).","choices":[{"id":"a","text":"3/4"},{"id":"b","text":"2/3","misconception":"bigger_denominator_bigger_fraction"},{"id":"c","text":"הם שווים"},{"id":"d","text":"אי אפשר לדעת"}],"correct_choice_id":"a","coins":13}'::jsonb),
+  -- Hebrew grade 3 — אוצר מילים
+  ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"ניגודים","stem":"מה ההפך של המילה \"גָּדוֹל\" ?","hint":"תחשבי על משהו זעיר.","hints":["הפך של גדול קשור לגודל","נמלה היא… ?"],"explanation":"ההפך של גדול הוא קטן.","choices":[{"id":"a","text":"קָטָן"},{"id":"b","text":"רָחָב"},{"id":"c","text":"כָּבֵד"},{"id":"d","text":"גָּבוֹהַּ"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"מילים נרדפות","stem":"איזו מילה דומה במשמעות ל\"שָׂמֵחַ\" ?","hint":"מילה נרדפת = אותה משמעות במילה אחרת.","hints":["מחפשים רגש טוב","עַלִּיז זה כמו…"],"explanation":"עליז הוא מילה נרדפת לשמח.","choices":[{"id":"a","text":"עַלִּיז"},{"id":"b","text":"עָצוּב"},{"id":"c","text":"רָעֵב"},{"id":"d","text":"עָיֵף"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"יחיד ורבים","stem":"מה צורת הרבים של \"יֶלֶד\" ?","hint":"יותר מאחד.","hints":["מוסיפים סיומת רבים","ילד אחד, שני…"],"explanation":"הרבים של ילד הוא ילדים.","choices":[{"id":"a","text":"יְלָדִים"},{"id":"b","text":"יַלְדָּה"},{"id":"c","text":"יַלְדּוּת"},{"id":"d","text":"יְלָדוֹת"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"הקשר","stem":"בְּמשפט \"הילד רָץ מהר כי אֵיחר לבית הספר\" — למה הוא רץ?","hint":"חפשי את הסיבה אחרי המילה \"כי\".","hints":["המילה כי מציגה סיבה","מה קרה עם הזמן?"],"explanation":"המילה כי מציגה את הסיבה: הוא איחר.","choices":[{"id":"a","text":"כי הוא איחר"},{"id":"b","text":"כי הוא רעב"},{"id":"c","text":"כי חם בחוץ"},{"id":"d","text":"כי הוא שמח"}],"correct_choice_id":"a","coins":11}'::jsonb),
+  -- Hebrew grade 5 — הבנה וטיעון
+  ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"עובדה ודעה","stem":"איזה משפט הוא דעה (ולא עובדה)?","hint":"דעה אפשר להתווכח עליה; עובדה אפשר לבדוק.","hints":["חפשי משפט שתלוי בטעם אישי","מילים כמו הכי/יפה מרמזות על דעה"],"explanation":"\"הגלידה הכי טעימה\" היא דעה — היא תלויה בטעם אישי.","choices":[{"id":"a","text":"גלידת השוקולד היא הכי טעימה שיש"},{"id":"b","text":"מים קופאים ב‑0 מעלות"},{"id":"c","text":"בשבוע יש שבעה ימים"},{"id":"d","text":"ישראל נמצאת באסיה"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"טיעון","stem":"\"כדאי ללכת לישון מוקדם, כי מי שישן טוב מרוכז יותר בבוקר.\" מה הנימוק בטענה?","hint":"הנימוק מסביר למה כדאי.","hints":["חפשי את החלק אחרי המילה כי","מה היתרון שמצוין?"],"explanation":"הנימוק הוא שמי שישן טוב מרוכז יותר בבוקר.","choices":[{"id":"a","text":"מי שישן טוב מרוכז יותר בבוקר"},{"id":"b","text":"כדאי ללכת לישון מוקדם"},{"id":"c","text":"הבוקר מגיע מהר"},{"id":"d","text":"שינה זה משעמם"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 4, 'curated', 'auto_passed',
+   '{"tag":"משמעות בהקשר","stem":"\"אחרי המרוץ הארוך, רגליו היו כְּבֵדוֹת כעופרת.\" למה הכוונה?","hint":"זו לשון ציורית, לא משקל ממש.","hints":["רגליים לא נעשות מעופרת באמת","איך מרגישות רגליים אחרי מאמץ?"],"explanation":"הכוונה שהיה לו קשה מאוד להזיז את הרגליים מרוב עייפות.","choices":[{"id":"a","text":"היה לו קשה מאוד להזיז את הרגליים"},{"id":"b","text":"הרגליים שלו עשויות ממתכת"},{"id":"c","text":"הוא שקל הרבה"},{"id":"d","text":"הוא רץ מהר מאוד"}],"correct_choice_id":"a","coins":13}'::jsonb),
+  ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 4, 'curated', 'auto_passed',
+   '{"tag":"הסקת מסקנות","stem":"\"בבוקר הרחוב היה רטוב והמטריות היו פתוחות.\" מה אפשר להסיק?","hint":"אילו סימנים מצוינים?","hints":["מה גורם לרחוב רטוב?","למה פותחים מטריות?"],"explanation":"מהסימנים אפשר להסיק שירד גשם.","choices":[{"id":"a","text":"ירד גשם"},{"id":"b","text":"הייתה שריפה"},{"id":"c","text":"היה חג"},{"id":"d","text":"נפל שלג"}],"correct_choice_id":"a","coins":13}'::jsonb),
+  -- Bible grade 3 — סיפורי בראשית
+  ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"בריאה","stem":"בכמה ימים נברא העולם לפי סיפור הבריאה?","hint":"ששה ימי מעשה ויום מנוחה.","hints":["ביום השביעי נחו","6 + 1"],"explanation":"העולם נברא בששה ימים וביום השביעי שבת.","choices":[{"id":"a","text":"שבעה"},{"id":"b","text":"שלושה"},{"id":"c","text":"עשרה"},{"id":"d","text":"חמישה"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 1, 'curated', 'auto_passed',
+   '{"tag":"נח","stem":"מי בנה תיבה כדי להינצל מהמבול?","hint":"הוא אסף זוגות של בעלי חיים.","hints":["השם מתחיל ב‑נ","נח בן…"],"explanation":"נח בנה את התיבה ואסף אליה זוגות מכל בעלי החיים.","choices":[{"id":"a","text":"נֹחַ"},{"id":"b","text":"אברהם"},{"id":"c","text":"משה"},{"id":"d","text":"יוסף"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"אבות","stem":"מי הם שלושת האבות של עם ישראל?","hint":"סבא, אבא ונכד.","hints":["הראשון הוא אברהם","אברהם, יצחק ו…"],"explanation":"האבות הם אברהם, יצחק ויעקב.","choices":[{"id":"a","text":"אברהם, יצחק ויעקב"},{"id":"b","text":"משה, אהרן ומרים"},{"id":"c","text":"נח, שם וחם"},{"id":"d","text":"דוד, שלמה ושאול"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"גן עדן","stem":"מאיזה עץ נאסר על אדם וחוה לאכול בגן עדן?","hint":"עץ עם שם שקשור לדעת.","hints":["לא עץ החיים","עץ הַ…"],"explanation":"נאסר עליהם לאכול מעץ הדעת טוב ורע.","choices":[{"id":"a","text":"עץ הדעת טוב ורע"},{"id":"b","text":"עץ הזית"},{"id":"c","text":"עץ התאנה"},{"id":"d","text":"עץ הרימון"}],"correct_choice_id":"a","coins":10}'::jsonb),
+  -- Bible grade 5 — דמויות בתנ״ך
+  ('dddddddd-0000-0000-0000-000000000004', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"יוסף","stem":"מי פתר את חלומות פרעה במצרים?","hint":"הוא הגיע למצרים אחרי שאחיו מכרו אותו.","hints":["בעל כתונת הפסים","יעקב היה אביו"],"explanation":"יוסף פתר את חלומות פרעה ועלה לגדולה במצרים.","choices":[{"id":"a","text":"יוסף"},{"id":"b","text":"משה"},{"id":"c","text":"אהרן"},{"id":"d","text":"יהודה"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000004', 'multiple_choice', 2, 'curated', 'auto_passed',
+   '{"tag":"דוד","stem":"את מי ניצח דוד הצעיר בעזרת קלע ואבן?","hint":"ענק פלשתי.","hints":["הפלשתי הענק מגת","שמו מתחיל ב‑ג"],"explanation":"דוד ניצח את גלית הפלשתי בעזרת קלע ואבן.","choices":[{"id":"a","text":"גָּלְיָת"},{"id":"b","text":"שאול"},{"id":"c","text":"עֵשָׂו"},{"id":"d","text":"פרעה"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000004', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"מנהיגות","stem":"מי הוציא את בני ישראל ממצרים אל החירות?","hint":"הוא קיבל את הלוחות בהר סיני.","hints":["גדל בבית פרעה","שמו מתחיל ב‑מ"],"explanation":"משה הנהיג את בני ישראל ביציאת מצרים.","choices":[{"id":"a","text":"משה"},{"id":"b","text":"יהושע"},{"id":"c","text":"שלמה"},{"id":"d","text":"שמואל"}],"correct_choice_id":"a","coins":12}'::jsonb),
+  ('dddddddd-0000-0000-0000-000000000004', 'multiple_choice', 3, 'curated', 'auto_passed',
+   '{"tag":"חוכמה","stem":"איזה מלך נודע בחוכמתו ובבניית בית המקדש הראשון?","hint":"בנו של דוד.","hints":["שפט בין שתי הנשים","שמו מתחיל ב‑ש"],"explanation":"שלמה המלך נודע בחוכמתו ובנה את בית המקדש הראשון.","choices":[{"id":"a","text":"שלמה"},{"id":"b","text":"שאול"},{"id":"c","text":"דוד"},{"id":"d","text":"רחבעם"}],"correct_choice_id":"a","coins":12}'::jsonb);
