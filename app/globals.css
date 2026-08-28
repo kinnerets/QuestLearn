@@ -481,3 +481,54 @@ a { color: inherit; text-decoration: none; }
 .topic-meta { font-size: .74rem; color: var(--muted); font-weight: 600; }
 .topic-done { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--mint); color: #fff; flex: none; }
 .topic-done .i { width: 18px; height: 18px; }
+
+/* ── Home: אי המצפן entry ── */
+.compass-cta {
+  display: flex; align-items: center; gap: 12px; margin: 6px 14px 2px; padding: 13px;
+  background: linear-gradient(150deg, #6C63C4, #4A3F9E); color: #fff; border-radius: var(--radius);
+  box-shadow: 0 12px 26px -16px rgba(74,63,158,.75);
+}
+.compass-cta-ico { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: rgba(255,255,255,.18); flex: none; }
+.compass-cta-ico .i { width: 24px; height: 24px; }
+.compass-cta-txt { flex: 1; display: flex; flex-direction: column; }
+.compass-cta-txt b { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; }
+.compass-cta-txt small { opacity: .9; font-weight: 600; font-size: .76rem; }
+.compass-cta .i { color: #fff; }
+
+/* ── Compass area ── */
+.compass { padding: 18px 16px 22px; }
+.compass-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.compass-badge { width: 52px; height: 52px; border-radius: 15px; display: grid; place-items: center; color: #fff; background: linear-gradient(150deg, #6C63C4, #4A3F9E); flex: none; }
+.compass-badge .i { width: 27px; height: 27px; }
+.compass-head h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; }
+.compass-head p { color: var(--muted); font-weight: 600; font-size: .82rem; max-width: 42ch; }
+.world-list { display: flex; flex-direction: column; gap: 11px; margin-bottom: 18px; }
+.world-card { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 13px; color: var(--ink); text-align: start; cursor: pointer; transition: transform .12s, border-color .12s; }
+.world-card:hover { transform: translateY(-2px); }
+.world-ico { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; color: #fff; flex: none; }
+.world-ico .i { width: 25px; height: 25px; }
+.w-vision .world-ico { background: linear-gradient(160deg, #FF5AA6, #C21361); }
+.w-time .world-ico { background: linear-gradient(160deg, #F6D24A, #E0A800); }
+.w-ceo .world-ico { background: linear-gradient(160deg, #7C6CF0, #4A3F9E); }
+.w-heart .world-ico { background: linear-gradient(160deg, #FF7C7C, #E0524B); }
+.world-main { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.world-name { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; }
+.world-meta { color: var(--muted); font-weight: 600; font-size: .76rem; }
+.world-bar { height: 7px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.world-bar i { display: block; height: 100%; border-radius: 999px; background: var(--mint); }
+.world-go { color: var(--muted); }
+.world-go .i { width: 19px; height: 19px; }
+.compass-loading { color: var(--muted); font-weight: 600; text-align: center; padding: 20px; }
+
+/* ── Budget allocation ── */
+.budget-bar { display: flex; align-items: center; justify-content: space-between; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; margin-bottom: 12px; font-weight: 700; font-size: .86rem; color: var(--muted); }
+.budget-coins { display: inline-flex; gap: 4px; }
+.budget-coins i { color: var(--line); }
+.budget-coins i.on { color: var(--gold-ink); }
+.budget-coins .i { width: 20px; height: 20px; }
+.alloc-count { font-family: var(--font-display); font-weight: 800; color: var(--magenta-deep); }
+
+/* ── Milestone reveal ── */
+.milestone { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 13px 15px; border-radius: 16px; background: color-mix(in srgb, var(--gold) 22%, var(--surface)); border: 1px solid var(--line); font-family: var(--font-display); font-weight: 700; color: var(--ink); }
+.milestone-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--gold-ink); color: #fff; flex: none; }
+.milestone-ico .i { width: 19px; height: 19px; }

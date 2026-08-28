@@ -13,7 +13,6 @@ const MOCK_CATALOG: SubjectCard[] = [
   { subject: 'math', label: 'חשבון', kind: 'core', accuracy: 0.6, answered: 5, solved: 3, total: 4 },
   { subject: 'arabic', label: 'ערבית', kind: 'lang', accuracy: 0.4, answered: 0, solved: 0, total: 3 },
   { subject: 'future_skills', label: 'שער העתיד', kind: 'future', accuracy: 0.5, answered: 0, solved: 0, total: 2 },
-  { subject: 'leadership', label: 'מנהיגות', kind: 'lead', accuracy: 0.7, answered: 0, solved: 0, total: 1 },
 ];
 
 function tier(m: number) { return m >= 0.7 ? 'good' : m >= 0.4 ? 'mid' : 'low'; }

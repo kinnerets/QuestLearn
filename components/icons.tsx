@@ -73,7 +73,19 @@ export const CloseIcon = () => (
   <Svg><line x1="7" y1="7" x2="17" y2="17" /><line x1="17" y1="7" x2="7" y2="17" /></Svg>
 );
 
+export const BookIcon = () => (
+  <Svg><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" /><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20" /></Svg>
+);
+export const CompassIcon = () => (
+  <Svg><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5z" /></Svg>
+);
+
 export const LEAD_ICON = { star: StarIcon, home: HomeIcon, ear: EarIcon } as const;
+
+// Icons usable inside leadership worlds (compass).
+export const COMPASS_ICON = {
+  star: StarIcon, heart: HeartIcon, spark: SparkIcon, book: BookIcon, home: HomeIcon, ear: EarIcon,
+} as const;
 
 export const STATION_ICON = {
   core: CalcIcon,

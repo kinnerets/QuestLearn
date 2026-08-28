@@ -4,7 +4,7 @@ import { Avatar } from '@/components/Avatar';
 import { Greeting } from '@/components/Greeting';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
-import { CoinIcon, FlameIcon, ChevronIcon, CheckIcon, STATION_ICON } from '@/components/icons';
+import { CoinIcon, FlameIcon, ChevronIcon, CheckIcon, CompassIcon, STATION_ICON } from '@/components/icons';
 import { mili, todayStations } from '@/lib/mockData';
 import { getChildren, getDailyLesson, getTodaySubjects } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
@@ -125,6 +125,15 @@ export default async function HomePage() {
             );
           })}
         </div>
+
+        <Link href="/compass" className="compass-cta">
+          <span className="compass-cta-ico"><CompassIcon /></span>
+          <span className="compass-cta-txt">
+            <b>אי המצפן</b>
+            <small>מנהיגות אישית — 4 עולמות</small>
+          </span>
+          <ChevronIcon />
+        </Link>
 
         <Link href="/map" className="map-cta">
           <span>רוצה נושא אחר? כל הנושאים</span>

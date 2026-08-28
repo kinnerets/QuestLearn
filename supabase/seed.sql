@@ -19,7 +19,10 @@ delete from curriculum_topics where id in (
   'dddddddd-0000-0000-0000-000000000002',
   'dddddddd-0000-0000-0000-000000000003',
   'dddddddd-0000-0000-0000-000000000004',
-  'dddddddd-0000-0000-0000-000000000005'
+  'dddddddd-0000-0000-0000-000000000005',
+  'eeeeeeee-0000-0000-0000-000000000001',
+  'eeeeeeee-0000-0000-0000-000000000002',
+  'eeeeeeee-0000-0000-0000-000000000003'
 );
 delete from reward_store where family_id = '11111111-1111-1111-1111-111111111111';
 
@@ -45,7 +48,10 @@ insert into curriculum_topics (id, grade, subject, sub_topic, order_index, arabi
   ('bbbbbbbb-0000-0000-0000-000000000001', 'grade_5', 'math', 'שברים', 1, null),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'grade_5', 'arabic', 'קריאה ספרותית', 1, 'msa'),
   ('aaaaaaaa-0000-0000-0000-000000000003', 'enrichment', 'future_skills', 'יזמות: המצאות', 1, null),
-  ('aaaaaaaa-0000-0000-0000-000000000004', 'enrichment', 'leadership', 'בנק הלב', 1, null),
+  ('eeeeeeee-0000-0000-0000-000000000001', 'enrichment', 'leadership', 'דרכון החלומות', 1, null),
+  ('eeeeeeee-0000-0000-0000-000000000002', 'enrichment', 'leadership', 'מטבעות הזמן', 2, null),
+  ('eeeeeeee-0000-0000-0000-000000000003', 'enrichment', 'leadership', 'חדר המנכ״לית', 3, null),
+  ('aaaaaaaa-0000-0000-0000-000000000004', 'enrichment', 'leadership', 'בנק הלב', 4, null),
   ('cccccccc-0000-0000-0000-000000000001', 'grade_3', 'geometry', 'צורות', 1, null),
   ('cccccccc-0000-0000-0000-000000000002', 'grade_3', 'hebrew', 'אוצר מילים', 1, null),
   ('cccccccc-0000-0000-0000-000000000003', 'grade_5', 'geometry', 'שטח והיקף', 1, null),
@@ -156,6 +162,15 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"ארץ ישראל","stem":"מהי בירת ישראל?","hint":"עיר עתיקה עם החומות, במרכז הארץ.","choices":[{"id":"a","text":"ירושלים"},{"id":"b","text":"תל אביב","misconception":"largest_city_is_capital"},{"id":"c","text":"חיפה"},{"id":"d","text":"אילת"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000005', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"ארץ ישראל","stem":"איזה מקום בישראל הוא הנקודה הנמוכה ביותר ביבשה בעולם?","hint":"ים מלוח מאוד שאפשר לצוף בו בקלות.","choices":[{"id":"a","text":"ים המלח"},{"id":"b","text":"הכנרת"},{"id":"c","text":"הים התיכון"},{"id":"d","text":"ים סוף"}],"correct_choice_id":"a","coins":12}'::jsonb);
+
+-- Leadership worlds ("אי המצפן"): reflective micro-missions, no right/wrong.
+insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
+  ('eeeeeeee-0000-0000-0000-000000000001', 'reflection_log', 1, 'curated', 'auto_passed',
+   '{"world":1,"kind":"reflection","prompt":"איזו פעולה קטנה עשית היום שמקרבת אותך למי שאת רוצה להיות?","note":"אין כאן תשובה נכונה — כל חותמת מקדמת אותך.","options":[{"id":"hobby","label":"התמדתי בתחביב שאני אוהבת","icon":"star"},{"id":"friend","label":"הייתי חברה טובה","icon":"heart"},{"id":"brave","label":"ניסיתי משהו חדש שהפחיד אותי","icon":"spark"},{"id":"grow","label":"למדתי משהו בעצמי","icon":"book"}]}'::jsonb),
+  ('eeeeeeee-0000-0000-0000-000000000002', 'budget_allocation', 1, 'curated', 'auto_passed',
+   '{"world":2,"kind":"budget","prompt":"יש לך 5 מטבעות זמן להיום. איך תחלקי אותן?","coins":5,"note":"אי אפשר הכל — לבחור משהו זה גם להגיד ''כן'' לעצמך.","options":[{"id":"club","label":"חוג","icon":"star"},{"id":"screen","label":"מסך","icon":"spark"},{"id":"rest","label":"מנוחה","icon":"heart"},{"id":"friend","label":"זמן עם חברה","icon":"home"}]}'::jsonb),
+  ('eeeeeeee-0000-0000-0000-000000000003', 'choice_scenario', 1, 'curated', 'auto_passed',
+   '{"world":3,"kind":"scenario","prompt":"חברה מבקשת שתכיני בשבילה שיעורי בית, ואת עמוסה. איך תגידי ''לא'' בצורה יפה?","note":"סירוב מנומס הוא כוח, לא מרד.","choices":[{"id":"a","label":"אני לא יכולה היום — בא לך שנעשה יחד בפעם אחרת?","icon":"star"},{"id":"b","label":"אני עמוסה עכשיו, אבל אשמח לעזור לך להבין משהו קטן","icon":"home"},{"id":"c","label":"היום אני צריכה את הזמן שלי, סבבה?","icon":"ear"}]}'::jsonb);
 
 -- Reward store (shared family catalog)
 insert into reward_store (family_id, title, category, cost_coins) values

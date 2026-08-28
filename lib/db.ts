@@ -52,15 +52,18 @@ export interface DbLeadStation {
 
 export type DbStation = DbAcademicStation | DbLeadStation;
 
-// The daily journey has 4 slots. Each slot rotates day-to-day through its
-// candidate subjects (whichever have content), so the mix changes and breadth
-// is covered across the week. Leadership is always the 4th micro-station.
+// The daily journey rotates day-to-day through each slot's candidate subjects
+// (whichever have content), so the mix changes and breadth is covered across
+// the week. Leadership is NOT here — it lives in its own reflective area
+// ("אי המצפן", /compass), which is not scored by accuracy.
 const DAILY_SLOTS: { kind: StationKind; subjects: Subject[] }[] = [
   { kind: 'core', subjects: ['math', 'geometry', 'hebrew', 'bible'] },
   { kind: 'lang', subjects: ['arabic', 'english'] },
   { kind: 'future', subjects: ['future_skills', 'science', 'geography'] },
-  { kind: 'lead', subjects: ['leadership'] },
 ];
+
+// Leadership topic ids are excluded from academic accuracy/catalog.
+const LEADERSHIP_SUBJECT = 'leadership';
 
 interface TopicRow { id: string; subject: string; sub_topic: string; grade: string }
 interface QRow { id: string; topic_id: string; type: string; difficulty: number; payload: Record<string, unknown> }
@@ -195,13 +198,19 @@ export async function getChildReport(childId: string): Promise<ChildReport | nul
   if (!sb) return null;
   try {
     const since = new Date(Date.now() - 7 * 86_400_000).toISOString();
+    // Leadership "deposits" aren't graded — keep them out of academic accuracy.
+    const { data: leadTopics } = await sb
+      .from('curriculum_topics').select('id').eq('subject', LEADERSHIP_SUBJECT);
+    const leadIds = new Set((leadTopics ?? []).map((t) => t.id as string));
+
     const { data: attempts } = await sb
       .from('attempts_log')
-      .select('is_correct,created_at')
+      .select('is_correct,created_at,topic_id')
       .eq('user_id', childId)
       .gte('created_at', since);
-    const answered = attempts?.length ?? 0;
-    const correct = attempts?.filter((a) => a.is_correct).length ?? 0;
+    const graded = (attempts ?? []).filter((a) => !leadIds.has(a.topic_id as string));
+    const answered = graded.length;
+    const correct = graded.filter((a) => a.is_correct).length;
     const activeDays = new Set((attempts ?? []).map((a) => String(a.created_at).slice(0, 10))).size;
 
     const { data: mastery } = await sb
@@ -461,7 +470,8 @@ export async function getSubjectCatalog(grade: string, childId: string): Promise
       tally.set(subject, e);
     }
 
-    const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography', 'future_skills', 'leadership'];
+    // Leadership is excluded — it has its own reflective area (/compass).
+    const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography', 'future_skills'];
     const cards: SubjectCard[] = [];
     for (const subject of order) {
       const e = bySubject.get(subject);
@@ -634,5 +644,85 @@ export async function redeemReward(childId: string, rewardId: string): Promise<R
     return { ok: true, voucher, coins: left };
   } catch {
     return { ok: false, reason: 'error' };
+  }
+}
+
+export interface CompassOption { id: string; label: string; icon: string }
+export interface CompassWorld {
+  topicId: string;
+  questionId: string;
+  order: number;
+  name: string;
+  kind: 'reflection' | 'budget' | 'scenario';
+  prompt: string;
+  note: string;
+  options: CompassOption[];
+  coins?: number;      // budget worlds: how many time-coins to allocate
+  deposits: number;    // how many times the child has engaged this world
+}
+
+/** The 4 leadership worlds of "אי המצפן", with this child's deposit counts. */
+export async function getCompassWorlds(childId: string): Promise<CompassWorld[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data: topics } = await sb
+      .from('curriculum_topics')
+      .select('id,sub_topic,order_index')
+      .eq('subject', LEADERSHIP_SUBJECT)
+      .order('order_index', { ascending: true });
+    if (!topics?.length) return null;
+    const ids = topics.map((t) => t.id);
+
+    const { data: qs } = await sb
+      .from('questions_bank')
+      .select('id,topic_id,payload')
+      .in('topic_id', ids);
+    const qByTopic = new Map<string, { id: string; payload: Record<string, unknown> }>();
+    for (const q of qs ?? []) {
+      if (!qByTopic.has(q.topic_id as string)) {
+        qByTopic.set(q.topic_id as string, { id: q.id as string, payload: q.payload as Record<string, unknown> });
+      }
+    }
+
+    const { data: att } = await sb
+      .from('attempts_log').select('topic_id').eq('user_id', childId).in('topic_id', ids);
+    const counts = new Map<string, number>();
+    for (const a of att ?? []) counts.set(a.topic_id as string, (counts.get(a.topic_id as string) ?? 0) + 1);
+
+    const worlds: CompassWorld[] = [];
+    for (const t of topics) {
+      const q = qByTopic.get(t.id);
+      if (!q) continue;
+      const p = q.payload;
+      const raw = (p.options ?? p.choices ?? []) as { id: string; label: string; icon: string }[];
+      worlds.push({
+        topicId: t.id, questionId: q.id, order: Number(t.order_index ?? 0),
+        name: t.sub_topic,
+        kind: (p.kind as CompassWorld['kind']) ?? 'scenario',
+        prompt: String(p.prompt ?? ''), note: String(p.note ?? ''),
+        options: raw.map((o) => ({ id: o.id, label: o.label, icon: o.icon })),
+        coins: typeof p.coins === 'number' ? (p.coins as number) : undefined,
+        deposits: counts.get(t.id) ?? 0,
+      });
+    }
+    return worlds;
+  } catch {
+    return null;
+  }
+}
+
+/** Record one leadership "deposit" (stamp / choice / allocation). No scoring. */
+export async function recordDeposit(childId: string, topicId: string, questionId: string, choice: unknown): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    await sb.from('attempts_log').insert({
+      user_id: childId, question_id: questionId, topic_id: topicId,
+      is_correct: true, chosen_answer: choice ?? null, hints_used: 0,
+    });
+    return true;
+  } catch {
+    return false;
   }
 }
