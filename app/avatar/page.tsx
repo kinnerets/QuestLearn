@@ -12,32 +12,44 @@ const SKIN = ['#FCE0C8', '#F1C9A5', '#E8B98F', '#C68642', '#8D5524'];
 const HAIR = ['#1F1B18', '#3B2A1E', '#7A4B2B', '#B5651D', '#E4A11B', '#C0C0C0'];
 const TOP = ['#FF2A85', '#38BDF8', '#2FBF8F', '#FACC15', '#8B5CF6', '#F97316'];
 
-const HAIRSTYLES = [
+// `premium` options are locked until bought in the shop (value must match the
+// avatar_items svg_layer.value seeded in the DB).
+const HAIRSTYLES: OptDef<string>[] = [
   { id: 'long', label: 'ארוך' },
   { id: 'short', label: 'קצר' },
+  { id: 'ponytail', label: 'קוקו', premium: true },
 ];
-const ACCESSORIES: { id: string | null; label: string }[] = [
+const ACCESSORIES: OptDef<string | null>[] = [
   { id: null, label: 'ללא' },
   { id: 'bow', label: 'סרט' },
   { id: 'glasses', label: 'משקפיים' },
+  { id: 'flower', label: 'פרח', premium: true },
+  { id: 'headphones', label: 'אוזניות', premium: true },
+  { id: 'crown', label: 'כתר', premium: true },
 ];
 const BASES = [
   { id: 'girl', label: 'ילדה' },
   { id: 'boy', label: 'ילד' },
 ];
 
+type OptDef<T> = { id: T; label: string; premium?: boolean };
 type Status = 'idle' | 'saving' | 'saved' | 'error';
 
 export default function AvatarPage() {
   const router = useRouter();
   const [cfg, setCfg] = useState<AvatarConfig>(miliAvatar);
   const [status, setStatus] = useState<Status>('idle');
+  const [owned, setOwned] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let alive = true;
     fetch('/api/profile')
       .then((r) => r.json())
       .then((j) => { if (alive && j?.child?.avatar) setCfg(j.child.avatar as AvatarConfig); })
+      .catch(() => {});
+    fetch('/api/avatar/items')
+      .then((r) => r.json())
+      .then((j) => { if (alive && Array.isArray(j?.owned)) setOwned(new Set(j.owned as string[])); })
       .catch(() => {});
     return () => { alive = false; };
   }, []);
@@ -75,9 +87,9 @@ export default function AvatarPage() {
         <Swatches label="צבע חולצה" values={TOP} current={cfg.top_color}
           onPick={(v) => set({ top_color: v })} />
 
-        <Chips label="תסרוקת" options={HAIRSTYLES} current={cfg.hairstyle_id}
+        <Chips label="תסרוקת" options={HAIRSTYLES} current={cfg.hairstyle_id} owned={owned}
           onPick={(id) => set({ hairstyle_id: id })} />
-        <Chips label="אקססורי" options={ACCESSORIES} current={cfg.accessory_id}
+        <Chips label="אקססורי" options={ACCESSORIES} current={cfg.accessory_id} owned={owned}
           onPick={(id) => set({ accessory_id: id })} />
         <Chips label="דמות" options={BASES} current={cfg.base}
           onPick={(id) => set({ base: id as AvatarConfig['base'] })} />
@@ -111,18 +123,28 @@ function Swatches({ label, values, current, onPick }: {
   );
 }
 
-function Chips<T extends string | null>({ label, options, current, onPick }: {
-  label: string; options: { id: T; label: string }[]; current: T; onPick: (id: T) => void;
+function Chips<T extends string | null>({ label, options, current, onPick, owned }: {
+  label: string; options: OptDef<T>[]; current: T; onPick: (id: T) => void; owned?: Set<string>;
 }) {
   return (
     <div className="av-group">
       <div className="av-label">{label}</div>
       <div className="av-row">
-        {options.map((o) => (
-          <button key={o.id ?? 'none'} className={`chip${current === o.id ? ' on' : ''}`}
-            onClick={() => onPick(o.id)}>{o.label}</button>
-        ))}
+        {options.map((o) => {
+          const locked = !!o.premium && !(owned?.has(o.id as string));
+          return (
+            <button key={o.id ?? 'none'}
+              className={`chip${current === o.id ? ' on' : ''}${locked ? ' locked' : ''}`}
+              onClick={() => (locked ? undefined : onPick(o.id))}
+              aria-disabled={locked}>
+              {o.label}{locked && <span className="chip-lock">🔒</span>}
+            </button>
+          );
+        })}
       </div>
+      {owned && options.some((o) => o.premium && !owned.has(o.id as string)) && (
+        <Link href="/shop" className="av-shop-hint">פריטים נעולים? קני אותם בחנות ›</Link>
+      )}
     </div>
   );
 }

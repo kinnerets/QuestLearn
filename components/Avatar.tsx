@@ -16,7 +16,8 @@ export function Avatar({
 }) {
   const { base, skin_tone: skin, hair_color: hair, top_color: top, accessory_id, hairstyle_id } = config;
   const isGirl = base === 'girl';
-  const longHair = hairstyle_id !== 'short';
+  const ponytail = hairstyle_id === 'ponytail';
+  const longHair = hairstyle_id !== 'short' && !ponytail;
   const viewBox = crop ? '46 32 108 108' : '0 0 200 168';
 
   return (
@@ -33,6 +34,14 @@ export function Avatar({
           d="M52 94 C52 52 74 34 100 34 C126 34 148 52 148 94 L148 152 C140 146 132 144 126 144 L74 144 C68 144 60 146 52 152 Z"
           fill={hair}
         />
+      )}
+      {/* hairstyle: ponytail (tie + swept tail on the side) */}
+      {isGirl && ponytail && (
+        <g>
+          <path d="M56 92 C56 54 76 36 100 36 C124 36 144 54 144 92 C136 78 120 70 100 70 C80 70 64 78 56 92 Z" fill={hair} />
+          <path d="M140 74 C164 78 176 100 172 128 C170 142 162 150 152 150 C160 136 158 112 146 96 C142 90 140 82 140 74 Z" fill={hair} />
+          <ellipse cx="140" cy="80" rx="7" ry="8" fill="#FF2A85" />
+        </g>
       )}
       {/* ears */}
       <circle cx="62" cy="98" r="9" fill={skin} />
@@ -74,6 +83,36 @@ export function Avatar({
           <circle cx="116" cy="98" r="12" />
           <path d="M96 98 h8" strokeLinecap="round" />
           <path d="M72 96 l-9 -3M128 96 l9 -3" strokeLinecap="round" />
+        </g>
+      )}
+      {/* accessory: crown (premium) */}
+      {accessory_id === 'crown' && (
+        <g>
+          <path d="M68 52 L74 32 L88 46 L100 26 L112 46 L126 32 L132 52 Z" fill="#FFD23F" stroke="#E0A400" strokeWidth="2" strokeLinejoin="round" />
+          <circle cx="74" cy="32" r="4" fill="#FF3D8B" />
+          <circle cx="100" cy="26" r="4.5" fill="#38BDF8" />
+          <circle cx="126" cy="32" r="4" fill="#FF3D8B" />
+          <rect x="68" y="50" width="64" height="7" rx="2" fill="#FFC21F" />
+        </g>
+      )}
+      {/* accessory: headphones (premium) */}
+      {accessory_id === 'headphones' && (
+        <g>
+          <path d="M56 96 C56 58 76 42 100 42 C124 42 144 58 144 96" fill="none" stroke="#7C3AED" strokeWidth="7" strokeLinecap="round" />
+          <rect x="48" y="90" width="16" height="26" rx="7" fill="#7C3AED" />
+          <rect x="136" y="90" width="16" height="26" rx="7" fill="#7C3AED" />
+          <rect x="51" y="94" width="10" height="18" rx="5" fill="#C4B5FD" />
+          <rect x="139" y="94" width="10" height="18" rx="5" fill="#C4B5FD" />
+        </g>
+      )}
+      {/* accessory: flower (premium) */}
+      {accessory_id === 'flower' && (
+        <g>
+          {[0, 72, 144, 216, 288].map((a) => (
+            <ellipse key={a} cx="132" cy="58" rx="6" ry="9"
+              fill="#FF6FB5" transform={`rotate(${a} 132 58)`} />
+          ))}
+          <circle cx="132" cy="58" r="5" fill="#FFD23F" />
         </g>
       )}
     </svg>

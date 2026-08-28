@@ -203,3 +203,19 @@ insert into reward_store (family_id, title, category, cost_coins) values
   ('11111111-1111-1111-1111-111111111111', 'חצי שעה זמן מסך', 'screen_time', 150),
   ('11111111-1111-1111-1111-111111111111', 'ערב סרטים משפחתי', 'family_activity', 150),
   ('11111111-1111-1111-1111-111111111111', 'לבחור את ארוחת הערב', 'privilege', 200);
+
+-- ─────────────── Avatar shop (premium items, bought with coins) ───────────────
+-- svg_layer.value must match the id the Avatar renderer + editor expect
+-- (accessory_id / hairstyle_id). Stable UUIDs so re-running the seed is idempotent.
+insert into avatar_items (id, slot, name, svg_layer, unlock_type, cost_coins) values
+  ('a0a00000-0000-4000-8000-000000000001', 'accessory', 'פרח בשיער',
+   '{"value":"flower","label":"פרח","emoji":"🌸"}'::jsonb, 'coins', 25),
+  ('a0a00000-0000-4000-8000-000000000002', 'hairstyle', 'תסרוקת קוקו',
+   '{"value":"ponytail","label":"קוקו","emoji":"💇‍♀️"}'::jsonb, 'coins', 30),
+  ('a0a00000-0000-4000-8000-000000000003', 'accessory', 'אוזניות',
+   '{"value":"headphones","label":"אוזניות","emoji":"🎧"}'::jsonb, 'coins', 35),
+  ('a0a00000-0000-4000-8000-000000000004', 'accessory', 'כתר מלכה',
+   '{"value":"crown","label":"כתר","emoji":"👑"}'::jsonb, 'coins', 45)
+on conflict (id) do update set
+  slot = excluded.slot, name = excluded.name, svg_layer = excluded.svg_layer,
+  unlock_type = excluded.unlock_type, cost_coins = excluded.cost_coins;

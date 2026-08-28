@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { BottomNav } from '@/components/BottomNav';
-import { getChildren, getRewards, type Reward } from '@/lib/db';
+import { getChildren, getRewards, getAvatarShop, type Reward, type AvatarItem } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import { mili } from '@/lib/mockData';
 import { ShopList } from './ShopList';
@@ -21,11 +21,13 @@ export default async function ShopPage() {
   }
   const child = children?.find((c) => c.id === selectedId) ?? children?.[0] ?? null;
   const rewards = (await getRewards()) ?? MOCK_REWARDS;
+  const shop = child ? await getAvatarShop(child.id) : null;
   const coins = child?.coins ?? mili.quest_coins;
+  const items: AvatarItem[] = shop?.items ?? [];
 
   return (
     <main className="app-shell">
-      <ShopList rewards={rewards} coins={coins} />
+      <ShopList rewards={rewards} coins={coins} avatarItems={items} />
       <BottomNav active="/shop" />
     </main>
   );

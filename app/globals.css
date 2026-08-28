@@ -278,6 +278,9 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-display); cursor: pointer; transition: border-color .12s, background .12s;
 }
 .chip.on { border-color: var(--magenta); background: rgba(255,42,133,.10); color: var(--magenta-deep); }
+.chip.locked { opacity: .58; border-style: dashed; cursor: not-allowed; }
+.chip-lock { margin-inline-start: 5px; font-size: .78em; }
+.av-shop-hint { display: block; margin-top: 9px; font-size: .8rem; font-weight: 700; color: var(--magenta-deep); text-decoration: none; }
 .av-err { color: var(--magenta-deep); font-weight: 700; font-size: .85rem; text-align: center; margin-top: 8px; }
 
 /* ── Parent entry link (home) ── */
@@ -446,9 +449,25 @@ a { color: inherit; text-decoration: none; }
 .reward-btn { border: none; border-radius: 12px; padding: 9px 15px; font-family: var(--font-display); font-weight: 700; font-size: .9rem; background: var(--magenta); color: #fff; cursor: pointer; }
 .reward-btn:disabled { background: var(--line); color: var(--muted); cursor: default; }
 .shop-err { color: var(--magenta-deep); font-weight: 700; text-align: center; margin-top: 10px; }
-.shop-soon { display: flex; align-items: center; gap: 10px; margin-top: 18px; color: var(--muted); font-weight: 600; font-size: .86rem; }
-.shop-soon .reward-ico.soon { width: 34px; height: 34px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
-.shop-soon .reward-ico.soon .i { width: 18px; height: 18px; }
+.shop-editlink { font-family: var(--font-display); font-weight: 700; font-size: .82rem; color: var(--magenta-deep); text-decoration: none; }
+.av-shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0 8px; }
+.av-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 12px 8px;
+}
+.av-item.locked { opacity: .82; }
+.av-item.owned { border-color: var(--mint, #2FBF8F); background: rgba(47,191,143,.08); }
+.av-item-emoji { font-size: 1.7rem; line-height: 1; }
+.av-item-name { font-family: var(--font-display); font-weight: 700; font-size: .82rem; color: var(--ink); text-align: center; }
+.av-item-btn {
+  display: inline-flex; align-items: center; gap: 4px; border: none; border-radius: 999px;
+  padding: 6px 13px; font-family: var(--font-display); font-weight: 700; font-size: .84rem;
+  background: var(--magenta); color: #fff; cursor: pointer;
+}
+.av-item-btn .i { width: 15px; height: 15px; }
+.av-item-btn:disabled { background: var(--line); color: var(--muted); cursor: default; }
+.av-item-owned { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: .8rem; color: var(--mint, #2FBF8F); }
+.av-item-owned .i { width: 15px; height: 15px; }
 
 /* ── Voucher ── */
 .voucher { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 30px 16px; gap: 8px; }

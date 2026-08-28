@@ -304,6 +304,113 @@ export async function saveAvatar(childId: string, config: AvatarConfig): Promise
  * week. `round` (1-based) shifts both the subject and the question within a
  * topic, so "עוד מסע" serves fresh, gently harder material.
  */
+// ─────────────────────────── Avatar shop ───────────────────────────
+export interface AvatarItem {
+  id: string;
+  slot: string;          // 'accessory' | 'hairstyle' | ...
+  value: string;         // config value this item unlocks (accessory_id / hairstyle_id)
+  label: string;
+  emoji: string;
+  cost: number;
+  owned: boolean;
+}
+export interface AvatarShop { items: AvatarItem[]; coins: number }
+
+function mapAvatarLayer(row: { id: string; slot: string; svg_layer: unknown; cost_coins: number | null }, owned: Set<string>): AvatarItem {
+  const layer = (row.svg_layer ?? {}) as { value?: string; label?: string; emoji?: string };
+  return {
+    id: row.id,
+    slot: row.slot,
+    value: layer.value ?? '',
+    label: layer.label ?? row.slot,
+    emoji: layer.emoji ?? '✨',
+    cost: row.cost_coins ?? 0,
+    owned: owned.has(row.id),
+  };
+}
+
+/** Purchasable avatar items (unlock_type='coins') with this child's ownership. */
+export async function getAvatarShop(childId: string): Promise<AvatarShop | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const [{ data: items }, { data: owned }, child] = await Promise.all([
+      sb.from('avatar_items').select('id,slot,svg_layer,cost_coins').eq('unlock_type', 'coins').order('cost_coins', { ascending: true }),
+      sb.from('user_avatar_items').select('item_id').eq('user_id', childId),
+      getChildProfileById(childId),
+    ]);
+    if (!items) return null;
+    const ownedSet = new Set((owned ?? []).map((r) => r.item_id as string));
+    return {
+      items: items.map((r) => mapAvatarLayer(r, ownedSet)),
+      coins: child?.coins ?? 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** The set of premium item *values* this child owns (for gating the editor). */
+export async function getOwnedItemValues(childId: string): Promise<string[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  try {
+    const { data } = await sb
+      .from('user_avatar_items')
+      .select('avatar_items(svg_layer)')
+      .eq('user_id', childId);
+    if (!data) return [];
+    return data
+      .map((r) => {
+        const it = (r as { avatar_items?: { svg_layer?: { value?: string } } }).avatar_items;
+        return it?.svg_layer?.value ?? null;
+      })
+      .filter((v): v is string => !!v);
+  } catch {
+    return [];
+  }
+}
+
+export interface BuyResult { ok: boolean; reason?: string; coins?: number }
+
+/** Buy an avatar item: verify affordability + not already owned, deduct coins. */
+export async function buyAvatarItem(childId: string, itemId: string): Promise<BuyResult> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, reason: 'no-db' };
+  try {
+    const child = await getChildProfileById(childId);
+    if (!child) return { ok: false, reason: 'no-child' };
+    const { data: item } = await sb
+      .from('avatar_items')
+      .select('id,cost_coins,unlock_type')
+      .eq('id', itemId)
+      .maybeSingle();
+    if (!item || item.unlock_type !== 'coins') return { ok: false, reason: 'no-item' };
+
+    const { data: already } = await sb
+      .from('user_avatar_items')
+      .select('item_id')
+      .eq('user_id', child.id).eq('item_id', itemId)
+      .limit(1);
+    if (already?.length) return { ok: false, reason: 'owned' };
+
+    const cost = item.cost_coins ?? 0;
+    if (child.coins < cost) return { ok: false, reason: 'not-enough' };
+
+    const left = child.coins - cost;
+    await sb.from('users').update({ quest_coins: left }).eq('id', child.id);
+    const { error } = await sb.from('user_avatar_items').insert({ user_id: child.id, item_id: itemId });
+    if (error) {
+      // roll the coins back if the ownership row failed to persist
+      await sb.from('users').update({ quest_coins: child.coins }).eq('id', child.id);
+      return { ok: false, reason: 'insert-failed' };
+    }
+    return { ok: true, coins: left };
+  } catch {
+    return { ok: false, reason: 'error' };
+  }
+}
+
 export async function getDailyLesson(grade = 'grade_3', round = 1): Promise<DbStation[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
