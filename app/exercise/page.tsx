@@ -26,7 +26,8 @@ function mapDbLesson(db: DbStation[]): Station[] {
     return {
       kind: s.kind, title: s.title, position, subjectLabel: s.subtitle, tag: s.tag, stem: s.stem,
       choices: s.choices.map((c) => ({ id: c.id, text: c.text, misconception: c.misconception })),
-      correctId: s.correctId, hint: s.hint, coins: s.coins,
+      correctId: s.correctId, hint: s.hint, hint2: s.hint2, explanation: s.explanation,
+      difficulty: s.difficulty, coins: s.coins,
       questionId: s.questionId, topicId: s.topicId,
     };
   });
@@ -36,22 +37,49 @@ export default function ExercisePage() {
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
   const [allSolved, setAllSolved] = useState(false);
-  const [index, setIndex] = useState(0);
   const [coins, setCoins] = useState(mili.quest_coins);
   const [earned, setEarned] = useState(0);
   const [finished, setFinished] = useState(false);
   const [correct, setCorrect] = useState(0);
   const [answered, setAnswered] = useState(0);
 
+  // Adaptive difficulty: pick the next question near the current level.
+  const [currentIdx, setCurrentIdx] = useState(-1);
+  const [doneIdx, setDoneIdx] = useState<Set<number>>(new Set());
+  const [level, setLevel] = useState(1);
+  const [cleanStreak, setCleanStreak] = useState(0);
+
   // per-station state
   const [tries, setTries] = useState(0);
   const [chosenId, setChosenId] = useState<string | null>(null);
   const [wrongIds, setWrongIds] = useState<string[]>([]);
+  const [eliminated, setEliminated] = useState<string[]>([]);
   const [revealed, setRevealed] = useState(false);
   const [phase, setPhase] = useState<Phase>('playing');
   const [mood, setMood] = useState<CapiMood>('chill');
   const [message, setMessage] = useState<string>('');
   const [heartFilled, setHeartFilled] = useState(false);
+
+  const diffOf = (s: Station) => (s.kind === 'lead' ? 3 : (s.difficulty ?? 2));
+  function pickNext(done: Set<number>, target: number): number {
+    let best = -1, bestDist = Infinity;
+    stations.forEach((s, i) => {
+      if (done.has(i)) return;
+      const dist = Math.abs(diffOf(s) - target);
+      if (dist < bestDist) { bestDist = dist; best = i; }
+    });
+    return best;
+  }
+
+  // Start at the easiest question once the pool loads.
+  useEffect(() => {
+    if (stations.length && currentIdx === -1) {
+      const minD = Math.min(...stations.map(diffOf));
+      setLevel(minD);
+      setCurrentIdx(pickNext(new Set(), minD));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stations]);
 
   // Load this session's questions (a focused subject, or the daily journey).
   useEffect(() => {
@@ -79,7 +107,7 @@ export default function ExercisePage() {
     return () => { alive = false; };
   }, []);
 
-  const station = stations[index];
+  const station = stations[currentIdx];
 
   function logAttempt(st: AcademicStation, isCorrect: boolean, hintsUsed: number, misconception?: string) {
     if (!st.questionId || !st.topicId) return; // bundled fallback has no ids
@@ -93,7 +121,7 @@ export default function ExercisePage() {
   }
 
   function resetStation() {
-    setTries(0); setChosenId(null); setWrongIds([]); setRevealed(false);
+    setTries(0); setChosenId(null); setWrongIds([]); setEliminated([]); setRevealed(false);
     setPhase('playing'); setMood('chill'); setMessage(''); setHeartFilled(false);
   }
 
@@ -108,7 +136,9 @@ export default function ExercisePage() {
   }
 
   function next() {
-    if (index + 1 >= stations.length) {
+    const done = new Set(doneIdx);
+    done.add(currentIdx);
+    if (done.size >= stations.length) {
       fetch('/api/quest/complete', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ coins: earned, xp: correct * 10 }),
@@ -117,7 +147,8 @@ export default function ExercisePage() {
       setFinished(true);
       return;
     }
-    setIndex(index + 1);
+    setDoneIdx(done);
+    setCurrentIdx(pickNext(done, level)); // level already reflects the last outcome
     resetStation();
   }
 
@@ -133,21 +164,36 @@ export default function ExercisePage() {
       setMessage(`${pick(PRAISE)} +${st.coins} מטבעות.`);
       setPhase('done');
       logAttempt(st, true, tries);
+      // Adaptive: a clean first-try correct builds a streak → step difficulty up.
+      if (tries === 0) {
+        setCleanStreak((s) => { const ns = s + 1; if (ns >= 2) { setLevel((l) => Math.min(5, l + 1)); return 0; } return ns; });
+      } else setCleanStreak(0);
     } else {
       const t = tries + 1;
       setTries(t);
       setWrongIds((w) => [...w, choiceId]);
-      if (t >= 2) {
+      if (t === 1) {
+        // Hint 1 — a gentle direction.
+        setMood('hint');
+        setMessage('כיוון: ' + st.hint);
+      } else if (t === 2) {
+        // Hint 2 — narrow the field: remove one more wrong option, plus a stronger hint.
+        const gone = st.choices.find((c) => c.id !== st.correctId && c.id !== choiceId
+          && !eliminated.includes(c.id) && !wrongIds.includes(c.id));
+        if (gone) setEliminated((e) => [...e, gone.id]);
+        setMood('hint');
+        setMessage(st.hint2 ? ('רמז נוסף: ' + st.hint2) : 'מתקרבות. הורדתי אפשרות שגויה — נסי שוב.');
+      } else {
+        // Reveal — the answer with an explanation. No punishment.
         setRevealed(true);
         setAnswered((n) => n + 1);
         setMood('chill');
-        setMessage(pick(GENTLE));
-        setPhase('done');
+        setCleanStreak(0);
+        setLevel((l) => Math.max(1, l - 1)); // struggled → ease difficulty down
         const mis = st.choices.find((c) => c.id === choiceId)?.misconception;
-        logAttempt(st, false, 1, mis);
-      } else {
-        setMood('hint');
-        setMessage('כמעט. ' + st.hint);
+        setMessage(pick(GENTLE) + (st.explanation ? ' ' + st.explanation : ''));
+        setPhase('done');
+        logAttempt(st, false, 2, mis);
       }
     }
   }
@@ -172,7 +218,7 @@ export default function ExercisePage() {
         <Link href="/" className="ex-back" aria-label="חזרה"><CloseIcon /></Link>
         <div className="ex-progress">
           {stations.map((_, i) => (
-            <span key={i} className={`pip${i < index ? ' fill' : ''}${i === index ? ' cur' : ''}`} />
+            <span key={i} className={`pip${doneIdx.has(i) ? ' fill' : ''}${i === currentIdx ? ' cur' : ''}`} />
           ))}
         </div>
         <div className="ex-coins"><CoinIcon /><span>{coins}</span></div>
@@ -187,7 +233,7 @@ export default function ExercisePage() {
 
         {station.kind === 'lead'
           ? <LeadView st={station} picked={chosenId} heartFilled={heartFilled} onPick={chooseLead} />
-          : <AcademicView st={station} chosenId={chosenId} wrongIds={wrongIds}
+          : <AcademicView st={station} chosenId={chosenId} wrongIds={wrongIds} eliminated={eliminated}
               revealed={revealed} locked={phase === 'done'} onAnswer={(id) => answer(station, id)} />}
 
         {message && (
@@ -200,7 +246,7 @@ export default function ExercisePage() {
         <div className="foot">
           {phase === 'done' && (
             <button className="cta" onClick={next}>
-              {index + 1 >= stations.length ? 'סיום' : 'ממשיכות'}
+              {doneIdx.size + 1 >= stations.length ? 'סיום' : 'ממשיכות'}
             </button>
           )}
         </div>
@@ -222,9 +268,9 @@ function Loader() {
 }
 
 function AcademicView({
-  st, chosenId, wrongIds, revealed, locked, onAnswer,
+  st, chosenId, wrongIds, eliminated, revealed, locked, onAnswer,
 }: {
-  st: AcademicStation; chosenId: string | null; wrongIds: string[];
+  st: AcademicStation; chosenId: string | null; wrongIds: string[]; eliminated: string[];
   revealed: boolean; locked: boolean; onAnswer: (id: string) => void;
 }) {
   return (
@@ -237,9 +283,10 @@ function AcademicView({
         {st.choices.map((c) => {
           const isCorrectPick = chosenId === c.id && c.id === st.correctId;
           const isWrong = wrongIds.includes(c.id);
+          const isGone = eliminated.includes(c.id);
           const showCorrect = isCorrectPick || (revealed && c.id === st.correctId);
-          const cls = `ans${showCorrect ? ' correct' : ''}${isWrong ? ' wrong' : ''}`;
-          const disabled = locked || isWrong;
+          const cls = `ans${showCorrect ? ' correct' : ''}${isWrong ? ' wrong' : ''}${isGone ? ' gone' : ''}`;
+          const disabled = locked || isWrong || isGone;
           return (
             <button key={c.id} className={cls} onClick={() => onAnswer(c.id)} disabled={disabled}>
               <span>{c.text}</span>

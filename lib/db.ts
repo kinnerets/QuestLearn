@@ -31,9 +31,12 @@ export interface DbAcademicStation {
   title: string;
   subtitle: string;
   minutes: number;
+  difficulty: number;
   tag: string;
   stem: string;
   hint: string;
+  hint2?: string;
+  explanation?: string;
   choices: { id: string; text: string; misconception?: string }[];
   correctId: string;
   coins: number;
@@ -113,9 +116,14 @@ function buildStation(kind: StationKind, subject: string, topic: TopicRow, q: QR
       choices: p.choices as DbLeadStation['choices'],
     };
   }
+  const hints = Array.isArray(p.hints) ? (p.hints as string[]) : [];
   return {
     kind, subject, topicId: topic.id, questionId: q.id, title: topic.sub_topic, subtitle, minutes: 2,
-    tag: String(p.tag ?? ''), stem: String(p.stem), hint: String(p.hint ?? ''),
+    difficulty: Number(q.difficulty ?? 1),
+    tag: String(p.tag ?? ''), stem: String(p.stem),
+    hint: String(p.hint ?? hints[0] ?? ''),
+    hint2: p.hint2 ? String(p.hint2) : hints[1],
+    explanation: p.explanation ? String(p.explanation) : undefined,
     choices: p.choices as DbAcademicStation['choices'],
     correctId: String(p.correct_choice_id), coins: Number(p.coins ?? 10),
   };

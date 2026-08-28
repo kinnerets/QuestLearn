@@ -572,3 +572,6 @@ a { color: inherit; text-decoration: none; }
 .badge-ico .i { width: 19px; height: 19px; }
 .badge-label { font-family: var(--font-display); font-weight: 800; font-size: .8rem; color: var(--ink); }
 .badge-desc { font-size: .64rem; color: var(--muted); font-weight: 600; line-height: 1.2; }
+
+/* ── Eliminated answer (hint ladder step 2) ── */
+.ans.gone { opacity: .38; text-decoration: line-through; text-decoration-color: var(--muted); }

@@ -16,6 +16,9 @@ export interface AcademicStation {
   choices: Choice[];
   correctId: string;
   hint: string;
+  hint2?: string;
+  explanation?: string;
+  difficulty?: number;
   coins: number;
   questionId?: string;
   topicId?: string;

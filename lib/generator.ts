@@ -26,11 +26,12 @@ const QUESTION_TOOL = {
         items: {
           type: 'object',
           additionalProperties: false,
-          required: ['tag', 'stem', 'hint', 'choices', 'correct_choice_id'],
+          required: ['tag', 'stem', 'hints', 'explanation', 'choices', 'correct_choice_id'],
           properties: {
             tag: { type: 'string' },
             stem: { type: 'string' },
-            hint: { type: 'string' },
+            hints: { type: 'array', items: { type: 'string' } },
+            explanation: { type: 'string' },
             correct_choice_id: { type: 'string', enum: ['a', 'b', 'c', 'd'] },
             choices: {
               type: 'array',
@@ -79,7 +80,10 @@ export async function generateForTopic(topicId: string, count = GENERATE): Promi
     : '';
 
   const system = `אתה יוצר שאלות לימוד לילדים בעברית לאפליקציה חינוכית.
-כל שאלה: רב-ברירה עם 4 תשובות (מזהים a,b,c,d), בדיוק תשובה נכונה אחת, רמז קצר ומועיל, ולפחות מסיח שגוי אחד עם שדה misconception קצר באנגלית שמסביר את הטעות הנפוצה.
+כל שאלה: רב-ברירה עם 4 תשובות (מזהים a,b,c,d), בדיוק תשובה נכונה אחת.
+hints: מערך של בדיוק 2 רמזים מדורגים — רמז 1 נותן כיוון עדין, רמז 2 חזק וממוקד יותר (כמעט חצי פתרון). אל תחשוף את התשובה ברמזים.
+explanation: משפט קצר שמסביר למה התשובה נכונה (מוצג רק אחרי חשיפת הפתרון).
+לפחות מסיח שגוי אחד עם שדה misconception קצר באנגלית שמסביר את הטעות הנפוצה.
 עברית תקנית וידידותית, מותאמת ל${gradeLabel}. בלי אימוגי. גיוון בין השאלות.`;
 
   const avoid = [...existingStems].slice(0, 40);
@@ -105,7 +109,7 @@ export async function generateForTopic(topicId: string, count = GENERATE): Promi
   }
   if (!Array.isArray(questions)) return { inserted: 0, reason: 'no-output' };
 
-  type Q = { tag?: string; stem?: string; hint?: string; correct_choice_id?: string;
+  type Q = { tag?: string; stem?: string; hints?: string[]; explanation?: string; correct_choice_id?: string;
     choices?: { id?: string; text?: string; misconception?: string }[] };
   const rows: Record<string, unknown>[] = [];
   for (const raw of questions as Q[]) {
@@ -117,13 +121,16 @@ export async function generateForTopic(topicId: string, count = GENERATE): Promi
     const key = norm(String(raw.stem));
     if (existingStems.has(key)) continue; // dedup vs old bank + this batch
     existingStems.add(key);
+    const hints = Array.isArray(raw.hints) ? raw.hints.map(String).filter(Boolean).slice(0, 2) : [];
     rows.push({
       topic_id: topicId, type: 'multiple_choice', difficulty: 2,
       source: 'ai_generated', verification_status: 'auto_passed',
       payload: {
         tag: String(raw.tag ?? ''),
         stem: String(raw.stem),
-        hint: String(raw.hint ?? ''),
+        hint: hints[0] ?? '',
+        hints,
+        explanation: raw.explanation ? String(raw.explanation) : undefined,
         choices: raw.choices.map((c) => ({
           id: c.id, text: String(c.text),
           ...(c.misconception ? { misconception: String(c.misconception) } : {}),
