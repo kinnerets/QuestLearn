@@ -575,3 +575,17 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Eliminated answer (hint ladder step 2) ── */
 .ans.gone { opacity: .38; text-decoration: line-through; text-decoration-color: var(--muted); }
+
+/* ── Knowledge bars (status) ── */
+.kbars { display: flex; flex-direction: column; gap: 11px; }
+.kbar-row { display: flex; align-items: center; gap: 11px; }
+.kbar-ico { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; color: #fff; flex: none; }
+.kbar-ico .i { width: 20px; height: 20px; }
+.kbar-main { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.kbar-name { font-family: var(--font-display); font-weight: 700; font-size: .9rem; }
+.kbar-bar { height: 9px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.kbar-bar i { display: block; height: 100%; border-radius: 999px; transition: width .4s; }
+.kbar-bar i.good { background: var(--mint); }
+.kbar-bar i.mid { background: var(--gold); }
+.kbar-bar i.low { background: var(--magenta); }
+.kbar-pct { flex: none; width: 40px; text-align: end; font-family: var(--font-display); font-weight: 800; font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; }

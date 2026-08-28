@@ -9,35 +9,27 @@ import { mili } from '@/lib/mockData';
 
 export const dynamic = 'force-dynamic';
 
-function Radar({ subjects }: { subjects: SubjectCard[] }) {
-  const n = subjects.length;
-  const cx = 150, cy = 130, R = 92;
-  const pt = (i: number, r: number) => {
-    const a = (-90 + (i * 360) / n) * (Math.PI / 180);
-    return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
-  };
-  const ring = (f: number) =>
-    subjects.map((_, i) => pt(i, R * f).join(',')).join(' ');
-  const shape = subjects.map((s, i) => pt(i, R * Math.max(0.06, s.accuracy)).join(',')).join(' ');
+function tier(m: number) { return m >= 0.7 ? 'good' : m >= 0.4 ? 'mid' : 'low'; }
 
+function KnowledgeBars({ subjects }: { subjects: SubjectCard[] }) {
+  const sorted = [...subjects].sort((a, b) => b.accuracy - a.accuracy);
   return (
-    <svg viewBox="0 0 300 260" role="img" aria-label="רדאר ידע" className="radar">
-      {[0.33, 0.66, 1].map((f) => (
-        <polygon key={f} points={ring(f)} className="radar-grid" />
-      ))}
-      {subjects.map((_, i) => {
-        const [x, y] = pt(i, R);
-        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} className="radar-grid" />;
-      })}
-      <polygon points={shape} className="radar-shape" />
-      {subjects.map((s, i) => {
-        const [x, y] = pt(i, R + 16);
+    <div className="kbars">
+      {sorted.map((s) => {
+        const Icon = STATION_ICON[s.kind];
+        const pct = Math.round(s.accuracy * 100);
         return (
-          <text key={i} x={x} y={y} className="radar-label"
-            textAnchor="middle" dominantBaseline="middle">{s.label}</text>
+          <div key={s.subject} className="kbar-row">
+            <span className={`kbar-ico ico-${s.kind}`}><Icon /></span>
+            <span className="kbar-main">
+              <span className="kbar-name">{s.label}</span>
+              <span className="kbar-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.max(s.answered ? 5 : 0, pct)}%` }} /></span>
+            </span>
+            <span className="kbar-pct">{s.answered > 0 ? `${pct}%` : '—'}</span>
+          </div>
         );
       })}
-    </svg>
+    </div>
   );
 }
 
@@ -81,10 +73,10 @@ export default async function StatusPage() {
           <div className="status-stat"><StarIcon /><b>{status?.xp ?? 0}</b><span>XP סה״כ</span></div>
         </div>
 
-        {subjects.length >= 3 && (
+        {subjects.length > 0 && (
           <section className="status-card">
-            <div className="status-title">רדאר הידע שלך</div>
-            <Radar subjects={subjects} />
+            <div className="status-title">מפת הכוחות שלך</div>
+            <KnowledgeBars subjects={subjects} />
           </section>
         )}
 
@@ -116,7 +108,7 @@ export default async function StatusPage() {
                         {s.answered > 0 ? `${Math.round(s.accuracy * 100)}% הצלחה` : 'טרם התחלת'}
                       </span>
                     </span>
-                    <Link href={`/exercise?focus=${s.subject}`} className="train-btn">אימון 2 דק׳</Link>
+                    <Link href={`/exercise?focus=${s.subject}`} className="train-btn">בואי נתאמן</Link>
                   </div>
                 );
               })}
