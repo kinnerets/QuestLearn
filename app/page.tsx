@@ -114,7 +114,7 @@ export default async function HomePage() {
                 <span className={`mission-ico ico-${s.kind}`}><Icon /></span>
                 <span className="mission-txt">
                   <span className="mission-title">{s.title}</span>
-                  <span className="mission-sub" style={{ display: 'block' }}>{s.subtitle} · {s.minutes} דקות</span>
+                  <span className="mission-sub" style={{ display: 'block' }}>{s.subtitle}</span>
                 </span>
                 {done
                   ? <span className="mission-done"><CheckIcon /></span>

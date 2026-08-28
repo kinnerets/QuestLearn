@@ -117,6 +117,9 @@ function buildStation(kind: StationKind, subject: string, topic: TopicRow, q: QR
     };
   }
   const hints = Array.isArray(p.hints) ? (p.hints as string[]) : [];
+  // Shuffle answer order so the correct choice isn't always first (content is
+  // authored with the right answer as "a"); ids stay intact for grading.
+  const choices = shuffle((p.choices as DbAcademicStation['choices']) ?? []);
   return {
     kind, subject, topicId: topic.id, questionId: q.id, title: topic.sub_topic, subtitle, minutes: 2,
     difficulty: Number(q.difficulty ?? 1),
@@ -124,9 +127,19 @@ function buildStation(kind: StationKind, subject: string, topic: TopicRow, q: QR
     hint: String(p.hint ?? hints[0] ?? ''),
     hint2: p.hint2 ? String(p.hint2) : hints[1],
     explanation: p.explanation ? String(p.explanation) : undefined,
-    choices: p.choices as DbAcademicStation['choices'],
+    choices,
     correctId: String(p.correct_choice_id), coins: Number(p.coins ?? 10),
   };
+}
+
+/** Fisher–Yates shuffle (returns a new array). */
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 const CHILD_COLUMNS =
