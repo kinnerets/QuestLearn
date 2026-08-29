@@ -162,12 +162,25 @@ function toChild(data: Record<string, unknown>): ChildProfile {
   };
 }
 
-/** XP → level. Each level needs XP_PER_LEVEL; returns level (1-based) + progress. */
-export const XP_PER_LEVEL = 120;
+/**
+ * XP → level with a gentle increasing curve: early levels come fast (motivating),
+ * later ones cost more so a "level" stays meaningful over weeks. Level L→L+1 needs
+ * 100 + (L-1)·40 points. (A perfect day is ~150–185 pts → a level early on, slowing
+ * to a level every few days later.)
+ */
+export const XP_PER_LEVEL = 120; // legacy constant, no longer the level size
+const LEVEL_BASE = 100, LEVEL_STEP = 40;
+function xpToNext(level: number): number { return LEVEL_BASE + (level - 1) * LEVEL_STEP; }
+/** Cumulative points needed to REACH a given level. */
+export function xpForLevel(level: number): number {
+  let sum = 0;
+  for (let l = 1; l < level; l++) sum += xpToNext(l);
+  return sum;
+}
 export function levelFromXp(xp: number) {
-  const level = Math.floor(xp / XP_PER_LEVEL) + 1;
-  const inLevel = xp % XP_PER_LEVEL;
-  return { level, inLevel, need: XP_PER_LEVEL };
+  let level = 1, remaining = Math.max(0, xp), need = xpToNext(1);
+  while (remaining >= need) { remaining -= need; level += 1; need = xpToNext(level); }
+  return { level, inLevel: remaining, need };
 }
 
 /** Add XP to a child (best-effort read-modify-write). */
@@ -639,7 +652,7 @@ export async function setPlacementLevel(childId: string, level: number): Promise
     const child = await getChildProfileById(childId);
     if (!child) return false;
     if (child.xp > 0) return true; // already placed or practising — never overwrite
-    const xp = Math.max(10, (level - 1) * XP_PER_LEVEL);
+    const xp = Math.max(10, xpForLevel(level));
     const { error } = await sb.from('users').update({ total_xp: xp }).eq('id', childId);
     return !error;
   } catch {
@@ -786,7 +799,7 @@ export async function getSubjectCatalog(grade: string, childId: string): Promise
 }
 
 /** Daily coin ceiling — anti-gaming, so extra quests can't farm unlimited coins. */
-export const DAILY_COIN_CAP = 60;
+export const DAILY_COIN_CAP = 100;
 
 /**
  * Persist a completed quest round. Idempotent for the day: streak advances only
