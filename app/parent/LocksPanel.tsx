@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Section } from './Section';
 
 interface Lock { subject: string; label: string; locked: boolean }
 
@@ -30,13 +31,11 @@ export function LocksPanel() {
 
   if (!loaded || locks.length === 0) return null;
 
-  return (
-    <section className="content-panel">
-      <div className="parent-head" style={{ marginBottom: 8 }}>
-        <h2 style={{ fontSize: '1.15rem' }}>נושאים רגישים</h2>
-      </div>
-      <p className="content-hint">נושאים שכדאי לשקול לפני פתיחה. כשנעול — הילדות לא רואות אותו. פתחי כשמתאים.</p>
+  const lockedCount = locks.filter((l) => l.locked).length;
 
+  return (
+    <Section title="נושאים רגישים" count={lockedCount || undefined}
+      hint="נושאים שכדאי לשקול לפני פתיחה. כשנעול — הילדות לא רואות אותו. פתחי כשמתאים.">
       {locks.map((l) => (
         <label key={l.subject} className="lock-row">
           <span className="lock-name">{l.label}</span>
@@ -50,6 +49,6 @@ export function LocksPanel() {
           </button>
         </label>
       ))}
-    </section>
+    </Section>
   );
 }

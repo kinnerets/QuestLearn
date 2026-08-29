@@ -119,9 +119,15 @@ DEPTH_Q = [
 
 
 def read_block(path, table):
-    """Return the text of the single `insert into <table> ... ;` statement in path."""
+    """Return the text of the single `insert into <table> ... ;` statement in path.
+    Payloads can contain ';' inside JSON strings, so for questions_bank we end the
+    match at the final `::jsonb);` rather than the first bare semicolon."""
     txt = open(path, encoding='utf-8').read()
-    m = re.search(r'insert into ' + table + r'\b.*?;\s', txt, re.S)
+    if table == 'questions_bank':
+        pat = r'insert into questions_bank\b.*?::jsonb\)\s*;'
+    else:
+        pat = r'insert into ' + table + r'\b.*?;'
+    m = re.search(pat, txt, re.S)
     if not m:
         raise SystemExit(f'no {table} insert found in {path}')
     return m.group(0).rstrip()

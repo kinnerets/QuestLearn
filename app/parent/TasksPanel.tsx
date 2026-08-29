@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { CoinIcon, CloseIcon } from '@/components/icons';
+import { Section } from './Section';
 
 interface Task { id: string; title: string; coins: number }
 
@@ -46,12 +47,8 @@ export function TasksPanel() {
   }
 
   return (
-    <section className="content-panel">
-      <div className="parent-head" style={{ marginBottom: 8 }}>
-        <h2 style={{ fontSize: '1.15rem' }}>מטלות בית</h2>
-      </div>
-      <p className="content-hint">מטלות שהבנות יכולות לסמן כבוצעו פעם ביום ולזכות במטבעות.</p>
-
+    <Section title="ניהול מטלות בית" count={tasks.length}
+      hint="מטלות שהבנות יכולות לסמן כבוצעו פעם ביום. אחרי אישור שלך — נזקפות מטבעות.">
       <div className="task-add">
         <input className="task-input" value={title} placeholder="מטלה חדשה (למשל: להוציא את הכלב)"
           onChange={(e) => setTitle(e.target.value)} maxLength={80} />
@@ -75,6 +72,6 @@ export function TasksPanel() {
         ))}
         {tasks.length === 0 && <div className="report-empty">אין עדיין מטלות — הוסיפי אחת למעלה.</div>}
       </div>
-    </section>
+    </Section>
   );
 }

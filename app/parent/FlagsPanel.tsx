@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { SUBJECT_LABEL } from '@/lib/constants';
 import { CheckIcon, CloseIcon } from '@/components/icons';
+import { Section } from './Section';
 import type { FlaggedQuestion } from '@/lib/db';
 
 const GRADE_SHORT: Record<string, string> = { grade_3: 'ג׳', grade_5: 'ה׳', enrichment: 'העשרה' };
@@ -37,12 +38,8 @@ export function FlagsPanel() {
   if (!loaded || items.length === 0) return null; // only appears when there's something to review
 
   return (
-    <section className="content-panel">
-      <div className="parent-head" style={{ marginBottom: 8 }}>
-        <h2 style={{ fontSize: '1.15rem' }}>שאלות לבדיקה <span className="flag-count">{items.length}</span></h2>
-      </div>
-      <p className="content-hint">שאלות שה‑AI סימן כדורשות עין שנייה. אישור → הילדות יראו אותן; דחייה → נמחקות.</p>
-
+    <Section title="שאלות לבדיקה" count={items.length}
+      hint="שאלות שה‑AI סימן כדורשות עין שנייה — כבר מוסתרות מהילדות, אז הבדיקה לא דחופה. אישור → הן יראו אותן; דחייה → נמחקות.">
       {items.map((q) => (
         <div key={q.id} className="flag-card">
           <div className="flag-meta">{SUBJECT_LABEL[q.subject] ?? q.subject} · {GRADE_SHORT[q.grade] ?? q.grade}</div>
@@ -68,6 +65,6 @@ export function FlagsPanel() {
           </div>
         </div>
       ))}
-    </section>
+    </Section>
   );
 }
