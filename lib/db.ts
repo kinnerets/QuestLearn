@@ -1350,3 +1350,27 @@ export async function reviewQuestion(id: string, action: 'approve' | 'reject'): 
     return false;
   }
 }
+
+/**
+ * Award any newly-earned badges (persist in `badges`) and return the fresh ones
+ * so the child can be congratulated in the moment — not only in "המצב שלי".
+ */
+export async function awardNewBadges(childId: string, grade: string): Promise<StatusBadge[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  try {
+    const status = await getChildStatus(childId, grade);
+    if (!status) return [];
+    const earned = status.badges.filter((b) => b.earned);
+    if (!earned.length) return [];
+    const { data: have } = await sb.from('badges').select('badge_key').eq('user_id', childId);
+    const haveSet = new Set((have ?? []).map((r) => r.badge_key as string));
+    const fresh = earned.filter((b) => !haveSet.has(b.key));
+    if (fresh.length) {
+      await sb.from('badges').insert(fresh.map((b) => ({ user_id: childId, badge_key: b.key })));
+    }
+    return fresh;
+  } catch {
+    return [];
+  }
+}

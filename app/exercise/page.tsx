@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Capi, type CapiMood } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import {
-  CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon, ChevronIcon,
+  CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon, ChevronIcon, StarIcon,
 } from '@/components/icons';
 import {
   lesson as bundledLesson, PRAISE, GENTLE, HEART, pick,
@@ -40,6 +40,7 @@ type NextInfo = { next: { subject: string; label: string; topicId?: string } | n
 export default function ExercisePage() {
   const router = useRouter();
   const [nextInfo, setNextInfo] = useState<NextInfo | null>(null);
+  const [newBadges, setNewBadges] = useState<{ key: string; label: string; desc: string }[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
   const [allSolved, setAllSolved] = useState(false);
@@ -148,15 +149,23 @@ export default function ExercisePage() {
     const done = new Set(doneIdx);
     done.add(currentIdx);
     if (done.size >= stations.length) {
-      fetch('/api/quest/complete', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ coins: earned, xp: correct * 10 }),
-      }).catch(() => {});
-      fireRefill();
-      router.refresh(); // invalidate the home cache so "done" syncs immediately
-      // Find the next unfinished daily topic so we can chain straight into it.
-      fetch('/api/next').then((r) => r.json()).then(setNextInfo).catch(() => setNextInfo({ next: null, done: true }));
       setFinished(true);
+      (async () => {
+        try {
+          const r = await fetch('/api/quest/complete', {
+            method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ coins: earned, xp: correct * 10 }),
+          });
+          const j = await r.json();
+          if (j?.newBadges?.length) setNewBadges(j.newBadges);
+        } catch { /* ignore */ }
+        fireRefill();
+        router.refresh(); // invalidate the home cache so "done" syncs immediately
+        try {
+          const nr = await fetch('/api/next');
+          setNextInfo(await nr.json());
+        } catch { setNextInfo({ next: null, done: true }); }
+      })();
       return;
     }
     setDoneIdx(done);
@@ -232,7 +241,8 @@ export default function ExercisePage() {
   if (loading) return <Loader />;
   if (allSolved) return <SubjectDone />;
   if (finished) {
-    if (nextInfo === null) return <Loader />;                 // fetching what's next
+    if (nextInfo === null) return <Loader />;                 // settling up (badges, next)
+    if (newBadges.length) return <BadgeCelebration badges={newBadges} next={nextInfo.next} />;  // 🏅 moment
     if (nextInfo.next) return <AutoAdvance next={nextInfo.next} />;  // more of the journey → chain on
     return <Celebration earned={earned} correct={correct} answered={answered} xp={correct * 10} />;
   }
@@ -444,6 +454,39 @@ function NextCTA() {
       <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
       <Link href="/" className="cta ghost">חזרה הביתה</Link>
     </div>
+  );
+}
+
+/** A new badge was just earned — celebrate it in the moment, then let her continue. */
+function BadgeCelebration({ badges, next }: {
+  badges: { key: string; label: string; desc: string }[];
+  next: { subject: string; label: string; topicId?: string } | null;
+}) {
+  const href = next
+    ? (next.subject === 'leadership' ? `/exercise?focus=leadership&topic=${next.topicId}` : `/exercise?focus=${next.subject}`)
+    : null;
+  return (
+    <main className="app-shell">
+      <div className="screen-body cele">
+        <Confetti />
+        <div className="wow">תג חדש! 🏅</div>
+        <Capi mood="cheer" size={110} />
+        <div className="badge-pop-list">
+          {badges.map((b) => (
+            <div key={b.key} className="badge-pop">
+              <span className="badge-pop-ico"><StarIcon /></span>
+              <span className="badge-pop-txt"><b>{b.label}</b><small>{b.desc}</small></span>
+            </div>
+          ))}
+        </div>
+        <div className="cele-actions">
+          {href
+            ? <a href={href} className="cta">לנושא הבא: {next!.label} <span className="cta-ico"><ChevronIcon /></span></a>
+            : <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>}
+          <Link href="/" className="cta ghost">חזרה למסע</Link>
+        </div>
+      </div>
+    </main>
   );
 }
 

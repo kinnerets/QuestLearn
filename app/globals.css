@@ -808,3 +808,19 @@ a { color: inherit; text-decoration: none; }
 .redeem-sub .i { width: 14px; height: 14px; color: var(--gold-ink); }
 .redeem-actions { display: flex; gap: 6px; flex: none; }
 .redeem-actions .flag-btn { padding: 8px 11px; }
+
+/* ── New-badge celebration (real-time) ── */
+.badge-pop-list { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; margin: 6px 0 4px; }
+.badge-pop {
+  display: flex; align-items: center; gap: 12px; background: var(--surface-2);
+  border: 2px solid var(--gold); border-radius: 16px; padding: 12px 14px;
+  animation: pop .5s cubic-bezier(.2,1.5,.4,1) both;
+}
+.badge-pop-ico {
+  width: 42px; height: 42px; border-radius: 12px; flex: none; display: grid; place-items: center;
+  background: linear-gradient(160deg, #FFE08A, #F6C445); color: #7a5b00;
+}
+.badge-pop-ico .i { width: 22px; height: 22px; }
+.badge-pop-txt { display: flex; flex-direction: column; text-align: start; }
+.badge-pop-txt b { font-family: var(--font-display); font-weight: 800; font-size: 1rem; }
+.badge-pop-txt small { color: var(--muted); font-weight: 600; font-size: .82rem; }
