@@ -748,3 +748,39 @@ a { color: inherit; text-decoration: none; }
 .place-done h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; margin: 4px 0 0; }
 .place-done p { color: var(--muted); font-weight: 600; line-height: 1.5; max-width: 320px; }
 .place-done p b { color: var(--magenta-deep); }
+
+/* ── Home tasks (chores) ── */
+.tasks-home { padding: 4px 14px 6px; animation: cardIn .45s .1s both cubic-bezier(.2,1,.4,1); }
+.tasks-home-head { font-family: var(--font-display); font-weight: 800; font-size: 1rem; margin: 4px 2px 8px; }
+.tasks-home-list { display: flex; flex-direction: column; gap: 8px; }
+.task-row {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 15px;
+  padding: 11px 13px; color: var(--ink); cursor: pointer;
+  transition: transform .12s cubic-bezier(.2,1.4,.4,1), background .2s, border-color .2s;
+}
+.task-row:active:not(:disabled) { transform: scale(.97); }
+.task-row.done { background: rgba(47,191,143,.09); border-color: var(--mint); cursor: default; }
+.task-check {
+  width: 24px; height: 24px; flex: none; border-radius: 8px; border: 2px solid var(--line);
+  display: grid; place-items: center; color: #fff;
+}
+.task-check.on { background: var(--mint); border-color: var(--mint); }
+.task-check .i { width: 15px; height: 15px; }
+.task-title { flex: 1; font-family: var(--font-display); font-weight: 700; font-size: .95rem; text-align: start; }
+.task-row.done .task-title { text-decoration: line-through; color: var(--muted); }
+.task-coins { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-display); font-weight: 800; color: var(--gold-ink); font-size: .9rem; }
+.task-coins .i { width: 16px; height: 16px; }
+.task-coins.pop { animation: pop .6s cubic-bezier(.2,1.5,.4,1) both; }
+
+/* Parent task editor */
+.task-add { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.task-input { border: 2px solid var(--line); border-radius: 12px; padding: 10px 13px; font-family: var(--font-body); font-size: .95rem; font-weight: 600; background: var(--surface); color: var(--ink); }
+.task-add-row { display: flex; gap: 8px; align-items: center; }
+.task-coins-pick { display: inline-flex; align-items: center; gap: 5px; border: 2px solid var(--line); border-radius: 12px; padding: 6px 10px; color: var(--gold-ink); }
+.task-coins-pick .i { width: 17px; height: 17px; }
+.task-coins-pick input { width: 46px; border: none; background: transparent; font-family: var(--font-display); font-weight: 800; font-size: .95rem; color: var(--ink); text-align: center; }
+.task-manage-list { display: flex; flex-direction: column; gap: 8px; }
+.task-manage-row { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 13px; padding: 10px 12px; }
+.task-del { border: none; background: transparent; color: var(--muted); cursor: pointer; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; }
+.task-del .i { width: 17px; height: 17px; }

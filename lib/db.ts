@@ -1029,3 +1029,88 @@ export async function getTopicsOverview(): Promise<TopicOverview[] | null> {
     return null;
   }
 }
+
+// ─────────────────────────── Home tasks (chores) ───────────────────────────
+export interface HomeTask { id: string; title: string; coins: number; doneToday: boolean }
+
+/** Active chores + whether this child already did each one today. */
+export async function getHomeTasks(childId: string): Promise<HomeTask[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data: tasks } = await sb
+      .from('home_tasks').select('id,title,coins')
+      .eq('active', true).order('created_at', { ascending: true });
+    if (!tasks) return null;
+    const day = new Date().toISOString().slice(0, 10);
+    const { data: done } = await sb
+      .from('home_task_done').select('task_id')
+      .eq('child_id', childId).eq('day', day);
+    const doneSet = new Set((done ?? []).map((r) => r.task_id as string));
+    return tasks.map((t) => ({
+      id: t.id as string, title: t.title as string, coins: t.coins as number,
+      doneToday: doneSet.has(t.id as string),
+    }));
+  } catch {
+    return null;
+  }
+}
+
+/** Plain list of active chores (for the parent editor — no per-child state). */
+export async function listHomeTasks(): Promise<{ id: string; title: string; coins: number }[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data } = await sb
+      .from('home_tasks').select('id,title,coins')
+      .eq('active', true).order('created_at', { ascending: true });
+    return (data ?? []).map((t) => ({ id: t.id as string, title: t.title as string, coins: t.coins as number }));
+  } catch {
+    return null;
+  }
+}
+
+export async function addHomeTask(title: string, coins: number): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { error } = await sb.from('home_tasks').insert({ title, coins });
+    return !error;
+  } catch { return false; }
+}
+
+export async function removeHomeTask(id: string): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { error } = await sb.from('home_tasks').update({ active: false }).eq('id', id);
+    return !error;
+  } catch { return false; }
+}
+
+export interface TaskDoneResult { ok: boolean; reason?: string; coins?: number; earned?: number }
+
+/** Child checks off a chore: once per day per task, then the coins are credited. */
+export async function completeHomeTask(childId: string, taskId: string): Promise<TaskDoneResult> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, reason: 'no-db' };
+  try {
+    const child = await getChildProfileById(childId);
+    if (!child) return { ok: false, reason: 'no-child' };
+    const { data: task } = await sb
+      .from('home_tasks').select('id,coins,active').eq('id', taskId).maybeSingle();
+    if (!task || !task.active) return { ok: false, reason: 'no-task' };
+
+    const day = new Date().toISOString().slice(0, 10);
+    const { error: insErr } = await sb
+      .from('home_task_done').insert({ task_id: taskId, child_id: childId, day });
+    if (insErr) return { ok: false, reason: 'already' }; // unique(task,child,day) → already done
+
+    const earned = (task.coins as number) ?? 0;
+    const coins = child.coins + earned;
+    await sb.from('users').update({ quest_coins: coins }).eq('id', childId);
+    return { ok: true, coins, earned };
+  } catch {
+    return { ok: false, reason: 'error' };
+  }
+}

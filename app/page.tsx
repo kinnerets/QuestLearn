@@ -5,6 +5,7 @@ import { Greeting } from '@/components/Greeting';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import { CoinIcon, FlameIcon, ChevronIcon, CheckIcon, STATION_ICON } from '@/components/icons';
+import { HomeTasks } from './HomeTasks';
 import { mili, todayStations } from '@/lib/mockData';
 import { getChildren, getDailyLesson, getTodaySubjects } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
@@ -136,6 +137,8 @@ export default async function HomePage() {
             );
           })}
         </div>
+
+        <HomeTasks />
 
         <Link href="/map" className="map-cta">
           <span>רוצה נושא אחר? כל הנושאים</span>
