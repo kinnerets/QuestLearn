@@ -621,8 +621,9 @@ export async function getSubjectCatalog(grade: string, childId: string): Promise
       tally.set(subject, e);
     }
 
-    // Leadership is excluded — it has its own reflective area (/compass).
-    const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography', 'future_skills'];
+    // Leadership is a normal subject card too (flat taxonomy); it opens its
+    // reflective worlds instead of a scored drill.
+    const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography', 'future_skills', 'leadership'];
     const cards: SubjectCard[] = [];
     for (const subject of order) {
       const e = bySubject.get(subject);

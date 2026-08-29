@@ -13,7 +13,7 @@ export const SUBJECT_LABEL: Record<string, string> = {
   arabic: 'ערבית',
   english: 'אנגלית',
   geography: 'גאוגרפיה',
-  future_skills: 'שער העתיד',
+  future_skills: 'יזמות',
   leadership: 'מנהיגות',
 };
 

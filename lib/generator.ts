@@ -199,6 +199,53 @@ export async function ensureBufferForSubject(childId: string, grade: string, sub
   }
 }
 
+// A healthy per-topic bank size. Below this, a topic is "thin" and eligible for
+// an automatic top-up. Kept modest so the whole catalogue stays cheap to keep full.
+const HEALTHY_BANK = 12;
+
+export interface GlobalRefillResult { scanned: number; filledTopics: number; inserted: number }
+
+/**
+ * Background top-up for the whole catalogue: find the thinnest topics and refill
+ * a bounded number of them. Runs on a nightly cron so parents never touch it and
+ * credit use stays predictable (at most `maxTopics` generations per run).
+ */
+export async function ensureGlobalBuffer(maxTopics = 4): Promise<GlobalRefillResult> {
+  const out: GlobalRefillResult = { scanned: 0, filledTopics: 0, inserted: 0 };
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const sb = getSupabase();
+  if (!apiKey || !sb) return out;
+  try {
+    const { data: topics } = await sb.from('curriculum_topics').select('id,subject');
+    if (!topics?.length) return out;
+    out.scanned = topics.length;
+
+    // Count questions per topic in one pass.
+    const { data: qs } = await sb.from('questions_bank').select('topic_id');
+    const count = new Map<string, number>();
+    for (const q of qs ?? []) {
+      const id = q.topic_id as string;
+      count.set(id, (count.get(id) ?? 0) + 1);
+    }
+
+    // Leadership worlds are reflective (1 micro-mission each) — never top them up.
+    const thin = topics
+      .filter((t) => t.subject !== 'leadership')
+      .map((t) => ({ id: t.id as string, n: count.get(t.id as string) ?? 0 }))
+      .filter((t) => t.n < HEALTHY_BANK)
+      .sort((a, b) => a.n - b.n)
+      .slice(0, maxTopics);
+
+    for (const t of thin) {
+      const r = await generateForTopic(t.id, GENERATE);
+      if (r.inserted > 0) { out.filledTopics += 1; out.inserted += r.inserted; }
+    }
+    return out;
+  } catch {
+    return out;
+  }
+}
+
 export interface TopicGenResult { topic: string; grade: string; inserted: number; reason?: string }
 
 /** Parent-triggered generation for one topic — returns a visible result. */

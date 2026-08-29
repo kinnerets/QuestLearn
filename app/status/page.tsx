@@ -76,7 +76,9 @@ export default async function StatusPage() {
         {subjects.length > 0 && (
           <section className="status-card">
             <div className="status-title">מפת הכוחות שלך</div>
-            <KnowledgeBars subjects={subjects} />
+            {subjects.some((s) => s.answered > 0)
+              ? <KnowledgeBars subjects={subjects} />
+              : <p className="status-empty">עדיין אין נתונים 🌱 אחרי כמה תרגולים כאן יופיע כמה את שולטת בכל מקצוע — באחוזים.</p>}
           </section>
         )}
 

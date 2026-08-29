@@ -41,16 +41,24 @@ export default async function MapPage() {
         <div className="subject-grid">
           {subjects.map((s) => {
             const Icon = STATION_ICON[s.kind];
+            const isLead = s.subject === 'leadership';
+            const href = isLead ? '/compass' : `/subject/${s.subject}`;
             return (
-              <Link key={s.subject} href={`/subject/${s.subject}`} className="subject-card">
+              <Link key={s.subject} href={href} className="subject-card">
                 <span className={`subject-ico ico-${s.kind}`}><Icon /></span>
                 <span className="subject-name">{s.label}</span>
-                <span className="subject-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.round(s.accuracy * 100)}%` }} /></span>
-                <span className="subject-meta">
-                  {s.answered > 0
-                    ? `${Math.round(s.accuracy * 100)}% הצלחה · פתרת ${s.solved}/${s.total}`
-                    : `${s.total} שאלות · טרם התחלת`}
-                </span>
+                {isLead ? (
+                  <span className="subject-meta">מנהיגות אישית · 4 עולמות</span>
+                ) : (
+                  <>
+                    <span className="subject-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.round(s.accuracy * 100)}%` }} /></span>
+                    <span className="subject-meta">
+                      {s.answered > 0
+                        ? `${Math.round(s.accuracy * 100)}% הצלחה · פתרת ${s.solved}/${s.total}`
+                        : `${s.total} שאלות · טרם התחלת`}
+                    </span>
+                  </>
+                )}
                 <span className="subject-go"><ChevronIcon /></span>
               </Link>
             );
