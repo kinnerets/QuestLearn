@@ -78,7 +78,7 @@ export default async function StatusPage() {
             <div className="status-title">מפת הכוחות שלך</div>
             {subjects.some((s) => s.answered > 0)
               ? <KnowledgeBars subjects={subjects} />
-              : <p className="status-empty">עדיין אין נתונים 🌱 אחרי כמה תרגולים כאן יופיע כמה את שולטת בכל מקצוע — באחוזים.</p>}
+              : <p className="status-empty">עדיין אין נתונים 🌱 אחרי כמה תרגולים כאן תופיע רמת השליטה בכל מקצוע — באחוזים.</p>}
           </section>
         )}
 
@@ -110,7 +110,7 @@ export default async function StatusPage() {
                         {s.answered > 0 ? `${Math.round(s.accuracy * 100)}% הצלחה` : 'טרם התחלת'}
                       </span>
                     </span>
-                    <Link href={`/exercise?focus=${s.subject}`} className="train-btn">בואי נתאמן</Link>
+                    <Link href={`/exercise?focus=${s.subject}`} className="train-btn">בואו נתאמן</Link>
                   </div>
                 );
               })}

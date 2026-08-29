@@ -45,6 +45,13 @@ export default function PlacementPage() {
     const isRight = id === q.correctId;
     const nextCorrect = correct + (isRight ? 1 : 0);
     if (isRight) setCorrect(nextCorrect);
+    // Record the answer so practice won't re-serve a question seen in placement.
+    if (q.questionId && q.topicId) {
+      fetch('/api/attempt', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ questionId: q.questionId, topicId: q.topicId, isCorrect: isRight, hintsUsed: 0, misconception: null }),
+      }).catch(() => {});
+    }
     setTimeout(() => {
       if (idx + 1 >= (qs?.length ?? 0)) finish(nextCorrect, qs?.length ?? 1);
       else { setIdx(idx + 1); setChosen(null); }

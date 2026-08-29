@@ -4,7 +4,7 @@ import { Avatar } from '@/components/Avatar';
 import { Greeting } from '@/components/Greeting';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
-import { CoinIcon, FlameIcon, ChevronIcon, CheckIcon, STATION_ICON } from '@/components/icons';
+import { ChevronIcon, CheckIcon, STATION_ICON } from '@/components/icons';
 import { HomeTasks } from './HomeTasks';
 import { mili, todayStations } from '@/lib/mockData';
 import { getChildren, getDailyLesson, getTodaySubjects } from '@/lib/db';
@@ -45,8 +45,6 @@ export default async function HomePage() {
   ]);
 
   const name = child?.name ?? mili.display_name;
-  const coins = child?.coins ?? mili.quest_coins;
-  const streak = child?.streak ?? mili.current_streak;
   const avatar = child?.avatar ?? mili.avatar_config;
   const goalMinutes = child?.goalMinutes ?? mili.daily_goal_minutes;
   const multiProfile = (children?.length ?? 0) > 1;
@@ -95,17 +93,6 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <div className="stat-row">
-          <div className="stat-card coins">
-            <CoinIcon />
-            <div><div className="val">{coins}</div><div className="lbl">מטבעות</div></div>
-          </div>
-          <div className="stat-card streak">
-            <FlameIcon />
-            <div><div className="val">{streak}</div><div className="lbl">ימי רצף</div></div>
-          </div>
-        </div>
-
         {needsPlacement && (
           <Link href="/placement" className="place-banner">
             <span className="place-banner-emoji">🧭</span>
@@ -131,7 +118,7 @@ export default async function HomePage() {
                 {done
                   ? <span className="mission-done"><CheckIcon /></span>
                   : active
-                    ? <span className="mission-cta pulse">התחילי ›</span>
+                    ? <span className="mission-cta pulse">קדימה ›</span>
                     : <span className="mission-chevron"><ChevronIcon /></span>}
               </Link>
             );

@@ -49,7 +49,7 @@ export function ParentGate() {
       <div className="screen-body pin-screen">
         <Capi mood="chill" size={82} />
         <h2>קוד הורים</h2>
-        <p>הזינו קוד בן 4 ספרות כדי להיכנס</p>
+        <p>קוד בן 4 ספרות כדי להיכנס</p>
 
         <div className={`pin-dots${error ? ' err' : ''}`}>
           {[0, 1, 2, 3].map((i) => (

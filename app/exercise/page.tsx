@@ -186,7 +186,7 @@ export default function ExercisePage() {
           && !eliminated.includes(c.id) && !wrongIds.includes(c.id));
         if (gone) setEliminated((e) => [...e, gone.id]);
         setMood('hint');
-        setMessage(st.hint2 ? ('רמז נוסף: ' + st.hint2) : 'מתקרבות. הורדתי אפשרות שגויה — נסי שוב.');
+        setMessage(st.hint2 ? ('רמז נוסף: ' + st.hint2) : 'כמעט! הורדתי אפשרות שגויה — ננסה שוב.');
       } else {
         // Reveal — the answer with an explanation. No punishment.
         setRevealed(true);
@@ -407,7 +407,7 @@ function SubjectDone() {
         <div className="wow">כל הכבוד!</div>
         <Capi mood="cheer" size={120} />
         <h2>סיימת את כל השאלות בנושא הזה</h2>
-        <p>בואי נבחר נושא חדש להיום</p>
+        <p>בואו נבחר נושא חדש להיום</p>
         <div className="cele-actions">
           <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
         </div>

@@ -57,7 +57,7 @@ export default function ProfilesPage() {
         <div className="profiles-head">
           <Capi mood="cheer" size={92} />
           <h1>מי משחקת עכשיו?</h1>
-          <p>בחרי את הפרופיל שלך כדי להמשיך במסע</p>
+          <p>איזה פרופיל ממשיך במסע?</p>
         </div>
 
         <div className="profile-grid">

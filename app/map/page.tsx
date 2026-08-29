@@ -4,8 +4,10 @@ import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import { STATION_ICON, ChevronIcon } from '@/components/icons';
 import { getChildren, getSubjectCatalog, getCompassWorlds, type SubjectCard, type CompassWorld } from '@/lib/db';
-import { HeartIcon } from '@/components/icons';
+import { BookIcon, CoinIcon, StarIcon, HeartIcon } from '@/components/icons';
 import { selectedChildId } from '@/lib/session';
+
+const WORLD_ICON = [BookIcon, CoinIcon, StarIcon, HeartIcon];
 
 export const dynamic = 'force-dynamic';
 
@@ -41,7 +43,7 @@ export default async function MapPage() {
           <Capi mood="chill" size={64} />
           <div>
             <h1>כל הנושאים</h1>
-            <p>בחרי על מה בא לך לתרגל היום</p>
+            <p>על מה בא לך לתרגל היום?</p>
           </div>
         </div>
 
@@ -54,31 +56,25 @@ export default async function MapPage() {
                 <span className="subject-name">{s.label}</span>
                 <span className="subject-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.round(s.accuracy * 100)}%` }} /></span>
                 <span className="subject-meta">
-                  {s.answered > 0
-                    ? `${Math.round(s.accuracy * 100)}% הצלחה · פתרת ${s.solved}/${s.total}`
-                    : `${s.total} שאלות · טרם התחלת`}
+                  {s.answered > 0 ? `${Math.round(s.accuracy * 100)}% הצלחה` : 'טרם התחלת'}
                 </span>
                 <span className="subject-go"><ChevronIcon /></span>
               </Link>
             );
           })}
-        </div>
 
-        {leadWorlds.length > 0 && (
-          <>
-            <div className="map-section-title"><HeartIcon /> מנהיגות אישית</div>
-            <div className="subject-grid">
-              {leadWorlds.map((w) => (
-                <Link key={w.topicId} href={`/compass?w=${w.order}`} className="subject-card">
-                  <span className="subject-ico ico-lead"><HeartIcon /></span>
-                  <span className="subject-name">{w.name}</span>
-                  <span className="subject-meta">{w.deposits} הפקדות</span>
-                  <span className="subject-go"><ChevronIcon /></span>
-                </Link>
-              ))}
-            </div>
-          </>
-        )}
+          {leadWorlds.map((w) => {
+            const Icon = WORLD_ICON[(w.order - 1) % 4] ?? HeartIcon;
+            return (
+              <Link key={w.topicId} href={`/compass?w=${w.order}`} className="subject-card">
+                <span className="subject-ico ico-lead"><Icon /></span>
+                <span className="subject-name">{w.name}</span>
+                <span className="subject-meta">מנהיגות</span>
+                <span className="subject-go"><ChevronIcon /></span>
+              </Link>
+            );
+          })}
+        </div>
 
         <Link href="/" className="map-back">חזרה למסע היומי</Link>
       </div>

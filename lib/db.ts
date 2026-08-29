@@ -984,12 +984,12 @@ export async function getChildStatus(childId: string, grade: string): Promise<Ch
 
     const badges: StatusBadge[] = [
       { key: 'first_step', label: 'צעד ראשון', desc: 'התחלת לתרגל', earned: totalAnswered > 0 || leadDeposits > 0 },
-      { key: 'streak_3', label: 'רצף שלושה', desc: '3 ימים ברצף', earned: child.streak >= 3 },
+      { key: 'streak_3', label: 'שלושה ברצף', desc: '3 ימים ברצף', earned: child.streak >= 3 },
       { key: 'streak_7', label: 'שבוע חזק', desc: '7 ימים ברצף', earned: child.streak >= 7 },
-      { key: 'sharp', label: 'חדה כתער', desc: '90% דיוק בנושא', earned: sharp },
+      { key: 'sharp', label: 'דיוק חד', desc: '90% דיוק בנושא', earned: sharp },
       { key: 'century', label: 'מאה שאלות', desc: '100 שאלות נענו', earned: totalAnswered >= 100 },
       { key: 'gold_heart', label: 'לב זהב', desc: '5 הפקדות לב', earned: heartDeposits >= 5 },
-      { key: 'wise_time', label: 'בוחרת חכמה', desc: '3 חלוקות זמן', earned: timeDeposits >= 3 },
+      { key: 'wise_time', label: 'בחירה חכמה', desc: '3 חלוקות זמן', earned: timeDeposits >= 3 },
     ];
 
     return {

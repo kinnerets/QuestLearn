@@ -42,9 +42,9 @@ export function ShopList({ rewards, coins: initialCoins, avatarItems = [] }: {
       } else if (j?.reason === 'owned') {
         setItems((arr) => arr.map((x) => (x.id === it.id ? { ...x, owned: true } : x)));
       } else {
-        setError('לא הצלחנו לקנות, נסי שוב');
+        setError('לא הצלחנו לקנות, ננסה שוב');
       }
-    } catch { setError('לא הצלחנו לקנות, נסי שוב'); }
+    } catch { setError('לא הצלחנו לקנות, ננסה שוב'); }
     setBusy(null);
   }
 
@@ -66,9 +66,9 @@ export function ShopList({ rewards, coins: initialCoins, avatarItems = [] }: {
       } else if (j?.reason === 'already-today') {
         setError('כבר מימשת את הפרס הזה היום — אפשר שוב מחר');
       } else {
-        setError('לא הצלחנו לממש, נסי שוב');
+        setError('לא הצלחנו לממש, ננסה שוב');
       }
-    } catch { setError('לא הצלחנו לממש, נסי שוב'); }
+    } catch { setError('לא הצלחנו לממש, ננסה שוב'); }
     setBusy(null);
   }
 
@@ -80,7 +80,7 @@ export function ShopList({ rewards, coins: initialCoins, avatarItems = [] }: {
           <h2>הפרס שלך מוכן!</h2>
           <p>{voucher.title}</p>
           <div className="voucher-code">{voucher.code}</div>
-          <p className="voucher-note">הראי את הקוד להורה כדי לממש</p>
+          <p className="voucher-note">להראות את הקוד להורה כדי לממש</p>
           <button className="cta" onClick={() => setVoucher(null)}>חזרה לחנות</button>
         </div>
       </div>
