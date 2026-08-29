@@ -913,7 +913,11 @@ export interface RedeemResult {
   coins?: number;
 }
 
-/** Redeem a reward: deduct coins and issue a voucher (zero parent friction). */
+/**
+ * Redeem a reward: deduct coins and send a request to the parent (status
+ * 'issued' = pending). The parent marks it done or refunds it. Coins are the
+ * only limit — a child may redeem again as long as they can afford it.
+ */
 export async function redeemReward(childId: string, rewardId: string): Promise<RedeemResult> {
   const sb = getSupabase();
   if (!sb) return { ok: false, reason: 'no-db' };
@@ -928,26 +932,72 @@ export async function redeemReward(childId: string, rewardId: string): Promise<R
     if (!reward) return { ok: false, reason: 'no-reward' };
     if (child.coins < reward.cost_coins) return { ok: false, reason: 'not-enough' };
 
-    // One redemption of the same reward per day (e.g. "choose dinner" once).
-    const dayStart = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z';
-    const { data: already } = await sb
-      .from('reward_redemptions')
-      .select('id')
-      .eq('child_id', child.id).eq('reward_id', reward.id)
-      .gte('created_at', dayStart)
-      .limit(1);
-    if (already?.length) return { ok: false, reason: 'already-today' };
-
-    const voucher = 'QL-' + Math.random().toString(36).slice(2, 7).toUpperCase();
+    const ref = 'QL-' + Math.random().toString(36).slice(2, 7).toUpperCase();
     const left = child.coins - reward.cost_coins;
     await sb.from('users').update({ quest_coins: left }).eq('id', child.id);
     await sb.from('reward_redemptions').insert({
       reward_id: reward.id, child_id: child.id,
-      coins_spent: reward.cost_coins, voucher_code: voucher, status: 'issued',
+      coins_spent: reward.cost_coins, voucher_code: ref, status: 'issued',
     });
-    return { ok: true, voucher, coins: left };
+    return { ok: true, coins: left };
   } catch {
     return { ok: false, reason: 'error' };
+  }
+}
+
+export interface Redemption { id: string; childName: string; rewardTitle: string; cost: number; when: string }
+
+/** Pending reward requests for the parent to fulfil (status 'issued'). */
+export async function getPendingRedemptions(): Promise<Redemption[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data } = await sb
+      .from('reward_redemptions')
+      .select('id,child_id,reward_id,coins_spent,created_at')
+      .eq('status', 'issued')
+      .order('created_at', { ascending: true })
+      .limit(50);
+    if (!data?.length) return [];
+    const childIds = [...new Set(data.map((r) => r.child_id as string))];
+    const rewardIds = [...new Set(data.map((r) => r.reward_id as string))];
+    const [{ data: kids }, { data: rewards }] = await Promise.all([
+      sb.from('users').select('id,display_name').in('id', childIds),
+      sb.from('reward_store').select('id,title').in('id', rewardIds),
+    ]);
+    const kmap = new Map((kids ?? []).map((k) => [k.id as string, k.display_name as string]));
+    const rmap = new Map((rewards ?? []).map((r) => [r.id as string, r.title as string]));
+    return data.map((r) => ({
+      id: r.id as string,
+      childName: kmap.get(r.child_id as string) ?? '—',
+      rewardTitle: rmap.get(r.reward_id as string) ?? '—',
+      cost: r.coins_spent as number,
+      when: r.created_at as string,
+    }));
+  } catch {
+    return null;
+  }
+}
+
+/** Parent decision on a reward request: fulfil (mark done) or refund the coins. */
+export async function resolveRedemption(id: string, action: 'fulfill' | 'refund'): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    if (action === 'fulfill') {
+      const { error } = await sb.from('reward_redemptions').update({ status: 'acknowledged' }).eq('id', id);
+      return !error;
+    }
+    // Refund: give the coins back to the child, then remove the request.
+    const { data: r } = await sb
+      .from('reward_redemptions').select('child_id,coins_spent,status').eq('id', id).maybeSingle();
+    if (!r || r.status !== 'issued') return false;
+    const child = await getChildProfileById(r.child_id as string);
+    if (child) await sb.from('users').update({ quest_coins: child.coins + (r.coins_spent as number) }).eq('id', child.id);
+    const { error } = await sb.from('reward_redemptions').delete().eq('id', id);
+    return !error;
+  } catch {
+    return false;
   }
 }
 

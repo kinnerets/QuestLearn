@@ -799,3 +799,12 @@ a { color: inherit; text-decoration: none; }
 .flag-btn.approve { background: color-mix(in srgb, var(--mint) 20%, var(--surface)); color: var(--mint-ink, #1C7A57); }
 .flag-btn.reject { background: color-mix(in srgb, var(--magenta) 14%, var(--surface)); color: var(--magenta-deep); }
 .flag-btn:disabled { opacity: .5; }
+
+/* ── Parent: reward requests ── */
+.redeem-card { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 15px; padding: 12px 13px; margin-bottom: 10px; }
+.redeem-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.redeem-title { font-family: var(--font-display); font-weight: 700; font-size: .98rem; }
+.redeem-sub { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-weight: 600; font-size: .82rem; }
+.redeem-sub .i { width: 14px; height: 14px; color: var(--gold-ink); }
+.redeem-actions { display: flex; gap: 6px; flex: none; }
+.redeem-actions .flag-btn { padding: 8px 11px; }
