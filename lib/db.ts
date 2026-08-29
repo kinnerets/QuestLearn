@@ -1211,9 +1211,10 @@ export async function getTopicsOverview(): Promise<TopicOverview[] | null> {
 }
 
 // ─────────────────────────── Home tasks (chores) ───────────────────────────
-export interface HomeTask { id: string; title: string; coins: number; doneToday: boolean }
+export interface HomeTask { id: string; title: string; coins: number; doneToday: boolean; pending: boolean }
 
-/** Active chores + whether this child already did each one today. */
+/** Active chores + whether this child already did each one today (and if it's
+ *  still waiting for a parent to approve it). */
 export async function getHomeTasks(childId?: string): Promise<HomeTask[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
@@ -1224,17 +1225,25 @@ export async function getHomeTasks(childId?: string): Promise<HomeTask[] | null>
     if (error || !tasks) return null;
 
     // The done-lookup is best-effort: if it fails, still show the tasks.
-    let doneSet = new Set<string>();
+    const doneSet = new Set<string>();
+    const pendingSet = new Set<string>();
     if (childId) {
       const day = new Date().toISOString().slice(0, 10);
-      const { data: done } = await sb
-        .from('home_task_done').select('task_id')
-        .eq('child_id', childId).eq('day', day);
-      doneSet = new Set((done ?? []).map((r) => r.task_id as string));
+      // Prefer the status column (approval flow); fall back if it's not there yet.
+      let rows = (await sb.from('home_task_done').select('task_id,status')
+        .eq('child_id', childId).eq('day', day)).data as { task_id: string; status?: string }[] | null;
+      if (!rows) {
+        rows = (await sb.from('home_task_done').select('task_id')
+          .eq('child_id', childId).eq('day', day)).data as { task_id: string }[] | null;
+      }
+      for (const r of rows ?? []) {
+        doneSet.add(r.task_id);
+        if ((r as { status?: string }).status === 'pending') pendingSet.add(r.task_id);
+      }
     }
     return tasks.map((t) => ({
       id: t.id as string, title: t.title as string, coins: t.coins as number,
-      doneToday: doneSet.has(t.id as string),
+      doneToday: doneSet.has(t.id as string), pending: pendingSet.has(t.id as string),
     }));
   } catch {
     return null;
@@ -1273,9 +1282,14 @@ export async function removeHomeTask(id: string): Promise<boolean> {
   } catch { return false; }
 }
 
-export interface TaskDoneResult { ok: boolean; reason?: string; coins?: number; earned?: number }
+export interface TaskDoneResult { ok: boolean; reason?: string; coins?: number; earned?: number; pending?: boolean }
 
-/** Child checks off a chore: once per day per task, then the coins are credited. */
+/**
+ * Child checks off a chore. It goes to the parent as "pending" — the coins are
+ * credited only when a parent approves (so the parent verifies it was really
+ * done). If the status column isn't there yet, we fall back to the old behavior
+ * (credit immediately) so nothing breaks before the migration runs.
+ */
 export async function completeHomeTask(childId: string, taskId: string): Promise<TaskDoneResult> {
   const sb = getSupabase();
   if (!sb) return { ok: false, reason: 'no-db' };
@@ -1285,14 +1299,20 @@ export async function completeHomeTask(childId: string, taskId: string): Promise
     const { data: task } = await sb
       .from('home_tasks').select('id,coins,active').eq('id', taskId).maybeSingle();
     if (!task || !task.active) return { ok: false, reason: 'no-task' };
-
-    const day = new Date().toISOString().slice(0, 10);
-    const { error: insErr } = await sb
-      .from('home_task_done').insert({ task_id: taskId, child_id: childId, day });
-    if (insErr) return { ok: false, reason: 'already' }; // unique(task,child,day) → already done
-
     const earned = (task.coins as number) ?? 0;
-    const coins = child.coins + earned;
+    const day = new Date().toISOString().slice(0, 10);
+
+    // Preferred path: record it as pending for parent approval (no coins yet).
+    const { error: insErr } = await sb
+      .from('home_task_done').insert({ task_id: taskId, child_id: childId, day, status: 'pending' });
+    if (!insErr) return { ok: true, pending: true, earned };
+
+    // The insert failed — either already done today, or the status column is
+    // missing (pre-migration). Retry without status to tell the two apart.
+    const { error: retryErr } = await sb
+      .from('home_task_done').insert({ task_id: taskId, child_id: childId, day });
+    if (retryErr) return { ok: false, reason: 'already' }; // unique(task,child,day)
+    const coins = child.coins + earned;                    // no status column → old behavior
     await sb.from('users').update({ quest_coins: coins }).eq('id', childId);
     return { ok: true, coins, earned };
   } catch {
@@ -1300,10 +1320,72 @@ export async function completeHomeTask(childId: string, taskId: string): Promise
   }
 }
 
+export interface TaskApproval {
+  id: string; childId: string; childName: string; taskTitle: string; coins: number; day: string;
+}
+
+/** Chores kids marked done that are waiting for a parent to approve. */
+export async function getPendingTaskApprovals(): Promise<TaskApproval[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data, error } = await sb
+      .from('home_task_done').select('id,task_id,child_id,day,status')
+      .eq('status', 'pending').order('day', { ascending: false }).limit(50);
+    if (error) return []; // status column not there yet → nothing pending
+    if (!data?.length) return [];
+    const taskIds = [...new Set(data.map((r) => r.task_id as string))];
+    const childIds = [...new Set(data.map((r) => r.child_id as string))];
+    const [{ data: tasks }, { data: kids }] = await Promise.all([
+      sb.from('home_tasks').select('id,title,coins').in('id', taskIds),
+      sb.from('users').select('id,display_name').in('id', childIds),
+    ]);
+    const tmap = new Map((tasks ?? []).map((t) => [t.id as string, t]));
+    const kmap = new Map((kids ?? []).map((k) => [k.id as string, k.display_name as string]));
+    return data.map((r) => {
+      const t = tmap.get(r.task_id as string) as { title?: string; coins?: number } | undefined;
+      return {
+        id: r.id as string, childId: r.child_id as string,
+        childName: kmap.get(r.child_id as string) ?? 'ילדה',
+        taskTitle: t?.title ?? 'מטלה', coins: t?.coins ?? 0, day: r.day as string,
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+/** Parent decision on a pending chore: 'approve' credits the coins; 'reject'
+ *  removes it (the child can do it again). */
+export async function resolveTaskApproval(id: string, action: 'approve' | 'reject'): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { data: row } = await sb
+      .from('home_task_done').select('id,task_id,child_id,status').eq('id', id).maybeSingle();
+    if (!row) return false;
+    if (action === 'reject') {
+      await sb.from('home_task_done').delete().eq('id', id);
+      return true;
+    }
+    if (row.status !== 'pending') return true; // already handled
+    const [{ data: task }, child] = await Promise.all([
+      sb.from('home_tasks').select('coins').eq('id', row.task_id as string).maybeSingle(),
+      getChildProfileById(row.child_id as string),
+    ]);
+    const earned = (task?.coins as number) ?? 0;
+    if (child) await sb.from('users').update({ quest_coins: child.coins + earned }).eq('id', row.child_id as string);
+    await sb.from('home_task_done').update({ status: 'approved' }).eq('id', id);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // ─────────────── Parent: flagged-question review (content trust layer) ───────────────
 export interface FlaggedQuestion {
   id: string; subject: string; subTopic: string; grade: string;
-  stem: string; reason: string; correctText: string; choices: { id: string; text: string }[];
+  stem: string; reason: string; correctText: string; correctId: string; choices: { id: string; text: string }[];
 }
 
 /** Questions the verifier held back (verification_status='auto_flagged') for a parent to review. */
@@ -1330,7 +1412,7 @@ export async function getFlaggedQuestions(): Promise<FlaggedQuestion[] | null> {
         id: r.id as string,
         subject: t?.subject ?? '', subTopic: t?.sub_topic ?? '', grade: t?.grade ?? '',
         stem: String(p.stem ?? ''), reason: String(p.flag_reason ?? 'סומן לבדיקה'),
-        correctText: correct?.text ?? '', choices,
+        correctText: correct?.text ?? '', correctId: String(p.correct_choice_id ?? ''), choices,
       };
     });
   } catch {

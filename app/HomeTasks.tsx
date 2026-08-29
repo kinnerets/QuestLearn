@@ -27,7 +27,7 @@ export function HomeTasks() {
       });
       const j = await r.json();
       if (j?.ok) {
-        setTasks((ts) => (ts ?? []).map((x) => (x.id === t.id ? { ...x, doneToday: true } : x)));
+        setTasks((ts) => (ts ?? []).map((x) => (x.id === t.id ? { ...x, doneToday: true, pending: !!j.pending } : x)));
         setPop(t.id);
         setTimeout(() => setPop(null), 900);
         router.refresh();
@@ -43,11 +43,13 @@ export function HomeTasks() {
       <div className="tasks-home-head">מטלות בית</div>
       <div className="tasks-home-list">
         {tasks.map((t) => (
-          <button key={t.id} className={`task-row${t.doneToday ? ' done' : ''}`}
+          <button key={t.id} className={`task-row${t.doneToday ? ' done' : ''}${t.pending ? ' pending' : ''}`}
             onClick={() => done(t)} disabled={t.doneToday || busy === t.id}>
             <span className={`task-check${t.doneToday ? ' on' : ''}`}>{t.doneToday && <CheckIcon />}</span>
             <span className="task-title">{t.title}</span>
-            <span className={`task-coins${pop === t.id ? ' pop' : ''}`}><CoinIcon /> {t.coins}</span>
+            {t.pending
+              ? <span className="task-pending">נשלח לאישור</span>
+              : <span className={`task-coins${pop === t.id ? ' pop' : ''}`}><CoinIcon /> {t.coins}</span>}
           </button>
         ))}
       </div>

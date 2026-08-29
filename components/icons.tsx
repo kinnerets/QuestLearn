@@ -120,6 +120,12 @@ export const FeatherIcon = () => (
 export const LockIcon = () => (
   <Svg><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></Svg>
 );
+export const GearIcon = () => (
+  <Svg><circle cx="12" cy="12" r="3.2" /><path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7" /></Svg>
+);
+export const SwapIcon = () => (
+  <Svg><path d="M7 4L4 7l3 3" /><path d="M4 7h11a4 4 0 0 1 4 4" /><path d="M17 20l3-3-3-3" /><path d="M20 17H9a4 4 0 0 1-4-4" /></Svg>
+);
 export const UnlockIcon = () => (
   <Svg><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 7.9-1" /></Svg>
 );

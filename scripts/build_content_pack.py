@@ -169,6 +169,9 @@ alter table curriculum_topics drop constraint if exists curriculum_topics_subjec
 -- 2. Column used to lock sensitive subjects from the child's map.
 alter table curriculum_topics add column if not exists parent_locked boolean not null default false;
 
+-- 2b. Home chores now go to the parent for approval before coins are credited.
+alter table home_task_done add column if not exists status text not null default 'pending';
+
 -- 3. Topics (upserts) ─────────────────────────────────────────────────
 {enr_topics}
 

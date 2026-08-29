@@ -47,8 +47,17 @@ export function FlagsPanel() {
         <div key={q.id} className="flag-card">
           <div className="flag-meta">{SUBJECT_LABEL[q.subject] ?? q.subject} · {GRADE_SHORT[q.grade] ?? q.grade}</div>
           <div className="flag-stem">{q.stem}</div>
-          <div className="flag-answer">תשובה מסומנת: <b>{q.correctText || '—'}</b></div>
-          <div className="flag-reason">{q.reason}</div>
+          {q.choices.length > 0 && (
+            <ul className="flag-choices">
+              {q.choices.map((c) => (
+                <li key={c.id} className={c.id === q.correctId ? 'right' : ''}>
+                  {c.id === q.correctId && <CheckIcon />}
+                  <span>{c.text}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flag-reason"><span className="flag-reason-tag">למה סומן</span>{q.reason}</div>
           <div className="flag-actions">
             <button className="flag-btn approve" disabled={busy === q.id} onClick={() => review(q.id, 'approve')}>
               <CheckIcon /> אישור

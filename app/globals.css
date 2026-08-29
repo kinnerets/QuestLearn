@@ -149,7 +149,7 @@ a { color: inherit; text-decoration: none; }
 .bubble b { color: var(--magenta-deep); }
 
 /* bottom nav */
-.bottom-nav { display: flex; border-top: 1px solid var(--line); background: var(--surface); }
+.bottom-nav { display: flex; border-top: 1px solid var(--line); background: var(--surface); padding-bottom: env(safe-area-inset-bottom, 0); flex: none; }
 .nav-item {
   flex: 1; padding: 9px 4px 11px; display: flex; flex-direction: column; align-items: center; gap: 3px;
   color: var(--muted); font-family: var(--font-display); font-weight: 600; font-size: .72rem;
@@ -221,11 +221,23 @@ a { color: inherit; text-decoration: none; }
 @keyframes fall { to { transform: translateY(760px) rotate(540deg); opacity: .9; } }
 
 /* ── Home: profile switch + goal ── */
-.hero-avatar.switchable { display: block; cursor: pointer; }
-.hero-switch {
-  display: inline-block; margin-top: 5px; font-size: .74rem; font-weight: 700;
-  color: #fff; opacity: .9; text-decoration: underline; text-underline-offset: 2px;
+.hero-avatar.switchable { display: block; cursor: pointer; position: relative; }
+.hero-avatar-swap {
+  position: absolute; bottom: -4px; inset-inline-start: -4px;
+  width: 20px; height: 20px; border-radius: 50%; background: #fff; color: var(--magenta-deep);
+  display: grid; place-items: center; box-shadow: 0 2px 6px rgba(0,0,0,.2);
 }
+.hero-avatar-swap .i { width: 13px; height: 13px; }
+.hero-switch {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; font-size: .74rem; font-weight: 700;
+  color: #fff; opacity: .92;
+}
+.hero-switch .i { width: 13px; height: 13px; }
+.hero-gear {
+  flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(255,255,255,.18); color: #fff; align-self: flex-start;
+}
+.hero-gear .i { width: 20px; height: 20px; }
 
 /* ── Celebration extra note ── */
 .cele-note {
@@ -312,6 +324,11 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Parent dashboard ── */
 .parent { padding: 18px 16px 24px; }
+.parent-foot {
+  flex: none; display: flex; gap: 10px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0));
+  border-top: 1px solid var(--line); background: var(--surface);
+}
+.parent-foot .cta { margin: 0; }
 .parent-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .parent-head h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; }
 .lock-btn { border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-weight: 700; border-radius: 999px; padding: 7px 16px; cursor: pointer; }
@@ -787,6 +804,11 @@ a { color: inherit; text-decoration: none; }
 .task-coins { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-display); font-weight: 800; color: var(--gold-ink); font-size: .9rem; }
 .task-coins .i { width: 16px; height: 16px; }
 .task-coins.pop { animation: pop .6s cubic-bezier(.2,1.5,.4,1) both; }
+/* Sent to a parent for approval — done, but not struck through yet. */
+.task-row.pending { background: #FFF7E6; border-color: #FFD79A; }
+.task-row.pending .task-title { text-decoration: none; color: var(--ink); }
+.task-row.pending .task-check.on { background: #E09A2B; border-color: #E09A2B; }
+.task-pending { font-family: var(--font-display); font-weight: 800; font-size: .78rem; color: #B4761A; white-space: nowrap; }
 
 /* Parent task editor */
 .task-add { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
@@ -807,7 +829,12 @@ a { color: inherit; text-decoration: none; }
 .flag-stem { font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin: 5px 0; }
 .flag-answer { font-size: .88rem; color: var(--ink); }
 .flag-answer b { color: var(--mint, #2FBF8F); }
-.flag-reason { font-size: .84rem; color: var(--magenta-deep); font-weight: 600; margin-top: 4px; }
+.flag-choices { list-style: none; margin: 8px 0 2px; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.flag-choices li { display: flex; align-items: center; gap: 6px; font-size: .88rem; font-weight: 600; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; }
+.flag-choices li.right { background: color-mix(in srgb, var(--mint) 16%, var(--surface)); border-color: var(--mint); color: var(--mint-ink, #1C7A57); font-weight: 800; }
+.flag-choices li .i { width: 15px; height: 15px; flex: none; }
+.flag-reason { font-size: .84rem; color: var(--magenta-deep); font-weight: 600; margin-top: 8px; display: flex; gap: 6px; align-items: baseline; }
+.flag-reason-tag { font-family: var(--font-display); font-weight: 800; font-size: .68rem; color: #fff; background: var(--magenta); border-radius: 999px; padding: 2px 8px; flex: none; }
 .flag-actions { display: flex; gap: 8px; margin-top: 10px; }
 .flag-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px; border: none; border-radius: 11px; padding: 9px; font-family: var(--font-display); font-weight: 700; font-size: .88rem; cursor: pointer; }
 .flag-btn .i { width: 16px; height: 16px; }
@@ -823,6 +850,16 @@ a { color: inherit; text-decoration: none; }
 .redeem-sub .i { width: 14px; height: 14px; color: var(--gold-ink); }
 .redeem-actions { display: flex; gap: 6px; flex: none; }
 .redeem-actions .flag-btn { padding: 8px 11px; }
+
+/* Task approvals (parent) */
+.approve-card { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 15px; padding: 12px 13px; margin-bottom: 10px; }
+.approve-main { flex: 1; min-width: 0; }
+.approve-title { font-family: var(--font-display); font-weight: 800; font-size: 1rem; }
+.approve-meta { font-weight: 700; font-size: .82rem; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+.approve-coins { display: inline-flex; align-items: center; gap: 3px; color: var(--gold-ink); }
+.approve-coins .i { width: 15px; height: 15px; }
+.approve-actions { display: flex; gap: 7px; flex: none; }
+.approve-actions .flag-btn { flex: none; padding: 8px 12px; }
 
 /* ── New-badge celebration (real-time) ── */
 .badge-pop-list { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; margin: 6px 0 4px; }

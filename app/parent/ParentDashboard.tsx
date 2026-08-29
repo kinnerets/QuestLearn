@@ -1,10 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
 import { CoinIcon, FlameIcon, CloseIcon } from '@/components/icons';
 import { TasksPanel } from './TasksPanel';
+import { TaskApprovalsPanel } from './TaskApprovalsPanel';
 import { FlagsPanel } from './FlagsPanel';
 import { RedemptionsPanel } from './RedemptionsPanel';
 import { LocksPanel } from './LocksPanel';
@@ -60,7 +60,6 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
       <div className="screen-body parent">
         <div className="parent-head">
           <h1>סקירה</h1>
-          <button className="lock-btn" onClick={lock}>יציאה ונעילה</button>
         </div>
 
         {kids.length === 0 && <div className="parent-empty">עדיין אין פרופילים במאגר.</div>}
@@ -71,6 +70,8 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
           ))}
         </div>
 
+        <TaskApprovalsPanel />
+
         <RedemptionsPanel />
 
         <FlagsPanel />
@@ -78,8 +79,10 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
         <LocksPanel />
 
         <TasksPanel />
+      </div>
 
-        <Link href="/" className="cta ghost" style={{ textAlign: 'center' }}>חזרה לאפליקציה</Link>
+      <div className="parent-foot">
+        <button className="cta" onClick={lock}>יציאה ונעילה</button>
       </div>
     </main>
   );

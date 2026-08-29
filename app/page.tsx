@@ -4,7 +4,7 @@ import { Avatar } from '@/components/Avatar';
 import { Greeting } from '@/components/Greeting';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
-import { ChevronIcon, CheckIcon, STATION_ICON, SUBJECT_ICON, SparkIcon, CompassIcon } from '@/components/icons';
+import { ChevronIcon, CheckIcon, STATION_ICON, SUBJECT_ICON, SparkIcon, CompassIcon, GearIcon, SwapIcon } from '@/components/icons';
 import { HomeTasks } from './HomeTasks';
 import { mili, todayStations } from '@/lib/mockData';
 import { getChildren, getDailyLesson, getTodaySubjects, getSeasonalHighlight } from '@/lib/db';
@@ -80,8 +80,9 @@ export default async function HomePage() {
       <div className="screen-body">
         <section className="hero">
           <div className="hero-row">
-            <Link href="/avatar" className="hero-avatar switchable" aria-label="עריכת אווטאר">
+            <Link href={multiProfile ? '/profiles' : '/avatar'} className="hero-avatar switchable" aria-label={multiProfile ? 'החלפת פרופיל' : 'עריכת אווטאר'}>
               <Avatar config={avatar} crop size={52} />
+              {multiProfile && <span className="hero-avatar-swap"><SwapIcon /></span>}
             </Link>
             <div style={{ flex: 1 }}>
               <div className="hero-title"><Greeting name={name} /></div>
@@ -89,10 +90,11 @@ export default async function HomePage() {
                 {doneCount}/{stations.length} נושאים היום · יעד ~{goalMinutes} דק׳
               </div>
               {multiProfile && (
-                <Link href="/profiles" className="hero-switch">החלפת פרופיל</Link>
+                <Link href="/profiles" className="hero-switch"><SwapIcon /> החלפת פרופיל</Link>
               )}
             </div>
             <GoalRing done={doneCount} total={stations.length} />
+            <Link href="/parent" className="hero-gear" aria-label="אזור הורים"><GearIcon /></Link>
           </div>
         </section>
 
@@ -157,8 +159,6 @@ export default async function HomePage() {
               : <>אהלן {name}. נתחיל ב<b>{firstActive.title}</b>?</>}
           </div>
         </div>
-
-        <Link href="/parent" className="parent-link">אזור הורים</Link>
       </div>
 
       <BottomNav active="/" />
