@@ -56,6 +56,63 @@ const QUESTION_TOOL = {
   },
 };
 
+const VERIFY_TOOL = {
+  name: 'emit_verdicts',
+  description: 'החזר פסק דין לכל שאלה: תקינה או לסימון לבדיקת הורה',
+  input_schema: {
+    type: 'object' as const,
+    additionalProperties: false,
+    required: ['verdicts'],
+    properties: {
+      verdicts: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['index', 'ok'],
+          properties: {
+            index: { type: 'integer' },
+            ok: { type: 'boolean' },
+            reason: { type: 'string' },
+          },
+        },
+      },
+    },
+  },
+};
+
+interface VerifyItem { stem: string; choices: { id: string; text: string }[]; correct: string }
+
+/**
+ * Second-pass check (a different, stricter prompt). Returns a map of index →
+ * flag reason for questions that should be held for parent review. On any error
+ * it returns an empty map (fail-open: don't block generation).
+ */
+async function verifyQuestions(apiKey: string, items: VerifyItem[], context: string): Promise<Map<number, string>> {
+  const flagged = new Map<number, string>();
+  if (!items.length) return flagged;
+  try {
+    const anthropic = new Anthropic({ apiKey, timeout: 40_000, maxRetries: 1 });
+    const listing = items.map((q, i) =>
+      `#${i} | ${q.stem}\n` + q.choices.map((c) => `  ${c.id}) ${c.text}${c.id === q.correct ? '  ✓' : ''}`).join('\n'),
+    ).join('\n\n');
+    const resp = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 1500,
+      system: `אתה בודק איכות של שאלות לימוד לילדים (${context}). סמן שאלה כלא‑תקינה (ok=false) רק אם יש בעיה ממשית: התשובה המסומנת ✓ שגויה או לא מדויקת; יש יותר מתשובה נכונה אחת; טעות עובדתית; ניסוח מבלבל; לא מתאים לגיל; או (בערבית) התשובה הנכונה אינה מילה בערבית. אחרת ok=true. תן reason קצר בעברית לכל סימון.`,
+      tools: [VERIFY_TOOL],
+      tool_choice: { type: 'tool', name: 'emit_verdicts' },
+      messages: [{ role: 'user', content: listing }],
+    });
+    const block = resp.content.find((b) => b.type === 'tool_use');
+    const verdicts = block && 'input' in block ? (block.input as { verdicts?: { index: number; ok: boolean; reason?: string }[] }).verdicts : undefined;
+    for (const v of verdicts ?? []) {
+      if (v && v.ok === false && typeof v.index === 'number') flagged.set(v.index, String(v.reason ?? 'סומן לבדיקה'));
+    }
+  } catch { /* fail-open */ }
+  return flagged;
+}
+
 /** Generate fresh questions for one topic, skipping anything already in the bank. */
 export async function generateForTopic(topicId: string, count = GENERATE): Promise<GenResult> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -151,9 +208,24 @@ explanation: משפט קצר שמסביר למה התשובה נכונה.
     });
   }
   if (!rows.length) return { inserted: 0, reason: 'all-duplicates' };
+
+  // Second-pass verification: anything the checker flags is held for parent review.
+  const items: VerifyItem[] = rows.map((r) => {
+    const p = r.payload as { stem: string; choices: { id: string; text: string }[]; correct_choice_id: string };
+    return { stem: p.stem, choices: p.choices, correct: p.correct_choice_id };
+  });
+  const flagged = await verifyQuestions(apiKey, items, `${subjectLabel} · ${gradeLabel}`);
+  rows.forEach((r, i) => {
+    if (flagged.has(i)) {
+      r.verification_status = 'auto_flagged';
+      (r.payload as Record<string, unknown>).flag_reason = flagged.get(i);
+    }
+  });
+
   const { error } = await sb.from('questions_bank').insert(rows);
   if (error) return { inserted: 0, reason: 'insert-failed' };
-  return { inserted: rows.length };
+  const passed = rows.filter((r) => r.verification_status !== 'auto_flagged').length;
+  return { inserted: passed };
 }
 
 /**

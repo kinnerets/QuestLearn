@@ -40,7 +40,7 @@ export default async function HomePage() {
   }
   const child = children?.find((c) => c.id === selectedId) ?? children?.[0] ?? null;
   const [dbLesson, doneSubjects] = await Promise.all([
-    getDailyLesson(child?.grade ?? 'grade_3'),
+    getDailyLesson(child?.grade ?? 'grade_3', child?.id),
     child ? getTodaySubjects(child.id) : Promise.resolve([]),
   ]);
 

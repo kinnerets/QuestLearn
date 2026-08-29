@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
 import { CoinIcon, FlameIcon, CloseIcon } from '@/components/icons';
 import { TasksPanel } from './TasksPanel';
+import { FlagsPanel } from './FlagsPanel';
 import type { AvatarConfig } from '@/lib/types';
 import type { ChildReport } from '@/lib/db';
 
@@ -67,6 +68,8 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
             <ReportCard key={k.id} kid={k} />
           ))}
         </div>
+
+        <FlagsPanel />
 
         <TasksPanel />
 

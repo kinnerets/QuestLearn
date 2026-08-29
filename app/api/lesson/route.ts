@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   const grade = child?.grade ?? 'grade_3';
   const lesson = focus
     ? await composeFocus(grade, focus, id ?? undefined, topic ?? undefined)
-    : await getDailyLesson(grade);
+    : await getDailyLesson(grade, id ?? undefined);
   // Starting difficulty from the child's level (placement seeds this), 1–5.
   const level = child ? Math.min(5, Math.max(1, levelFromXp(child.xp).level)) : 1;
   return NextResponse.json({ lesson, coins: child?.coins ?? null, name: child?.name ?? null, level });

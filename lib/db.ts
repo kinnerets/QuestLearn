@@ -97,6 +97,7 @@ async function fetchBank(
       .from('questions_bank')
       .select('id,topic_id,type,difficulty,payload')
       .in('topic_id', list.map((t) => t.id))
+      .neq('verification_status', 'auto_flagged')   // hide questions flagged for parent review
       .order('difficulty', { ascending: true })
       .order('id', { ascending: true });
     for (const q of (qs ?? []) as QRow[]) {
@@ -427,7 +428,45 @@ export async function buyAvatarItem(childId: string, itemId: string): Promise<Bu
   }
 }
 
-export async function getDailyLesson(grade = 'grade_3', round = 1): Promise<DbStation[] | null> {
+// ── Weighted Composer signals ──
+interface MasterySig { mastery: number; overdueDays: number; misconceptions: number }
+
+/** Per-topic mastery signals for this child (SM-2 + misconceptions). */
+async function loadMasterySignals(
+  sb: NonNullable<ReturnType<typeof getSupabase>>, childId: string, topicIds: string[],
+): Promise<Map<string, MasterySig>> {
+  const map = new Map<string, MasterySig>();
+  try {
+    const { data } = await sb
+      .from('user_mastery')
+      .select('topic_id,mastery_score,next_review_at,misconception_tags')
+      .eq('user_id', childId).in('topic_id', topicIds);
+    const now = Date.now();
+    for (const r of data ?? []) {
+      const overdue = r.next_review_at ? (now - new Date(r.next_review_at as string).getTime()) / 86_400_000 : 0;
+      map.set(r.topic_id as string, {
+        mastery: Number(r.mastery_score ?? 0),
+        overdueDays: overdue,
+        misconceptions: Array.isArray(r.misconception_tags) ? (r.misconception_tags as unknown[]).length : 0,
+      });
+    }
+  } catch { /* signals are best-effort */ }
+  return map;
+}
+
+/**
+ * Priority score for a topic: weak mastery, due reviews, and lingering
+ * misconceptions all raise it. A small day-stable jitter breaks ties so the mix
+ * still rotates. (interest_match / parent_directive weights = 0 until built.)
+ */
+function topicPriority(sig: MasterySig | undefined, jitter: number): number {
+  const gap = 1 - (sig?.mastery ?? 0);                                   // weak → high (0..1)
+  const review = sig ? Math.max(0, Math.min(1, sig.overdueDays / 3)) : 0; // overdue up to 3d → 0..1
+  const misc = sig ? Math.min(0.4, sig.misconceptions * 0.2) : 0;        // repeated misconceptions
+  return 0.5 * gap + 0.35 * review + misc + jitter;
+}
+
+export async function getDailyLesson(grade = 'grade_3', childId?: string, round = 1): Promise<DbStation[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
@@ -435,16 +474,25 @@ export async function getDailyLesson(grade = 'grade_3', round = 1): Promise<DbSt
     if (!topics.length) return null;
     const seed = daySeed();
 
+    // This child's mastery/review signals drive the weighted pick (Composer).
+    const sigs = childId ? await loadMasterySignals(sb, childId, topics.map((t) => t.id)) : new Map<string, MasterySig>();
+    const solved = childId ? await solvedQuestionIds(sb, childId) : new Set<string>();
+    const jitterFor = (id: string) => ((seed + Number('0x' + id.slice(0, 6))) % 100) / 1000; // 0..0.099, day-stable
+
     const stations: DbStation[] = [];
-    DAILY_SLOTS.forEach((slot, slotIdx) => {
-      // Candidate subjects in this slot that actually have a playable topic.
+    DAILY_SLOTS.forEach((slot) => {
+      // Candidate topics in this slot that have playable content.
       const candidates = slot.subjects
         .map((subject) => topics.find((t) => t.subject === subject && (qByTopic.get(t.id)?.length ?? 0) > 0))
         .filter((t): t is TopicRow => !!t);
       if (!candidates.length) return;
-      const topic = candidates[(seed + slotIdx + round - 1) % candidates.length];
+      // Pick the highest-priority topic for THIS child (weak/overdue/misconception first).
+      const topic = candidates
+        .map((t) => ({ t, score: topicPriority(sigs.get(t.id), jitterFor(t.id)) }))
+        .sort((a, b) => b.score - a.score)[0].t;
       const qs = qByTopic.get(topic.id)!;
-      const q = qs[(round - 1) % qs.length];
+      // Prefer a question the child hasn't solved yet; else rotate by day.
+      const q = qs.find((x) => !solved.has(x.id)) ?? qs[(seed + round - 1) % qs.length];
       stations.push(buildStation(slot.kind, topic.subject, topic, q));
     });
 
@@ -469,7 +517,7 @@ export interface NextDaily { subject: string; label: string; topicId?: string; o
 
 /** The next unfinished topic in today's journey — for chaining sessions. */
 export async function getNextDaily(childId: string, grade: string): Promise<{ next: NextDaily | null; done: boolean }> {
-  const [lesson, doneSubjects] = await Promise.all([getDailyLesson(grade), getTodaySubjects(childId)]);
+  const [lesson, doneSubjects] = await Promise.all([getDailyLesson(grade, childId), getTodaySubjects(childId)]);
   if (!lesson?.length) return { next: null, done: true };
   const doneSet = new Set(doneSubjects);
   for (const s of lesson) {
@@ -1173,5 +1221,59 @@ export async function completeHomeTask(childId: string, taskId: string): Promise
     return { ok: true, coins, earned };
   } catch {
     return { ok: false, reason: 'error' };
+  }
+}
+
+// ─────────────── Parent: flagged-question review (content trust layer) ───────────────
+export interface FlaggedQuestion {
+  id: string; subject: string; subTopic: string; grade: string;
+  stem: string; reason: string; correctText: string; choices: { id: string; text: string }[];
+}
+
+/** Questions the verifier held back (verification_status='auto_flagged') for a parent to review. */
+export async function getFlaggedQuestions(): Promise<FlaggedQuestion[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data } = await sb
+      .from('questions_bank')
+      .select('id,topic_id,payload')
+      .eq('verification_status', 'auto_flagged')
+      .limit(50);
+    if (!data?.length) return [];
+    const topicIds = [...new Set(data.map((r) => r.topic_id as string))];
+    const { data: topics } = await sb
+      .from('curriculum_topics').select('id,subject,sub_topic,grade').in('id', topicIds);
+    const tmap = new Map((topics ?? []).map((t) => [t.id as string, t]));
+    return data.map((r) => {
+      const p = (r.payload ?? {}) as { stem?: string; flag_reason?: string; correct_choice_id?: string; choices?: { id: string; text: string }[] };
+      const t = tmap.get(r.topic_id as string) as { subject?: string; sub_topic?: string; grade?: string } | undefined;
+      const choices = (p.choices ?? []).map((c) => ({ id: c.id, text: String(c.text) }));
+      const correct = choices.find((c) => c.id === p.correct_choice_id);
+      return {
+        id: r.id as string,
+        subject: t?.subject ?? '', subTopic: t?.sub_topic ?? '', grade: t?.grade ?? '',
+        stem: String(p.stem ?? ''), reason: String(p.flag_reason ?? 'סומן לבדיקה'),
+        correctText: correct?.text ?? '', choices,
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+/** Parent decision on a flagged question: approve → kids see it; reject → deleted. */
+export async function reviewQuestion(id: string, action: 'approve' | 'reject'): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    if (action === 'approve') {
+      const { error } = await sb.from('questions_bank').update({ verification_status: 'parent_approved' }).eq('id', id);
+      return !error;
+    }
+    const { error } = await sb.from('questions_bank').delete().eq('id', id);
+    return !error;
+  } catch {
+    return false;
   }
 }
