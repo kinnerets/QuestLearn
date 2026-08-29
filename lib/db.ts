@@ -621,9 +621,9 @@ export async function getSubjectCatalog(grade: string, childId: string): Promise
       tally.set(subject, e);
     }
 
-    // Leadership is a normal subject card too (flat taxonomy); it opens its
-    // reflective worlds instead of a scored drill.
-    const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography', 'future_skills', 'leadership'];
+    // Academic subjects only. Leadership worlds are surfaced separately in the
+    // map as their own direct-access cards (each world is its own entry).
+    const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography', 'future_skills'];
     const cards: SubjectCard[] = [];
     for (const subject of order) {
       const e = bySubject.get(subject);

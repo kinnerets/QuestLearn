@@ -114,12 +114,11 @@ export default async function HomePage() {
                 <span className={`mission-ico ico-${s.kind}`}><Icon /></span>
                 <span className="mission-txt">
                   <span className="mission-title">{s.subtitle}</span>
-                  <span className="mission-sub" style={{ display: 'block' }}>{s.title}</span>
                 </span>
                 {done
                   ? <span className="mission-done"><CheckIcon /></span>
                   : active
-                    ? <span className="mission-cta">התחילי</span>
+                    ? <span className="mission-cta pulse">התחילי ›</span>
                     : <span className="mission-chevron"><ChevronIcon /></span>}
               </Link>
             );

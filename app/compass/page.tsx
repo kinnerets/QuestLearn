@@ -40,8 +40,18 @@ export default function CompassPage() {
   const [active, setActive] = useState<CompassWorld | null>(null);
 
   function load() {
+    const wantWorld = typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('w') : null;
     fetch('/api/compass').then((r) => r.json())
-      .then((j) => setWorlds(Array.isArray(j?.worlds) ? j.worlds : []))
+      .then((j) => {
+        const list: CompassWorld[] = Array.isArray(j?.worlds) ? j.worlds : [];
+        setWorlds(list);
+        // Deep link from the map: /compass?w=<order> opens that world directly.
+        if (wantWorld) {
+          const w = list.find((x) => String(x.order) === wantWorld);
+          if (w) setActive(w);
+        }
+      })
       .catch(() => setWorlds([]));
   }
   useEffect(load, []);

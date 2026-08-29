@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import { STATION_ICON, ChevronIcon } from '@/components/icons';
-import { getChildren, getSubjectCatalog, type SubjectCard } from '@/lib/db';
+import { getChildren, getSubjectCatalog, getCompassWorlds, type SubjectCard, type CompassWorld } from '@/lib/db';
+import { HeartIcon } from '@/components/icons';
 import { selectedChildId } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
@@ -24,8 +25,14 @@ export default async function MapPage() {
     redirect('/profiles');
   }
   const child = children?.find((c) => c.id === selectedId) ?? children?.[0] ?? null;
-  const catalog = child ? await getSubjectCatalog(child.grade ?? 'grade_3', child.id) : null;
+  const [catalog, worlds] = child
+    ? await Promise.all([
+        getSubjectCatalog(child.grade ?? 'grade_3', child.id),
+        getCompassWorlds(child.id),
+      ])
+    : [null, null];
   const subjects = catalog ?? MOCK_CATALOG;
+  const leadWorlds: CompassWorld[] = worlds ?? [];
 
   return (
     <main className="app-shell">
@@ -41,29 +48,37 @@ export default async function MapPage() {
         <div className="subject-grid">
           {subjects.map((s) => {
             const Icon = STATION_ICON[s.kind];
-            const isLead = s.subject === 'leadership';
-            const href = isLead ? '/compass' : `/subject/${s.subject}`;
             return (
-              <Link key={s.subject} href={href} className="subject-card">
+              <Link key={s.subject} href={`/exercise?focus=${s.subject}`} className="subject-card">
                 <span className={`subject-ico ico-${s.kind}`}><Icon /></span>
                 <span className="subject-name">{s.label}</span>
-                {isLead ? (
-                  <span className="subject-meta">מנהיגות אישית · 4 עולמות</span>
-                ) : (
-                  <>
-                    <span className="subject-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.round(s.accuracy * 100)}%` }} /></span>
-                    <span className="subject-meta">
-                      {s.answered > 0
-                        ? `${Math.round(s.accuracy * 100)}% הצלחה · פתרת ${s.solved}/${s.total}`
-                        : `${s.total} שאלות · טרם התחלת`}
-                    </span>
-                  </>
-                )}
+                <span className="subject-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.round(s.accuracy * 100)}%` }} /></span>
+                <span className="subject-meta">
+                  {s.answered > 0
+                    ? `${Math.round(s.accuracy * 100)}% הצלחה · פתרת ${s.solved}/${s.total}`
+                    : `${s.total} שאלות · טרם התחלת`}
+                </span>
                 <span className="subject-go"><ChevronIcon /></span>
               </Link>
             );
           })}
         </div>
+
+        {leadWorlds.length > 0 && (
+          <>
+            <div className="map-section-title"><HeartIcon /> מנהיגות אישית</div>
+            <div className="subject-grid">
+              {leadWorlds.map((w) => (
+                <Link key={w.topicId} href={`/compass?w=${w.order}`} className="subject-card">
+                  <span className="subject-ico ico-lead"><HeartIcon /></span>
+                  <span className="subject-name">{w.name}</span>
+                  <span className="subject-meta">{w.deposits} הפקדות</span>
+                  <span className="subject-go"><ChevronIcon /></span>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
 
         <Link href="/" className="map-back">חזרה למסע היומי</Link>
       </div>
