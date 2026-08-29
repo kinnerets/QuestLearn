@@ -134,6 +134,7 @@ export const SUBJECT_ICON: Record<string, () => JSX.Element> = {
   politics: ScaleIcon,
   ai: ChipIcon,
   philosophy: FeatherIcon,
+  seasonal: StarIcon,
   leadership: HeartIcon,
 };
 

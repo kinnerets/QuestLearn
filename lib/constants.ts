@@ -19,6 +19,7 @@ export const SUBJECT_LABEL: Record<string, string> = {
   politics: 'פוליטיקה',
   ai: 'בינה מלאכותית',
   philosophy: 'פילוסופיה',
+  seasonal: 'עונתי',
   leadership: 'מנהיגות',
 };
 
@@ -31,5 +32,6 @@ export const SUBJECT_KIND: Record<string, 'core' | 'lang' | 'future' | 'lead'> =
   arabic: 'lang', english: 'lang',
   future_skills: 'future', geography: 'future',
   economics: 'future', fashion: 'future', politics: 'future', ai: 'future', philosophy: 'future',
+  seasonal: 'future',
   leadership: 'lead',
 };

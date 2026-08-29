@@ -1423,3 +1423,49 @@ export async function setSubjectLock(subject: string, locked: boolean): Promise<
     return false;
   }
 }
+
+// ─────────────── Seasonal content (holiday / season by the calendar) ───────────────
+interface Season { key: string; topicId: string; from: [number, number]; to: [number, number]; label: string; emoji: string }
+
+// Approximate Gregorian windows (Hebrew holidays drift year to year; good enough
+// for surfacing a seasonal highlight). Each maps to a seeded seasonal topic.
+const SEASONS: Season[] = [
+  { key: 'rosh',    topicId: 'b0000001-0000-4000-8000-000000000001', from: [8, 25],  to: [9, 20],  label: 'ראש השנה', emoji: '🍎' },
+  { key: 'sukkot',  topicId: 'b0000001-0000-4000-8000-000000000002', from: [9, 21],  to: [10, 12], label: 'סוכות',    emoji: '🌿' },
+  { key: 'hanukkah',topicId: 'b0000001-0000-4000-8000-000000000003', from: [12, 8],  to: [12, 31], label: 'חנוכה',    emoji: '🕎' },
+  { key: 'tubshvat',topicId: 'b0000001-0000-4000-8000-000000000004', from: [1, 18],  to: [2, 12],  label: 'ט״ו בשבט', emoji: '🌳' },
+  { key: 'purim',   topicId: 'b0000001-0000-4000-8000-000000000005', from: [2, 25],  to: [3, 22],  label: 'פורים',    emoji: '🎭' },
+  { key: 'pesach',  topicId: 'b0000001-0000-4000-8000-000000000006', from: [3, 25],  to: [4, 20],  label: 'פסח',      emoji: '🍷' },
+  { key: 'indep',   topicId: 'b0000001-0000-4000-8000-000000000007', from: [4, 21],  to: [5, 12],  label: 'יום העצמאות', emoji: '🇮🇱' },
+  { key: 'shavuot', topicId: 'b0000001-0000-4000-8000-000000000008', from: [5, 15],  to: [6, 8],   label: 'שבועות',   emoji: '🌾' },
+  { key: 'summer',  topicId: 'b0000001-0000-4000-8000-000000000009', from: [6, 20],  to: [8, 24],  label: 'קיץ',      emoji: '☀️' },
+];
+
+function activeSeason(now = new Date()): Season | null {
+  const md = (now.getMonth() + 1) * 100 + now.getDate();
+  for (const s of SEASONS) {
+    const lo = s.from[0] * 100 + s.from[1];
+    const hi = s.to[0] * 100 + s.to[1];
+    if (lo <= hi ? md >= lo && md <= hi : md >= lo || md <= hi) return s;
+  }
+  return null;
+}
+
+export interface SeasonalHighlight { topicId: string; label: string; emoji: string }
+
+/** Today's seasonal topic, if one is active and actually has playable content. */
+export async function getSeasonalHighlight(): Promise<SeasonalHighlight | null> {
+  const s = activeSeason();
+  if (!s) return null;
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data } = await sb
+      .from('questions_bank').select('id')
+      .eq('topic_id', s.topicId).neq('verification_status', 'auto_flagged').limit(1);
+    if (!data?.length) return null;
+    return { topicId: s.topicId, label: s.label, emoji: s.emoji };
+  } catch {
+    return null;
+  }
+}

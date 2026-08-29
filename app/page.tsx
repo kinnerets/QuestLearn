@@ -7,7 +7,7 @@ import { BottomNav } from '@/components/BottomNav';
 import { ChevronIcon, CheckIcon, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
 import { HomeTasks } from './HomeTasks';
 import { mili, todayStations } from '@/lib/mockData';
-import { getChildren, getDailyLesson, getTodaySubjects } from '@/lib/db';
+import { getChildren, getDailyLesson, getTodaySubjects, getSeasonalHighlight } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import type { DailyStation } from '@/lib/types';
 
@@ -39,9 +39,10 @@ export default async function HomePage() {
     redirect('/profiles');
   }
   const child = children?.find((c) => c.id === selectedId) ?? children?.[0] ?? null;
-  const [dbLesson, doneSubjects] = await Promise.all([
+  const [dbLesson, doneSubjects, seasonal] = await Promise.all([
     getDailyLesson(child?.grade ?? 'grade_3', child?.id),
     child ? getTodaySubjects(child.id) : Promise.resolve([]),
+    getSeasonalHighlight(),
   ]);
 
   const name = child?.name ?? mili.display_name;
@@ -94,6 +95,17 @@ export default async function HomePage() {
             <GoalRing done={doneCount} total={stations.length} />
           </div>
         </section>
+
+        {seasonal && (
+          <Link href={`/exercise?focus=seasonal&topic=${seasonal.topicId}`} className="season-banner">
+            <span className="season-emoji">{seasonal.emoji}</span>
+            <span className="place-banner-txt">
+              <b>מיוחד לעונה: {seasonal.label}</b>
+              <small>כמה שאלות חגיגיות — בונוס!</small>
+            </span>
+            <span className="place-banner-go">›</span>
+          </Link>
+        )}
 
         {needsPlacement && (
           <Link href="/placement" className="place-banner">
