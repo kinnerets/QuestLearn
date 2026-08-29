@@ -14,13 +14,22 @@ export const SUBJECT_LABEL: Record<string, string> = {
   english: 'אנגלית',
   geography: 'גאוגרפיה',
   future_skills: 'יזמות',
+  economics: 'כלכלה',
+  fashion: 'אופנה',
+  politics: 'פוליטיקה',
+  ai: 'בינה מלאכותית',
+  philosophy: 'פילוסופיה',
   leadership: 'מנהיגות',
 };
+
+/** Enrichment subjects a parent may want to gate (sensitive) — locked by default. */
+export const SENSITIVE_SUBJECTS = new Set(['politics', 'ai']);
 
 /** Which station "kind" (icon/colour family) each subject belongs to. */
 export const SUBJECT_KIND: Record<string, 'core' | 'lang' | 'future' | 'lead'> = {
   math: 'core', geometry: 'core', hebrew: 'core', bible: 'core', science: 'future',
   arabic: 'lang', english: 'lang',
   future_skills: 'future', geography: 'future',
+  economics: 'future', fashion: 'future', politics: 'future', ai: 'future', philosophy: 'future',
   leadership: 'lead',
 };

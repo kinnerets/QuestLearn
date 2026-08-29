@@ -824,3 +824,13 @@ a { color: inherit; text-decoration: none; }
 .badge-pop-txt { display: flex; flex-direction: column; text-align: start; }
 .badge-pop-txt b { font-family: var(--font-display); font-weight: 800; font-size: 1rem; }
 .badge-pop-txt small { color: var(--muted); font-weight: 600; font-size: .82rem; }
+
+/* ── Parent: sensitive-subject locks ── */
+.lock-row { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 13px; padding: 11px 13px; margin-bottom: 9px; }
+.lock-name { flex: 1; font-family: var(--font-display); font-weight: 700; font-size: .98rem; }
+.lock-state { font-size: .78rem; font-weight: 700; color: var(--muted); }
+.lock-state.locked { color: var(--magenta-deep); }
+.switch { width: 46px; height: 27px; border-radius: 999px; border: none; background: var(--line); position: relative; cursor: pointer; flex: none; transition: background .18s; }
+.switch.on { background: var(--mint, #2FBF8F); }
+.switch-knob { position: absolute; top: 3px; inset-inline-start: 3px; width: 21px; height: 21px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: inset-inline-start .18s; }
+.switch.on .switch-knob { inset-inline-start: 22px; }

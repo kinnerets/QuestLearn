@@ -7,6 +7,7 @@ import { CoinIcon, FlameIcon, CloseIcon } from '@/components/icons';
 import { TasksPanel } from './TasksPanel';
 import { FlagsPanel } from './FlagsPanel';
 import { RedemptionsPanel } from './RedemptionsPanel';
+import { LocksPanel } from './LocksPanel';
 import type { AvatarConfig } from '@/lib/types';
 import type { ChildReport } from '@/lib/db';
 
@@ -73,6 +74,8 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
         <RedemptionsPanel />
 
         <FlagsPanel />
+
+        <LocksPanel />
 
         <TasksPanel />
 

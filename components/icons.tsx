@@ -105,6 +105,19 @@ export const AbcIcon = () => (
   <Svg><path d="M3 17V9l3 8M3.7 14h4.6" /><path d="M11 7v10h2.5a2.5 2.5 0 0 0 0-5H11m0 0h2a2 2 0 0 0 0-4h-2" /><path d="M21 9.5A2.5 2.5 0 0 0 16.5 11v3A2.5 2.5 0 0 0 21 15.5" /></Svg>
 );
 
+export const ShirtIcon = () => (
+  <Svg><path d="M8 3l4 3 4-3 4 3-3 3v9a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V9L4 6z" /></Svg>
+);
+export const ScaleIcon = () => (
+  <Svg><path d="M12 3v18" /><path d="M6 21h12" /><path d="M4 7h16" /><path d="M4 7l-2.5 5a3 3 0 0 0 5 0z" /><path d="M20 7l-2.5 5a3 3 0 0 0 5 0z" /></Svg>
+);
+export const ChipIcon = () => (
+  <Svg><rect x="7" y="7" width="10" height="10" rx="2" /><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3" /></Svg>
+);
+export const FeatherIcon = () => (
+  <Svg><path d="M20 4C11 4 7 10 6 16l-3 3 2 2 3-3c6-1 12-5 12-14z" /><path d="M16 8L8 16" /></Svg>
+);
+
 /** Which glyph each curriculum subject shows (color still comes from the kind). */
 export const SUBJECT_ICON: Record<string, () => JSX.Element> = {
   math: CalcIcon,
@@ -116,6 +129,11 @@ export const SUBJECT_ICON: Record<string, () => JSX.Element> = {
   english: AbcIcon,
   geography: GlobeIcon,
   future_skills: BulbIcon,
+  economics: CoinIcon,
+  fashion: ShirtIcon,
+  politics: ScaleIcon,
+  ai: ChipIcon,
+  philosophy: FeatherIcon,
   leadership: HeartIcon,
 };
 

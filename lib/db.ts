@@ -1,6 +1,6 @@
 import { getSupabase } from './supabaseClient';
 import { sm2, qualityFrom, updateMastery } from './composer';
-import { SUBJECT_LABEL, SUBJECT_KIND } from './constants';
+import { SUBJECT_LABEL, SUBJECT_KIND, SENSITIVE_SUBJECTS } from './constants';
 import type { AvatarConfig, StationKind, Subject } from './types';
 
 export interface AttemptInput {
@@ -785,11 +785,14 @@ export async function getSubjectCatalog(grade: string, childId: string): Promise
       tally.set(subject, e);
     }
 
-    // Academic subjects only. Leadership worlds are surfaced separately in the
-    // map as their own direct-access cards (each world is its own entry).
-    const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography', 'future_skills'];
+    // Academic + enrichment subjects. Leadership worlds are surfaced separately.
+    // Parent-locked (sensitive) subjects are hidden from the child's map.
+    const locked = await getLockedSubjects(sb);
+    const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography',
+      'future_skills', 'economics', 'fashion', 'politics', 'ai', 'philosophy'];
     const cards: SubjectCard[] = [];
     for (const subject of order) {
+      if (locked.has(subject)) continue;
       const e = bySubject.get(subject);
       if (!e) continue;
       const t = tally.get(subject);
@@ -1372,5 +1375,51 @@ export async function awardNewBadges(childId: string, grade: string): Promise<St
     return fresh;
   } catch {
     return [];
+  }
+}
+
+// ─────────────── Parent: sensitive-subject locks ───────────────
+/** Subjects currently locked (hidden from kids). Defensive: if the parent_locked
+ *  column doesn't exist yet, sensitive subjects default to locked. */
+async function getLockedSubjects(sb: NonNullable<ReturnType<typeof getSupabase>>): Promise<Set<string>> {
+  try {
+    const { data, error } = await sb.from('curriculum_topics').select('subject,parent_locked');
+    if (error) return new Set(SENSITIVE_SUBJECTS);
+    const locked = new Set<string>();
+    for (const r of data ?? []) if (r.parent_locked) locked.add(r.subject as string);
+    return locked;
+  } catch {
+    return new Set(SENSITIVE_SUBJECTS);
+  }
+}
+
+export interface LockRow { subject: string; label: string; locked: boolean }
+
+/** Sensitive enrichment subjects with their current lock state (for the parent). */
+export async function getSensitiveLocks(): Promise<LockRow[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const locked = await getLockedSubjects(sb);
+    // Only show sensitive subjects that actually have content.
+    const { data } = await sb.from('curriculum_topics').select('subject').in('subject', [...SENSITIVE_SUBJECTS]);
+    const present = new Set((data ?? []).map((r) => r.subject as string));
+    return [...SENSITIVE_SUBJECTS].filter((s) => present.has(s)).map((s) => ({
+      subject: s, label: SUBJECT_LABEL[s] ?? s, locked: locked.has(s),
+    }));
+  } catch {
+    return null;
+  }
+}
+
+/** Lock or unlock a whole subject for the kids (updates every topic of that subject). */
+export async function setSubjectLock(subject: string, locked: boolean): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { error } = await sb.from('curriculum_topics').update({ parent_locked: locked }).eq('subject', subject);
+    return !error;
+  } catch {
+    return false;
   }
 }
