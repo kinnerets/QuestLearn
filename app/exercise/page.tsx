@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Capi, type CapiMood } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import {
-  CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon,
+  CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon, ChevronIcon,
 } from '@/components/icons';
 import {
   lesson as bundledLesson, PRAISE, GENTLE, HEART, pick,
@@ -19,7 +19,7 @@ type Phase = 'playing' | 'done';
 function mapDbLesson(db: DbStation[]): Station[] {
   const n = db.length;
   return db.map((s, i): Station => {
-    const position = s.kind === 'lead' ? 'אי המצפן · מנהיגות' : `שאלה ${i + 1} מתוך ${n}`;
+    const position = s.kind === 'lead' ? 'מנהיגות' : `שאלה ${i + 1} מתוך ${n}`;
     if (s.kind === 'lead') {
       return { kind: 'lead', title: s.title, position, subjectLabel: s.subtitle, prompt: s.prompt, note: s.note,
         choices: s.choices, topicId: s.topicId, questionId: s.questionId, coins: 5 };
@@ -60,7 +60,6 @@ export default function ExercisePage() {
   const [phase, setPhase] = useState<Phase>('playing');
   const [mood, setMood] = useState<CapiMood>('chill');
   const [message, setMessage] = useState<string>('');
-  const [heartFilled, setHeartFilled] = useState(false);
 
   const diffOf = (s: Station) => (s.kind === 'lead' ? 3 : (s.difficulty ?? 2));
   function pickNext(done: Set<number>, target: number): number {
@@ -127,7 +126,7 @@ export default function ExercisePage() {
 
   function resetStation() {
     setTries(0); setChosenId(null); setWrongIds([]); setEliminated([]); setRevealed(false);
-    setPhase('playing'); setMood('chill'); setMessage(''); setHeartFilled(false);
+    setPhase('playing'); setMood('chill'); setMessage('');
   }
 
   // Ask the server to top up this subject's question bank (fire-and-forget).
@@ -207,7 +206,6 @@ export default function ExercisePage() {
     if (phase === 'done') return;
     const st = station as LeadStation;
     setChosenId(id);
-    setHeartFilled(true);
     setMood('cheer');
     const reward = st.coins ?? 5;               // a small fixed reward — reflective, never scored
     setCoins((c) => c + reward);
@@ -243,14 +241,14 @@ export default function ExercisePage() {
       <div className="screen-body ex-body">
         <div className="ex-head">
           {station.subjectLabel && <span className="ex-subject">{station.subjectLabel}</span>}
-          <span className="ex-title">{station.kind === 'lead' ? 'בנק הלב' : station.title}</span>
+          <span className="ex-title">{station.title}</span>
           <span className="ex-pos">
             {station.kind === 'lead' ? station.position : `שאלה ${doneIdx.size + 1} מתוך ${stations.length}`}
           </span>
         </div>
 
         {station.kind === 'lead'
-          ? <LeadView st={station} picked={chosenId} heartFilled={heartFilled} onPick={chooseLead} />
+          ? <LeadView st={station} picked={chosenId} onPick={chooseLead} />
           : <AcademicView st={station} chosenId={chosenId} wrongIds={wrongIds} eliminated={eliminated}
               revealed={revealed} locked={phase === 'done'} onAnswer={(id) => answer(station, id)} />}
 
@@ -319,18 +317,14 @@ function AcademicView({
 }
 
 function LeadView({
-  st, picked, heartFilled, onPick,
+  st, picked, onPick,
 }: {
-  st: LeadStation; picked: string | null; heartFilled: boolean; onPick: (id: string) => void;
+  st: LeadStation; picked: string | null; onPick: (id: string) => void;
 }) {
   return (
     <>
-      <div className="heartbank">
-        <span className="hlabel"><HeartIcon /> יתרת הלב שלך</span>
-        <div className="heartbar"><i style={{ width: heartFilled ? '78%' : '60%' }} /></div>
-      </div>
       <div className="qcard">
-        <div className="qtag">ההפקדה של היום</div>
+        <div className="qtag"><HeartIcon /> רגע של מנהיגות</div>
         <div className="qtext" style={{ fontSize: '1.12rem' }}>{st.prompt}</div>
         <div className="qnote">{st.note}</div>
       </div>
@@ -401,15 +395,43 @@ function Celebration({ earned, correct, answered, xp }: { earned: number; correc
         )}
         <div className="rewardrow">
           <div className="rw"><b><CoinIcon /> +{earned}</b><span>מטבעות</span></div>
-          <div className="rw"><b>+{xp}</b><span>XP לאווטאר</span></div>
+          <div className="rw"><b>+{xp}</b><span>נקודות</span></div>
           <div className="rw"><b><FlameIcon /></b><span>שמרת על הרצף</span></div>
         </div>
-        <div className="cele-actions">
-          <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
-        </div>
+        <NextCTA />
       </div>
-      <BottomNav active="/map" />
+      <BottomNav active="/" />
     </main>
+  );
+}
+
+/** After a session: go straight to the next unfinished daily topic; only when the
+ *  whole daily journey is done, offer "all topics". Keeps the flow moving. */
+function NextCTA() {
+  const [state, setState] = useState<{ next: { subject: string; label: string; topicId?: string } | null; done: boolean } | null>(null);
+  useEffect(() => {
+    fetch('/api/next').then((r) => r.json()).then(setState).catch(() => setState({ next: null, done: true }));
+  }, []);
+  if (!state) return null;
+  if (state.next) {
+    const n = state.next;
+    const href = n.subject === 'leadership'
+      ? `/exercise?focus=leadership&topic=${n.topicId}`
+      : `/exercise?focus=${n.subject}`;
+    return (
+      <div className="cele-actions">
+        {/* full navigation so /exercise re-initialises with the new focus */}
+        <a href={href} className="cta">לנושא הבא: {n.label} <span className="cta-ico"><ChevronIcon /></span></a>
+        <Link href="/" className="cta ghost">חזרה למסע</Link>
+      </div>
+    );
+  }
+  return (
+    <div className="cele-actions">
+      <div className="cele-done-msg">🎉 סיימת את כל המסע היומי!</div>
+      <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
+      <Link href="/" className="cta ghost">חזרה הביתה</Link>
+    </div>
   );
 }
 
@@ -420,13 +442,10 @@ function SubjectDone() {
         <Confetti />
         <div className="wow">כל הכבוד!</div>
         <Capi mood="cheer" size={120} />
-        <h2>סיימת את כל השאלות בנושא הזה</h2>
-        <p>בואו נבחר נושא חדש להיום</p>
-        <div className="cele-actions">
-          <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
-        </div>
+        <h2>סיימת את השאלות כאן</h2>
+        <NextCTA />
       </div>
-      <BottomNav active="/map" />
+      <BottomNav active="/" />
     </main>
   );
 }

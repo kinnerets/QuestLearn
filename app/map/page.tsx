@@ -66,7 +66,7 @@ export default async function MapPage() {
           {leadWorlds.map((w) => {
             const Icon = WORLD_ICON[(w.order - 1) % 4] ?? HeartIcon;
             return (
-              <Link key={w.topicId} href={`/compass?w=${w.order}`} className="subject-card">
+              <Link key={w.topicId} href={`/exercise?focus=leadership&topic=${w.topicId}`} className="subject-card">
                 <span className="subject-ico ico-lead"><Icon /></span>
                 <span className="subject-name">{w.name}</span>
                 <span className="subject-meta">מנהיגות</span>

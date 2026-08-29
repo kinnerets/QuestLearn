@@ -63,14 +63,14 @@ export default async function StatusPage() {
             <div className="level-name">{name}</div>
             <div className="level-tag">רמה {level}</div>
             <div className="xp-bar"><i style={{ width: `${Math.round((inLevel / need) * 100)}%` }} /></div>
-            <div className="xp-num">{inLevel}/{need} XP לרמה הבאה</div>
+            <div className="xp-num">{inLevel}/{need} נקודות לרמה הבאה</div>
           </div>
         </section>
 
         <div className="status-stats">
           <div className="status-stat"><CoinIcon /><b>{coins}</b><span>מטבעות</span></div>
           <div className="status-stat"><FlameIcon /><b>{streak}</b><span>ימי רצף</span></div>
-          <div className="status-stat"><StarIcon /><b>{status?.xp ?? 0}</b><span>XP סה״כ</span></div>
+          <div className="status-stat"><StarIcon /><b>{status?.xp ?? 0}</b><span>נקודות</span></div>
         </div>
 
         {subjects.length > 0 && (

@@ -58,6 +58,7 @@ export default async function HomePage() {
         minutes: s.minutes,
         status: 'upcoming',
         order: s.kind === 'lead' ? s.order : undefined,
+        topicId: s.kind === 'lead' ? s.topicId : undefined,
       }))
     : todayStations;
 
@@ -111,7 +112,7 @@ export default async function HomePage() {
             const active = s.status === 'active';
             const done = s.status === 'done';
             const href = s.subject === 'leadership'
-              ? `/compass?w=${s.order ?? 1}`   // deep-link straight into today's world
+              ? `/exercise?focus=leadership&topic=${s.topicId ?? ''}`  // play the daily world inline
               : `/exercise?focus=${s.subject}`;
             return (
               <Link key={`${s.subject}-${i}`} href={href} className={`mission${active ? ' active' : ''}${done ? ' done' : ''}`}>

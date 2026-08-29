@@ -83,5 +83,6 @@ export interface DailyStation {
   subtitle: string;
   minutes: number;
   status: 'active' | 'upcoming' | 'locked' | 'done';
-  order?: number;   // leadership world order — used to deep-link the daily world
+  order?: number;    // leadership world order
+  topicId?: string;  // leadership world topic — deep-links the daily world inline
 }

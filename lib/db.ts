@@ -465,6 +465,29 @@ export async function getDailyLesson(grade = 'grade_3', round = 1): Promise<DbSt
   }
 }
 
+export interface NextDaily { subject: string; label: string; topicId?: string; order?: number }
+
+/** The next unfinished topic in today's journey — for chaining sessions. */
+export async function getNextDaily(childId: string, grade: string): Promise<{ next: NextDaily | null; done: boolean }> {
+  const [lesson, doneSubjects] = await Promise.all([getDailyLesson(grade), getTodaySubjects(childId)]);
+  if (!lesson?.length) return { next: null, done: true };
+  const doneSet = new Set(doneSubjects);
+  for (const s of lesson) {
+    if (!doneSet.has(s.subject)) {
+      return {
+        next: {
+          subject: s.subject,
+          label: SUBJECT_LABEL[s.subject] ?? s.subject,
+          topicId: s.kind === 'lead' ? s.topicId : undefined,
+          order: s.kind === 'lead' ? s.order : undefined,
+        },
+        done: false,
+      };
+    }
+  }
+  return { next: null, done: true };
+}
+
 /** Question ids this child has already answered correctly — never shown again. */
 async function solvedQuestionIds(
   sb: NonNullable<ReturnType<typeof getSupabase>>,
@@ -482,10 +505,10 @@ async function solvedQuestionIds(
   }
 }
 
-/** Session length by grade — older kids get longer sessions. Larger banks let
- *  a focused subject run 8–10 questions so a sitting feels substantial. */
+/** Base session length — short and snappy (5). The bank holds many more for
+ *  "עוד תרגול"; we just don't serve them all at once. */
 function focusLength(grade: string): number {
-  return grade === 'grade_5' ? 10 : 8;
+  return grade === 'grade_5' ? 6 : 5;
 }
 
 /**
@@ -505,10 +528,12 @@ export async function composeFocus(
     const kind = SUBJECT_KIND[subject] ?? 'core';
     const solved = childId ? await solvedQuestionIds(sb, childId) : new Set<string>();
 
+    // Leadership worlds are reflective and repeatable — never filter them as "solved".
+    const repeatable = subject === LEADERSHIP_SUBJECT;
     const pool: { topic: TopicRow; q: QRow }[] = [];
     for (const topic of subjectTopics) {
       for (const q of qByTopic.get(topic.id) ?? []) {
-        if (!solved.has(q.id)) pool.push({ topic, q });
+        if (repeatable || !solved.has(q.id)) pool.push({ topic, q });
       }
     }
     if (!(qByTopic.size)) return null;   // subject has no content at all

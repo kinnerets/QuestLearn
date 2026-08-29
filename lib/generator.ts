@@ -77,9 +77,8 @@ export async function generateForTopic(topicId: string, count = GENERATE): Promi
   const gradeLabel = topic.grade === 'grade_5' ? 'כיתה ה׳' : topic.grade === 'grade_3' ? 'כיתה ג׳' : 'העשרה';
   const subjectLabel = SUBJECT_LABEL[topic.subject] ?? topic.subject;
   const arabicNote = topic.subject === 'arabic'
-    ? (topic.arabic_variant === 'msa'
-        ? ' זו ערבית ספרותית (MSA). כתוב את התשובות בתעתיק עברי מנוקד.'
-        : ' זו ערבית מדוברת. כתוב את התשובות בתעתיק עברי מנוקד.')
+    ? ` זו ערבית ${topic.arabic_variant === 'msa' ? 'ספרותית (MSA)' : 'מדוברת'}. השאלה מלמדת אוצר מילים בערבית:
+נסח כל שאלה בעברית פשוטה ("איך אומרים X בערבית?" / "מה פירוש המילה Y?"). ארבע התשובות חייבות להיות מילים בערבית בתעתיק עברי מנוקד (לא תרגום לעברית!), והתשובה הנכונה היא המילה הערבית הנכונה. אל תיצור שאלה שהתשובה הנכונה בה היא מילה בעברית. ודא שהתעתיק והמשמעות נכונים ותקינים.`
     : '';
 
   const gradeAge = topic.grade === 'grade_5' ? 'בני 10–11, כיתה ה׳ — רמה מאתגרת שמתאימה באמת לגיל, לא חומר של כיתות ב׳–ג׳'
