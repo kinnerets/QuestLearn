@@ -40,7 +40,7 @@ export function HomeTasks() {
 
   return (
     <section className="tasks-home">
-      <div className="tasks-home-head">מטלות בית 🏡</div>
+      <div className="tasks-home-head">מטלות בית</div>
       <div className="tasks-home-list">
         {tasks.map((t) => (
           <button key={t.id} className={`task-row${t.doneToday ? ' done' : ''}`}

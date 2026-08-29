@@ -40,7 +40,7 @@ export function LocksPanel() {
       {locks.map((l) => (
         <label key={l.subject} className="lock-row">
           <span className="lock-name">{l.label}</span>
-          <span className={`lock-state${l.locked ? ' locked' : ''}`}>{l.locked ? '🔒 נעול' : '🔓 פתוח'}</span>
+          <span className={`lock-state${l.locked ? ' locked' : ''}`}>{l.locked ? 'נעול' : 'פתוח'}</span>
           <button
             className={`switch${l.locked ? '' : ' on'}`}
             role="switch" aria-checked={!l.locked} aria-label={l.label}

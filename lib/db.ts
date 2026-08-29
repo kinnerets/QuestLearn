@@ -529,12 +529,12 @@ export async function getDailyLesson(grade = 'grade_3', childId?: string, round 
 export interface NextDaily { subject: string; label: string; topicId?: string; order?: number }
 
 /** The next unfinished topic in today's journey — for chaining sessions. */
-export async function getNextDaily(childId: string, grade: string): Promise<{ next: NextDaily | null; done: boolean }> {
+export async function getNextDaily(childId: string, grade: string, exclude?: string): Promise<{ next: NextDaily | null; done: boolean }> {
   const [lesson, doneSubjects] = await Promise.all([getDailyLesson(grade, childId), getTodaySubjects(childId)]);
   if (!lesson?.length) return { next: null, done: true };
   const doneSet = new Set(doneSubjects);
   for (const s of lesson) {
-    if (!doneSet.has(s.subject)) {
+    if (!doneSet.has(s.subject) && s.subject !== exclude) {
       return {
         next: {
           subject: s.subject,

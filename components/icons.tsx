@@ -117,6 +117,12 @@ export const ChipIcon = () => (
 export const FeatherIcon = () => (
   <Svg><path d="M20 4C11 4 7 10 6 16l-3 3 2 2 3-3c6-1 12-5 12-14z" /><path d="M16 8L8 16" /></Svg>
 );
+export const LockIcon = () => (
+  <Svg><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></Svg>
+);
+export const UnlockIcon = () => (
+  <Svg><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 7.9-1" /></Svg>
+);
 
 /** Which glyph each curriculum subject shows (color still comes from the kind). */
 export const SUBJECT_ICON: Record<string, () => JSX.Element> = {

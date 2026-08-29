@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
-import { CloseIcon, CheckIcon } from '@/components/icons';
+import { CloseIcon, CheckIcon, LockIcon } from '@/components/icons';
 import { miliAvatar } from '@/lib/mockData';
 import type { AvatarConfig } from '@/lib/types';
 
@@ -96,7 +96,7 @@ export default function AvatarPage() {
 
         <div className="foot">
           <button className="cta" onClick={save} disabled={status === 'saving'}>
-            {status === 'saving' ? 'שומר…' : status === 'saved' ? 'נשמר ✓' : 'שמירה'}
+            {status === 'saving' ? 'שומר…' : status === 'saved' ? 'נשמר' : 'שמירה'}
           </button>
           {status === 'error' && <p className="av-err">לא הצלחנו לשמור. נסי שוב.</p>}
         </div>
@@ -137,7 +137,7 @@ function Chips<T extends string | null>({ label, options, current, onPick, owned
               className={`chip${current === o.id ? ' on' : ''}${locked ? ' locked' : ''}`}
               onClick={() => (locked ? undefined : onPick(o.id))}
               aria-disabled={locked}>
-              {o.label}{locked && <span className="chip-lock">🔒</span>}
+              {o.label}{locked && <span className="chip-lock"><LockIcon /></span>}
             </button>
           );
         })}

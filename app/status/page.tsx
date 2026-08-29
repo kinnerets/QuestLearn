@@ -63,14 +63,14 @@ export default async function StatusPage() {
             <div className="level-name">{name}</div>
             <div className="level-tag">רמה {level}</div>
             <div className="xp-bar"><i style={{ width: `${Math.round((inLevel / need) * 100)}%` }} /></div>
-            <div className="xp-num">{inLevel}/{need} נקודות לרמה הבאה</div>
+            <div className="xp-num">{inLevel}/{need} עד הרמה הבאה</div>
           </div>
         </section>
 
         <div className="status-stats">
           <div className="status-stat"><CoinIcon /><b>{coins}</b><span>מטבעות</span></div>
           <div className="status-stat"><FlameIcon /><b>{streak}</b><span>ימי רצף</span></div>
-          <div className="status-stat"><StarIcon /><b>{status?.xp ?? 0}</b><span>נקודות</span></div>
+          <div className="status-stat"><StarIcon /><b>{level}</b><span>רמה</span></div>
         </div>
 
         {subjects.length > 0 && (
@@ -78,7 +78,7 @@ export default async function StatusPage() {
             <div className="status-title">מפת הכוחות שלך</div>
             {subjects.some((s) => s.answered > 0)
               ? <KnowledgeBars subjects={subjects} />
-              : <p className="status-empty">עדיין אין נתונים 🌱 אחרי כמה תרגולים כאן תופיע רמת השליטה בכל מקצוע — באחוזים.</p>}
+              : <p className="status-empty">עדיין אין נתונים · אחרי כמה תרגולים כאן תופיע רמת השליטה בכל מקצוע — באחוזים.</p>}
           </section>
         )}
 

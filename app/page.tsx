@@ -4,7 +4,7 @@ import { Avatar } from '@/components/Avatar';
 import { Greeting } from '@/components/Greeting';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
-import { ChevronIcon, CheckIcon, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
+import { ChevronIcon, CheckIcon, STATION_ICON, SUBJECT_ICON, SparkIcon, CompassIcon } from '@/components/icons';
 import { HomeTasks } from './HomeTasks';
 import { mili, todayStations } from '@/lib/mockData';
 import { getChildren, getDailyLesson, getTodaySubjects, getSeasonalHighlight } from '@/lib/db';
@@ -98,10 +98,10 @@ export default async function HomePage() {
 
         {seasonal && (
           <Link href={`/exercise?focus=seasonal&topic=${seasonal.topicId}`} className="season-banner">
-            <span className="season-emoji">{seasonal.emoji}</span>
+            <span className="season-emoji"><SparkIcon /></span>
             <span className="place-banner-txt">
               <b>מיוחד לעונה: {seasonal.label}</b>
-              <small>כמה שאלות חגיגיות — בונוס!</small>
+              <small>כמה שאלות חגיגיות — בונוס</small>
             </span>
             <span className="place-banner-go">›</span>
           </Link>
@@ -109,7 +109,7 @@ export default async function HomePage() {
 
         {needsPlacement && (
           <Link href="/placement" className="place-banner">
-            <span className="place-banner-emoji">🧭</span>
+            <span className="place-banner-emoji"><CompassIcon /></span>
             <span className="place-banner-txt">
               <b>מסע ההיכרות</b>
               <small>כמה שאלות קצרות כדי להתחיל מהמקום המתאים לך</small>

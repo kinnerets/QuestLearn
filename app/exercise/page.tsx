@@ -35,11 +35,19 @@ function mapDbLesson(db: DbStation[]): Station[] {
   });
 }
 
-type NextInfo = { next: { subject: string; label: string; topicId?: string } | null; done: boolean };
+type NextTopic = { subject: string; label: string; topicId?: string };
+type NextInfo = { next: NextTopic | null; done: boolean };
+
+function hrefForNext(n: NextTopic): string {
+  return n.subject === 'leadership'
+    ? `/exercise?focus=leadership&topic=${n.topicId}`
+    : `/exercise?focus=${n.subject}`;
+}
 
 export default function ExercisePage() {
   const router = useRouter();
   const [nextInfo, setNextInfo] = useState<NextInfo | null>(null);
+  const [journeyNext, setJourneyNext] = useState<NextInfo | null>(null); // prefetched: the next daily topic after this one
   const [newBadges, setNewBadges] = useState<{ key: string; label: string; desc: string }[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
@@ -117,6 +125,19 @@ export default function ExercisePage() {
     return () => { alive = false; };
   }, []);
 
+  // Prefetch the next daily topic (excluding the one being played) so the last
+  // question's button can say "לנושא הבא" and the transition feels continuous.
+  useEffect(() => {
+    const focus = new URLSearchParams(window.location.search).get('focus');
+    if (!focus) return;
+    let alive = true;
+    fetch(`/api/next?exclude=${encodeURIComponent(focus)}`)
+      .then((r) => r.json())
+      .then((j) => { if (alive) setJourneyNext(j); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
   const station = stations[currentIdx];
 
   function logAttempt(st: AcademicStation, isCorrect: boolean, hintsUsed: number, misconception?: string) {
@@ -151,20 +172,24 @@ export default function ExercisePage() {
     if (done.size >= stations.length) {
       setFinished(true);
       (async () => {
+        let badges: { key: string; label: string; desc: string }[] = [];
         try {
           const r = await fetch('/api/quest/complete', {
             method: 'POST', headers: { 'content-type': 'application/json' },
             body: JSON.stringify({ coins: earned, xp: correct * 10 }),
           });
           const j = await r.json();
-          if (j?.newBadges?.length) setNewBadges(j.newBadges);
+          if (j?.newBadges?.length) badges = j.newBadges;
         } catch { /* ignore */ }
         fireRefill();
         router.refresh(); // invalidate the home cache so "done" syncs immediately
-        try {
-          const nr = await fetch('/api/next');
-          setNextInfo(await nr.json());
-        } catch { setNextInfo({ next: null, done: true }); }
+        let ni: NextInfo = { next: null, done: true };
+        try { ni = await (await fetch('/api/next')).json(); } catch { /* ignore */ }
+        // Part of the daily journey and no badge to celebrate → glide straight
+        // into the next topic (no ending screen between topics).
+        if (ni.next && !badges.length) { window.location.href = hrefForNext(ni.next); return; }
+        setNewBadges(badges);
+        setNextInfo(ni);
       })();
       return;
     }
@@ -241,9 +266,11 @@ export default function ExercisePage() {
   if (loading) return <Loader />;
   if (allSolved) return <SubjectDone />;
   if (finished) {
-    if (nextInfo === null) return <Loader />;                 // settling up (badges, next)
-    if (newBadges.length) return <BadgeCelebration badges={newBadges} next={nextInfo.next} />;  // 🏅 moment
-    if (nextInfo.next) return <AutoAdvance next={nextInfo.next} />;  // more of the journey → chain on
+    // While settling up (or gliding into the next topic) we show the loader.
+    if (nextInfo === null) return <Loader />;
+    if (newBadges.length) return <BadgeCelebration badges={newBadges} next={nextInfo.next} />;
+    // A next daily topic is handled by direct navigation in next(); reaching here
+    // means the journey is done → celebrate.
     return <Celebration earned={earned} correct={correct} answered={answered} xp={correct * 10} />;
   }
   if (!station) return <Loader />;
@@ -284,7 +311,12 @@ export default function ExercisePage() {
         <div className="foot">
           {phase === 'done' && (
             <button className="cta" onClick={next}>
-              {doneIdx.size + 1 >= stations.length ? 'סיום' : 'ממשיכים'}
+              {doneIdx.size + 1 >= stations.length
+                ? (journeyNext?.next ? `לנושא הבא: ${journeyNext.next.label}` : 'סיום')
+                : 'ממשיכים'}
+              {doneIdx.size + 1 >= stations.length && journeyNext?.next && (
+                <span className="cta-ico"><ChevronIcon /></span>
+              )}
             </button>
           )}
         </div>
@@ -400,7 +432,7 @@ function ScoreRing({ pct }: { pct: number }) {
   );
 }
 
-function Celebration({ earned, correct, answered, xp }: { earned: number; correct: number; answered: number; xp: number }) {
+function Celebration({ earned, correct, answered }: { earned: number; correct: number; answered: number; xp?: number }) {
   const pct = answered ? Math.round((correct / answered) * 100) : 100;
   return (
     <main className="app-shell">
@@ -417,7 +449,6 @@ function Celebration({ earned, correct, answered, xp }: { earned: number; correc
         )}
         <div className="rewardrow">
           <div className="rw"><b><CoinIcon /> +{earned}</b><span>מטבעות</span></div>
-          <div className="rw"><b>+{xp}</b><span>נקודות</span></div>
           <div className="rw"><b><FlameIcon /></b><span>שמרת על הרצף</span></div>
         </div>
         <NextCTA />
@@ -437,20 +468,17 @@ function NextCTA() {
   if (!state) return null;
   if (state.next) {
     const n = state.next;
-    const href = n.subject === 'leadership'
-      ? `/exercise?focus=leadership&topic=${n.topicId}`
-      : `/exercise?focus=${n.subject}`;
     return (
       <div className="cele-actions">
         {/* full navigation so /exercise re-initialises with the new focus */}
-        <a href={href} className="cta">לנושא הבא: {n.label} <span className="cta-ico"><ChevronIcon /></span></a>
+        <a href={hrefForNext(n)} className="cta">לנושא הבא: {n.label} <span className="cta-ico"><ChevronIcon /></span></a>
         <Link href="/" className="cta ghost">חזרה למסע</Link>
       </div>
     );
   }
   return (
     <div className="cele-actions">
-      <div className="cele-done-msg">🎉 סיימת את כל המסע היומי!</div>
+      <div className="cele-done-msg">סיימת את כל המסע היומי!</div>
       <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
       <Link href="/" className="cta ghost">חזרה הביתה</Link>
     </div>
@@ -460,16 +488,14 @@ function NextCTA() {
 /** A new badge was just earned — celebrate it in the moment, then let her continue. */
 function BadgeCelebration({ badges, next }: {
   badges: { key: string; label: string; desc: string }[];
-  next: { subject: string; label: string; topicId?: string } | null;
+  next: NextTopic | null;
 }) {
-  const href = next
-    ? (next.subject === 'leadership' ? `/exercise?focus=leadership&topic=${next.topicId}` : `/exercise?focus=${next.subject}`)
-    : null;
+  const href = next ? hrefForNext(next) : null;
   return (
     <main className="app-shell">
       <div className="screen-body cele">
         <Confetti />
-        <div className="wow">תג חדש! 🏅</div>
+        <div className="wow">תג חדש!</div>
         <Capi mood="cheer" size={110} />
         <div className="badge-pop-list">
           {badges.map((b) => (
@@ -484,31 +510,6 @@ function BadgeCelebration({ badges, next }: {
             ? <a href={href} className="cta">לנושא הבא: {next!.label} <span className="cta-ico"><ChevronIcon /></span></a>
             : <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>}
           <Link href="/" className="cta ghost">חזרה למסע</Link>
-        </div>
-      </div>
-    </main>
-  );
-}
-
-/** Between daily topics: a quick cheer, then chain straight into the next one. */
-function AutoAdvance({ next }: { next: { subject: string; label: string; topicId?: string } }) {
-  const href = next.subject === 'leadership'
-    ? `/exercise?focus=leadership&topic=${next.topicId}`
-    : `/exercise?focus=${next.subject}`;
-  useEffect(() => {
-    const t = setTimeout(() => { window.location.href = href; }, 1400);
-    return () => clearTimeout(t);
-  }, [href]);
-  return (
-    <main className="app-shell">
-      <div className="screen-body cele">
-        <Confetti />
-        <div className="wow">כל הכבוד!</div>
-        <Capi mood="cheer" size={110} />
-        <h2>ממשיכים ל{next.label}…</h2>
-        <div className="cele-actions">
-          <a href={href} className="cta">קדימה עכשיו <span className="cta-ico"><ChevronIcon /></span></a>
-          <Link href="/" className="cta ghost">מספיק להיום</Link>
         </div>
       </div>
     </main>

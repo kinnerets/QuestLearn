@@ -72,7 +72,7 @@ export default function PlacementPage() {
         {result !== null ? (
           <div className="place-done">
             <Capi mood="cheer" size={96} />
-            <h2>יאללה, נעים להכיר! 🎉</h2>
+            <h2>יאללה, נעים להכיר!</h2>
             <p>לפי מסע ההיכרות נתחיל אותך מ<b>רמה {result}</b> — לא קל מדי, לא קשה מדי.</p>
             <Link href="/" className="cta" style={{ maxWidth: 280 }}>למסע שלי</Link>
           </div>

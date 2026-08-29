@@ -75,9 +75,9 @@ export function ShopList({ rewards, coins: initialCoins, avatarItems = [] }: {
       <div className="screen-body shop">
         <div className="voucher">
           <div className="voucher-badge"><GiftIcon /></div>
-          <h2>הבקשה נשלחה! ✨</h2>
+          <h2>הבקשה נשלחה!</h2>
           <p>{sent}</p>
-          <p className="voucher-note">ההורה יראה את הבקשה באזור הורים ויאשר אותה 💛</p>
+          <p className="voucher-note">ההורה יראה את הבקשה באזור הורים ויאשר אותה</p>
           <button className="cta" onClick={() => setSent(null)}>חזרה לחנות</button>
         </div>
       </div>
