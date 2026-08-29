@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Capi, type CapiMood } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import {
@@ -34,7 +35,11 @@ function mapDbLesson(db: DbStation[]): Station[] {
   });
 }
 
+type NextInfo = { next: { subject: string; label: string; topicId?: string } | null; done: boolean };
+
 export default function ExercisePage() {
+  const router = useRouter();
+  const [nextInfo, setNextInfo] = useState<NextInfo | null>(null);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
   const [allSolved, setAllSolved] = useState(false);
@@ -148,6 +153,9 @@ export default function ExercisePage() {
         body: JSON.stringify({ coins: earned, xp: correct * 10 }),
       }).catch(() => {});
       fireRefill();
+      router.refresh(); // invalidate the home cache so "done" syncs immediately
+      // Find the next unfinished daily topic so we can chain straight into it.
+      fetch('/api/next').then((r) => r.json()).then(setNextInfo).catch(() => setNextInfo({ next: null, done: true }));
       setFinished(true);
       return;
     }
@@ -223,7 +231,11 @@ export default function ExercisePage() {
 
   if (loading) return <Loader />;
   if (allSolved) return <SubjectDone />;
-  if (finished) return <Celebration earned={earned} correct={correct} answered={answered} xp={correct * 10} />;
+  if (finished) {
+    if (nextInfo === null) return <Loader />;                 // fetching what's next
+    if (nextInfo.next) return <AutoAdvance next={nextInfo.next} />;  // more of the journey → chain on
+    return <Celebration earned={earned} correct={correct} answered={answered} xp={correct * 10} />;
+  }
   if (!station) return <Loader />;
 
   return (
@@ -432,6 +444,31 @@ function NextCTA() {
       <Link href="/map" className="cta"><span className="cta-ico"><GridIcon /></span> לכל הנושאים</Link>
       <Link href="/" className="cta ghost">חזרה הביתה</Link>
     </div>
+  );
+}
+
+/** Between daily topics: a quick cheer, then chain straight into the next one. */
+function AutoAdvance({ next }: { next: { subject: string; label: string; topicId?: string } }) {
+  const href = next.subject === 'leadership'
+    ? `/exercise?focus=leadership&topic=${next.topicId}`
+    : `/exercise?focus=${next.subject}`;
+  useEffect(() => {
+    const t = setTimeout(() => { window.location.href = href; }, 1400);
+    return () => clearTimeout(t);
+  }, [href]);
+  return (
+    <main className="app-shell">
+      <div className="screen-body cele">
+        <Confetti />
+        <div className="wow">כל הכבוד!</div>
+        <Capi mood="cheer" size={110} />
+        <h2>ממשיכים ל{next.label}…</h2>
+        <div className="cele-actions">
+          <a href={href} className="cta">קדימה עכשיו <span className="cta-ico"><ChevronIcon /></span></a>
+          <Link href="/" className="cta ghost">מספיק להיום</Link>
+        </div>
+      </div>
+    </main>
   );
 }
 

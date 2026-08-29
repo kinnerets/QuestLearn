@@ -591,16 +591,26 @@ export async function composeFocus(
 
     // Leadership worlds are reflective and repeatable — never filter them as "solved".
     const repeatable = subject === LEADERSHIP_SUBJECT;
-    const pool: { topic: TopicRow; q: QRow }[] = [];
+    const fresh: { topic: TopicRow; q: QRow }[] = [];
+    const review: { topic: TopicRow; q: QRow }[] = [];   // already-solved, kept for padding
     for (const topic of subjectTopics) {
       for (const q of qByTopic.get(topic.id) ?? []) {
-        if (repeatable || !solved.has(q.id)) pool.push({ topic, q });
+        if (repeatable || !solved.has(q.id)) fresh.push({ topic, q });
+        else review.push({ topic, q });
       }
     }
     if (!(qByTopic.size)) return null;   // subject has no content at all
-    if (!pool.length) return [];         // everything solved
+    if (!fresh.length && !review.length) return [];
 
-    const stations = pool.slice(0, focusLength(grade)).map(({ topic, q }) => buildStation(kind, subject, topic, q));
+    // Prefer unsolved questions; if there aren't enough for a full session, pad
+    // with already-solved ones (spaced review) so a sitting is never just 1–2.
+    const want = focusLength(grade);
+    const pool = fresh.length >= want ? fresh.slice(0, want)
+      : fresh.length ? [...fresh, ...review].slice(0, want)
+        : [];                            // nothing new → let the caller show "done"
+    if (!pool.length) return [];
+
+    const stations = pool.map(({ topic, q }) => buildStation(kind, subject, topic, q));
     return stations;
   } catch {
     return null;
