@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const id = selectedChildId();
-  if (!id) return NextResponse.json({ tasks: [] });
-  const tasks = await getHomeTasks(id);
+  // Still list tasks even if no profile is selected (doneToday will be false).
+  const tasks = await getHomeTasks(id ?? undefined);
   return NextResponse.json({ tasks: tasks ?? [] });
 }

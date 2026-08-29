@@ -109,8 +109,9 @@ export default async function HomePage() {
             const Icon = STATION_ICON[s.kind];
             const active = s.status === 'active';
             const done = s.status === 'done';
+            const href = s.subject === 'leadership' ? '/compass' : `/exercise?focus=${s.subject}`;
             return (
-              <Link key={`${s.subject}-${i}`} href={`/exercise?focus=${s.subject}`} className={`mission${active ? ' active' : ''}${done ? ' done' : ''}`}>
+              <Link key={`${s.subject}-${i}`} href={href} className={`mission${active ? ' active' : ''}${done ? ' done' : ''}`}>
                 <span className={`mission-ico ico-${s.kind}`}><Icon /></span>
                 <span className="mission-txt">
                   <span className="mission-title">{s.subtitle}</span>

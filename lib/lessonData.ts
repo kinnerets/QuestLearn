@@ -38,6 +38,9 @@ export interface LeadStation {
   prompt: string;
   note: string;
   choices: LeadChoice[];
+  topicId?: string;
+  questionId?: string;
+  coins?: number;
 }
 
 export type Station = AcademicStation | LeadStation;

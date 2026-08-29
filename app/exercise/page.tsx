@@ -21,7 +21,8 @@ function mapDbLesson(db: DbStation[]): Station[] {
   return db.map((s, i): Station => {
     const position = s.kind === 'lead' ? 'אי המצפן · מנהיגות' : `שאלה ${i + 1} מתוך ${n}`;
     if (s.kind === 'lead') {
-      return { kind: 'lead', title: s.title, position, subjectLabel: s.subtitle, prompt: s.prompt, note: s.note, choices: s.choices };
+      return { kind: 'lead', title: s.title, position, subjectLabel: s.subtitle, prompt: s.prompt, note: s.note,
+        choices: s.choices, topicId: s.topicId, questionId: s.questionId, coins: 5 };
     }
     return {
       kind: s.kind, title: s.title, position, subjectLabel: s.subtitle, tag: s.tag, stem: s.stem,
@@ -204,11 +205,22 @@ export default function ExercisePage() {
 
   function chooseLead(id: string) {
     if (phase === 'done') return;
+    const st = station as LeadStation;
     setChosenId(id);
     setHeartFilled(true);
     setMood('cheer');
-    setMessage(pick(HEART));
+    const reward = st.coins ?? 5;               // a small fixed reward — reflective, never scored
+    setCoins((c) => c + reward);
+    setEarned((e) => e + reward);
+    setMessage(`${pick(HEART)} +${reward} מטבעות.`);
     setPhase('done');
+    // Record the deposit (counts leadership engagement, excluded from accuracy).
+    if (st.topicId && st.questionId) {
+      fetch('/api/compass/deposit', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ topicId: st.topicId, questionId: st.questionId, choice: { choice: id } }),
+      }).catch(() => {});
+    }
   }
 
   if (loading) return <Loader />;
@@ -250,7 +262,7 @@ export default function ExercisePage() {
         <div className="foot">
           {phase === 'done' && (
             <button className="cta" onClick={next}>
-              {doneIdx.size + 1 >= stations.length ? 'סיום' : 'ממשיכות'}
+              {doneIdx.size + 1 >= stations.length ? 'סיום' : 'ממשיכים'}
             </button>
           )}
         </div>

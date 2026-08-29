@@ -46,6 +46,7 @@ export interface DbLeadStation {
   kind: 'lead';
   subject: string;
   topicId: string;
+  questionId: string;
   title: string;
   subtitle: string;
   minutes: number;
@@ -111,9 +112,9 @@ function buildStation(kind: StationKind, subject: string, topic: TopicRow, q: QR
   const subtitle = SUBJECT_LABEL[subject] ?? '';
   if (kind === 'lead') {
     return {
-      kind: 'lead', subject, topicId: topic.id, title: topic.sub_topic, subtitle, minutes: 1,
+      kind: 'lead', subject, topicId: topic.id, questionId: q.id, title: topic.sub_topic, subtitle, minutes: 1,
       prompt: String(p.prompt), note: String(p.note),
-      choices: p.choices as DbLeadStation['choices'],
+      choices: (p.options ?? p.choices) as DbLeadStation['choices'],
     };
   }
   const hints = Array.isArray(p.hints) ? (p.hints as string[]) : [];
@@ -444,6 +445,18 @@ export async function getDailyLesson(grade = 'grade_3', round = 1): Promise<DbSt
       const q = qs[(round - 1) % qs.length];
       stations.push(buildStation(slot.kind, topic.subject, topic, q));
     });
+
+    // One daily leadership mission — part of the day's requirement but reflective
+    // (never scored on accuracy). Rotates through the worlds day to day.
+    const leadTopics = topics
+      .filter((t) => t.subject === LEADERSHIP_SUBJECT && (qByTopic.get(t.id)?.length ?? 0) > 0)
+      .sort((a, b) => a.id.localeCompare(b.id));
+    if (leadTopics.length) {
+      const lt = leadTopics[(seed + round - 1) % leadTopics.length];
+      const lq = qByTopic.get(lt.id)![0];
+      stations.push(buildStation('lead', LEADERSHIP_SUBJECT, lt, lq));
+    }
+
     return stations.length ? stations : null;
   } catch {
     return null;
@@ -928,16 +941,32 @@ export async function getCompassWorlds(childId: string): Promise<CompassWorld[] 
   }
 }
 
-/** Record one leadership "deposit" (stamp / choice / allocation). No scoring. */
+/**
+ * Record one leadership "deposit" (stamp / choice / allocation). Not scored on
+ * accuracy, but it counts as part of the day and grants a small fixed reward —
+ * XP always, plus a few coins the first time each world is engaged that day.
+ */
 export async function recordDeposit(childId: string, topicId: string, questionId: string, choice: unknown): Promise<boolean> {
   const sb = getSupabase();
   if (!sb) return false;
   try {
+    const dayStart = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z';
+    const { data: earlier } = await sb
+      .from('attempts_log').select('id')
+      .eq('user_id', childId).eq('topic_id', topicId)
+      .gte('created_at', dayStart).limit(1);
+    const firstToday = !earlier?.length;
+
     await sb.from('attempts_log').insert({
       user_id: childId, question_id: questionId, topic_id: topicId,
       is_correct: true, chosen_answer: choice ?? null, hints_used: 0,
     });
-    await addXp(childId, 5); // XP for a leadership deposit (identity, not coins)
+    await addXp(childId, 5); // identity XP for a leadership deposit
+
+    if (firstToday) {
+      const child = await getChildProfileById(childId);
+      if (child) await sb.from('users').update({ quest_coins: child.coins + 5 }).eq('id', childId);
+    }
     return true;
   } catch {
     return false;
@@ -1034,19 +1063,24 @@ export async function getTopicsOverview(): Promise<TopicOverview[] | null> {
 export interface HomeTask { id: string; title: string; coins: number; doneToday: boolean }
 
 /** Active chores + whether this child already did each one today. */
-export async function getHomeTasks(childId: string): Promise<HomeTask[] | null> {
+export async function getHomeTasks(childId?: string): Promise<HomeTask[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    const { data: tasks } = await sb
+    const { data: tasks, error } = await sb
       .from('home_tasks').select('id,title,coins')
       .eq('active', true).order('created_at', { ascending: true });
-    if (!tasks) return null;
-    const day = new Date().toISOString().slice(0, 10);
-    const { data: done } = await sb
-      .from('home_task_done').select('task_id')
-      .eq('child_id', childId).eq('day', day);
-    const doneSet = new Set((done ?? []).map((r) => r.task_id as string));
+    if (error || !tasks) return null;
+
+    // The done-lookup is best-effort: if it fails, still show the tasks.
+    let doneSet = new Set<string>();
+    if (childId) {
+      const day = new Date().toISOString().slice(0, 10);
+      const { data: done } = await sb
+        .from('home_task_done').select('task_id')
+        .eq('child_id', childId).eq('day', day);
+      doneSet = new Set((done ?? []).map((r) => r.task_id as string));
+    }
     return tasks.map((t) => ({
       id: t.id as string, title: t.title as string, coins: t.coins as number,
       doneToday: doneSet.has(t.id as string),

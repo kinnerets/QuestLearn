@@ -717,11 +717,11 @@ a { color: inherit; text-decoration: none; }
 
 .status-empty { color: var(--muted); font-weight: 600; font-size: .9rem; line-height: 1.5; margin: 4px 2px; }
 
-/* Active mission CTA breathes gently to invite the tap (no flicker). */
-.mission-cta.pulse { animation: ctaBreathe 2.8s ease-in-out infinite; will-change: transform; }
-@keyframes ctaBreathe {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.04); }
+/* Active mission CTA breathes with a soft glow — noticeable but smooth. */
+.mission-cta.pulse { animation: ctaGlow 1.8s ease-in-out infinite; will-change: transform, box-shadow; }
+@keyframes ctaGlow {
+  0%, 100% { transform: scale(1);    box-shadow: 0 4px 10px -4px rgba(255,42,133,.5); }
+  50%      { transform: scale(1.07); box-shadow: 0 9px 20px -4px rgba(255,42,133,.85); }
 }
 /* Map "personal leadership" section heading. */
 .map-section-title {
