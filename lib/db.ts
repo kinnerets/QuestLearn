@@ -47,6 +47,7 @@ export interface DbLeadStation {
   subject: string;
   topicId: string;
   questionId: string;
+  order: number;
   title: string;
   subtitle: string;
   minutes: number;
@@ -70,7 +71,7 @@ const DAILY_SLOTS: { kind: StationKind; subjects: Subject[] }[] = [
 // Leadership topic ids are excluded from academic accuracy/catalog.
 const LEADERSHIP_SUBJECT = 'leadership';
 
-interface TopicRow { id: string; subject: string; sub_topic: string; grade: string }
+interface TopicRow { id: string; subject: string; sub_topic: string; grade: string; order_index?: number }
 interface QRow { id: string; topic_id: string; type: string; difficulty: number; payload: Record<string, unknown> }
 
 /** Days since the year start — stable within a day, changes daily. */
@@ -87,7 +88,7 @@ async function fetchBank(
 ): Promise<{ topics: TopicRow[]; qByTopic: Map<string, QRow[]> }> {
   const { data: topics } = await sb
     .from('curriculum_topics')
-    .select('id,subject,sub_topic,grade')
+    .select('id,subject,sub_topic,grade,order_index')
     .in('grade', [grade, 'enrichment']);
   const list = (topics ?? []) as TopicRow[];
   const qByTopic = new Map<string, QRow[]>();
@@ -112,7 +113,8 @@ function buildStation(kind: StationKind, subject: string, topic: TopicRow, q: QR
   const subtitle = SUBJECT_LABEL[subject] ?? '';
   if (kind === 'lead') {
     return {
-      kind: 'lead', subject, topicId: topic.id, questionId: q.id, title: topic.sub_topic, subtitle, minutes: 1,
+      kind: 'lead', subject, topicId: topic.id, questionId: q.id, order: Number(topic.order_index ?? 0),
+      title: topic.sub_topic, subtitle, minutes: 1,
       prompt: String(p.prompt), note: String(p.note),
       choices: (p.options ?? p.choices) as DbLeadStation['choices'],
     };
@@ -1012,7 +1014,7 @@ export async function getChildStatus(childId: string, grade: string): Promise<Ch
     const sharp = subjects.some((s) => s.answered >= 5 && s.accuracy >= 0.9);
 
     const badges: StatusBadge[] = [
-      { key: 'first_step', label: 'צעד ראשון', desc: 'התחלת לתרגל', earned: totalAnswered > 0 || leadDeposits > 0 },
+      { key: 'first_step', label: 'צעד ראשון', desc: 'התחלת לתרגל', earned: totalAnswered > 0 || leadDeposits > 0 || child.xp > 0 || child.streak > 0 },
       { key: 'streak_3', label: 'שלושה ברצף', desc: '3 ימים ברצף', earned: child.streak >= 3 },
       { key: 'streak_7', label: 'שבוע חזק', desc: '7 ימים ברצף', earned: child.streak >= 7 },
       { key: 'sharp', label: 'דיוק חד', desc: '90% דיוק בנושא', earned: sharp },

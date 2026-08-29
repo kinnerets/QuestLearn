@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
-import { STATION_ICON, ChevronIcon } from '@/components/icons';
+import { STATION_ICON, SUBJECT_ICON, ChevronIcon } from '@/components/icons';
 import { getChildren, getSubjectCatalog, getCompassWorlds, type SubjectCard, type CompassWorld } from '@/lib/db';
 import { BookIcon, CoinIcon, StarIcon, HeartIcon } from '@/components/icons';
 import { selectedChildId } from '@/lib/session';
@@ -49,7 +49,7 @@ export default async function MapPage() {
 
         <div className="subject-grid">
           {subjects.map((s) => {
-            const Icon = STATION_ICON[s.kind];
+            const Icon = SUBJECT_ICON[s.subject] ?? STATION_ICON[s.kind];
             return (
               <Link key={s.subject} href={`/exercise?focus=${s.subject}`} className="subject-card">
                 <span className={`subject-ico ico-${s.kind}`}><Icon /></span>

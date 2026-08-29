@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
 import { BottomNav } from '@/components/BottomNav';
-import { CoinIcon, FlameIcon, StarIcon, CheckIcon, STATION_ICON } from '@/components/icons';
+import { CoinIcon, FlameIcon, StarIcon, CheckIcon, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
 import { getChildren, getChildStatus, type SubjectCard, type ChildStatus } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import { mili } from '@/lib/mockData';
@@ -16,7 +16,7 @@ function KnowledgeBars({ subjects }: { subjects: SubjectCard[] }) {
   return (
     <div className="kbars">
       {sorted.map((s) => {
-        const Icon = STATION_ICON[s.kind];
+        const Icon = SUBJECT_ICON[s.subject] ?? STATION_ICON[s.kind];
         const pct = Math.round(s.accuracy * 100);
         return (
           <div key={s.subject} className="kbar-row">
@@ -100,7 +100,7 @@ export default async function StatusPage() {
             <div className="status-title">תחומים לאימון</div>
             <div className="train-list">
               {toTrain.map((s) => {
-                const Icon = STATION_ICON[s.kind];
+                const Icon = SUBJECT_ICON[s.subject] ?? STATION_ICON[s.kind];
                 return (
                   <div key={s.subject} className="train-row">
                     <span className={`mission-ico ico-${s.kind}`}><Icon /></span>

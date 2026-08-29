@@ -4,7 +4,7 @@ import { Avatar } from '@/components/Avatar';
 import { Greeting } from '@/components/Greeting';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
-import { ChevronIcon, CheckIcon, STATION_ICON } from '@/components/icons';
+import { ChevronIcon, CheckIcon, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
 import { HomeTasks } from './HomeTasks';
 import { mili, todayStations } from '@/lib/mockData';
 import { getChildren, getDailyLesson, getTodaySubjects } from '@/lib/db';
@@ -57,6 +57,7 @@ export default async function HomePage() {
         subtitle: s.subtitle,
         minutes: s.minutes,
         status: 'upcoming',
+        order: s.kind === 'lead' ? s.order : undefined,
       }))
     : todayStations;
 
@@ -106,10 +107,12 @@ export default async function HomePage() {
 
         <div className="mission-list">
           {stations.map((s, i) => {
-            const Icon = STATION_ICON[s.kind];
+            const Icon = SUBJECT_ICON[s.subject] ?? STATION_ICON[s.kind];
             const active = s.status === 'active';
             const done = s.status === 'done';
-            const href = s.subject === 'leadership' ? '/compass' : `/exercise?focus=${s.subject}`;
+            const href = s.subject === 'leadership'
+              ? `/compass?w=${s.order ?? 1}`   // deep-link straight into today's world
+              : `/exercise?focus=${s.subject}`;
             return (
               <Link key={`${s.subject}-${i}`} href={href} className={`mission${active ? ' active' : ''}${done ? ' done' : ''}`}>
                 <span className={`mission-ico ico-${s.kind}`}><Icon /></span>

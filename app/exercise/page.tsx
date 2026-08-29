@@ -244,7 +244,9 @@ export default function ExercisePage() {
         <div className="ex-head">
           {station.subjectLabel && <span className="ex-subject">{station.subjectLabel}</span>}
           <span className="ex-title">{station.kind === 'lead' ? 'בנק הלב' : station.title}</span>
-          <span className="ex-pos">{station.position}</span>
+          <span className="ex-pos">
+            {station.kind === 'lead' ? station.position : `שאלה ${doneIdx.size + 1} מתוך ${stations.length}`}
+          </span>
         </div>
 
         {station.kind === 'lead'

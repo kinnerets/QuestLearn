@@ -85,6 +85,40 @@ export const CompassIcon = () => (
   <Svg><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5z" /></Svg>
 );
 
+// Per-subject glyphs so each subject reads at a glance (not one calculator for all).
+export const ShapesIcon = () => (
+  <Svg><circle cx="7.5" cy="7.5" r="4" /><rect x="13" y="13" width="7" height="7" rx="1" /><path d="M7.5 13.5 L4 20 h7 z" /></Svg>
+);
+export const ScrollIcon = () => (
+  <Svg><path d="M6 4h11a2 2 0 0 1 2 2v11a2 2 0 0 0 2 2H9a2 2 0 0 1-2-2V6a2 2 0 0 0-2-2z" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="9" y1="12" x2="15" y2="12" /></Svg>
+);
+export const FlaskIcon = () => (
+  <Svg><path d="M9 3h6" /><path d="M10 3v6l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3" /><line x1="7.5" y1="15" x2="16.5" y2="15" /></Svg>
+);
+export const GlobeIcon = () => (
+  <Svg><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" /></Svg>
+);
+export const BulbIcon = () => (
+  <Svg><path d="M9 18h6" /><path d="M10 21h4" /><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z" /></Svg>
+);
+export const AbcIcon = () => (
+  <Svg><path d="M3 17V9l3 8M3.7 14h4.6" /><path d="M11 7v10h2.5a2.5 2.5 0 0 0 0-5H11m0 0h2a2 2 0 0 0 0-4h-2" /><path d="M21 9.5A2.5 2.5 0 0 0 16.5 11v3A2.5 2.5 0 0 0 21 15.5" /></Svg>
+);
+
+/** Which glyph each curriculum subject shows (color still comes from the kind). */
+export const SUBJECT_ICON: Record<string, () => JSX.Element> = {
+  math: CalcIcon,
+  geometry: ShapesIcon,
+  hebrew: BookIcon,
+  bible: ScrollIcon,
+  science: FlaskIcon,
+  arabic: SpeechIcon,
+  english: AbcIcon,
+  geography: GlobeIcon,
+  future_skills: BulbIcon,
+  leadership: HeartIcon,
+};
+
 export const LEAD_ICON = { star: StarIcon, home: HomeIcon, ear: EarIcon } as const;
 
 // Icons usable inside leadership worlds (compass).
