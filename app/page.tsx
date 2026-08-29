@@ -71,6 +71,7 @@ export default async function HomePage() {
 
   const doneCount = stations.filter((s) => s.status === 'done').length;
   const firstActive = stations.find((s) => s.status === 'active') ?? stations[0];
+  const needsPlacement = !!child && child.xp === 0;
 
   return (
     <main className="app-shell">
@@ -103,6 +104,17 @@ export default async function HomePage() {
             <div><div className="val">{streak}</div><div className="lbl">ימי רצף</div></div>
           </div>
         </div>
+
+        {needsPlacement && (
+          <Link href="/placement" className="place-banner">
+            <span className="place-banner-emoji">🧭</span>
+            <span className="place-banner-txt">
+              <b>מסע ההיכרות</b>
+              <small>כמה שאלות קצרות כדי להתחיל מהמקום המתאים לך</small>
+            </span>
+            <span className="place-banner-go">›</span>
+          </Link>
+        )}
 
         <div className="mission-list">
           {stations.map((s, i) => {

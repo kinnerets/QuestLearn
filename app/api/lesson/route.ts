@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDailyLesson, composeFocus, getChildProfileById } from '@/lib/db';
+import { getDailyLesson, composeFocus, getChildProfileById, levelFromXp } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
@@ -14,5 +14,7 @@ export async function GET(req: Request) {
   const lesson = focus
     ? await composeFocus(grade, focus, id ?? undefined, topic ?? undefined)
     : await getDailyLesson(grade);
-  return NextResponse.json({ lesson, coins: child?.coins ?? null, name: child?.name ?? null });
+  // Starting difficulty from the child's level (placement seeds this), 1–5.
+  const level = child ? Math.min(5, Math.max(1, levelFromXp(child.xp).level)) : 1;
+  return NextResponse.json({ lesson, coins: child?.coins ?? null, name: child?.name ?? null, level });
 }

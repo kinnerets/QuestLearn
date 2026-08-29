@@ -506,6 +506,59 @@ export async function composeFocus(
   }
 }
 
+/**
+ * "מסע ההיכרות" — a short entry quiz spanning difficulties and subjects, used to
+ * place a child at the right starting level (so strong kids don't grind easy ones).
+ */
+export async function getPlacementQuestions(grade = 'grade_3'): Promise<DbStation[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { topics, qByTopic } = await fetchBank(sb, grade);
+    // Academic only; one representative question per topic, then spread by difficulty.
+    const picks: { topic: TopicRow; q: QRow }[] = [];
+    for (const t of topics) {
+      if (t.subject === LEADERSHIP_SUBJECT) continue;
+      const qs = qByTopic.get(t.id) ?? [];
+      if (qs.length) picks.push({ topic: t, q: qs[Math.floor(qs.length / 2)] });
+    }
+    if (!picks.length) return null;
+    picks.sort((a, b) => Number(a.q.difficulty ?? 1) - Number(b.q.difficulty ?? 1));
+    // Sample up to 8 evenly across the difficulty range for a real ramp.
+    const want = Math.min(8, picks.length);
+    const step = picks.length / want;
+    const chosen: { topic: TopicRow; q: QRow }[] = [];
+    for (let i = 0; i < want; i++) chosen.push(picks[Math.floor(i * step)]);
+    return chosen.map(({ topic, q }) => buildStation(SUBJECT_KIND[topic.subject] ?? 'core', topic.subject, topic, q));
+  } catch {
+    return null;
+  }
+}
+
+/** Map a placement score to a starting level (1–5). Grade 5 gets a small boost. */
+export function placementLevel(correct: number, total: number, grade: string): number {
+  const pct = total ? correct / total : 0;
+  let lvl = pct >= 0.85 ? 4 : pct >= 0.65 ? 3 : pct >= 0.4 ? 2 : 1;
+  if (grade === 'grade_5' && lvl < 5) lvl += 1;
+  return Math.min(5, Math.max(1, lvl));
+}
+
+/** Seed a child's starting level from placement — only if they haven't started yet. */
+export async function setPlacementLevel(childId: string, level: number): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const child = await getChildProfileById(childId);
+    if (!child) return false;
+    if (child.xp > 0) return true; // already placed or practising — never overwrite
+    const xp = Math.max(10, (level - 1) * XP_PER_LEVEL);
+    const { error } = await sb.from('users').update({ total_xp: xp }).eq('id', childId);
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 export interface TopicCard {
   id: string;
   subTopic: string;

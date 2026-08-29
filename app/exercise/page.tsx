@@ -47,6 +47,7 @@ export default function ExercisePage() {
   const [currentIdx, setCurrentIdx] = useState(-1);
   const [doneIdx, setDoneIdx] = useState<Set<number>>(new Set());
   const [level, setLevel] = useState(1);
+  const [startLevel, setStartLevel] = useState(1);
   const [cleanStreak, setCleanStreak] = useState(0);
 
   // per-station state
@@ -71,12 +72,14 @@ export default function ExercisePage() {
     return best;
   }
 
-  // Start at the easiest question once the pool loads.
+  // Start near the child's placement level, clamped to what this pool offers.
   useEffect(() => {
     if (stations.length && currentIdx === -1) {
       const minD = Math.min(...stations.map(diffOf));
-      setLevel(minD);
-      setCurrentIdx(pickNext(new Set(), minD));
+      const maxD = Math.max(...stations.map(diffOf));
+      const target = Math.min(maxD, Math.max(minD, startLevel));
+      setLevel(target);
+      setCurrentIdx(pickNext(new Set(), target));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stations]);
@@ -101,6 +104,7 @@ export default function ExercisePage() {
         else if (focus && lesson && lesson.length === 0) { setAllSolved(true); fireRefill(); } // solved everything → make more
         else setStations(bundledLesson); // mock / no DB
         if (typeof j?.coins === 'number') setCoins(j.coins);
+        if (typeof j?.level === 'number') setStartLevel(j.level);
         setLoading(false);
       })
       .catch(() => { if (alive) { setStations(bundledLesson); setLoading(false); } });

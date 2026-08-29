@@ -729,3 +729,22 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-display); font-weight: 800; font-size: 1rem; color: var(--magenta-deep);
 }
 .map-section-title .i { width: 18px; height: 18px; }
+
+/* ── מסע ההיכרות (placement) ── */
+.place-banner {
+  display: flex; align-items: center; gap: 12px; margin: 10px 14px 0;
+  background: linear-gradient(150deg, #FFF1F7, #FFE3EF); border: 2px solid #FFC7DF;
+  border-radius: 18px; padding: 13px 15px; color: var(--ink);
+  animation: cardIn .45s both cubic-bezier(.2,1,.4,1);
+}
+.place-banner-emoji { font-size: 1.7rem; }
+.place-banner-txt { flex: 1; display: flex; flex-direction: column; }
+.place-banner-txt b { font-family: var(--font-display); font-weight: 800; color: var(--magenta-deep); }
+.place-banner-txt small { color: var(--muted); font-weight: 600; font-size: .8rem; }
+.place-banner-go { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: var(--magenta); }
+.place-progress { font-weight: 700; color: var(--muted); margin: 2px 2px 10px; }
+.place-hint { color: var(--muted); font-weight: 600; font-size: .85rem; text-align: center; margin-top: 14px; }
+.place-done { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 18px; }
+.place-done h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; margin: 4px 0 0; }
+.place-done p { color: var(--muted); font-weight: 600; line-height: 1.5; max-width: 320px; }
+.place-done p b { color: var(--magenta-deep); }
