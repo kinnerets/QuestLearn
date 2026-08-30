@@ -766,6 +766,23 @@ a { color: inherit; text-decoration: none; }
 .mission:nth-child(5) { animation-delay: .30s; }
 @keyframes cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
+/* קפי (רפי) has a gentle idle sway everywhere it appears, and a happy bounce
+   when cheering. Disabled under prefers-reduced-motion by the global reset. */
+.capi { transform-origin: 50% 86%; animation: capiIdle 3.6s ease-in-out infinite; will-change: transform; }
+.capi-cheer { animation: capiCheer 1.15s ease-in-out infinite; }
+@keyframes capiIdle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-2.5px) rotate(-2deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(-2px) rotate(2deg); }
+}
+@keyframes capiCheer {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  30% { transform: translateY(-6px) scale(1.04) rotate(-3deg); }
+  58% { transform: translateY(0) scale(.99) rotate(2deg); }
+  80% { transform: translateY(-3px) scale(1.02) rotate(-1deg); }
+}
+
 /* Press + hover feedback everywhere it matters. */
 .mission:active { transform: scale(.975); }
 .mission:hover { box-shadow: 0 12px 26px -16px rgba(0,0,0,.32); }

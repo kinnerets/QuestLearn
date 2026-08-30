@@ -7,7 +7,8 @@ export type CapiMood = 'chill' | 'hint' | 'cheer';
  */
 export function Capi({ mood = 'chill', size = 74 }: { mood?: CapiMood; size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 120 120" role="img" aria-label="קפי">
+    <svg width={size} height={size} viewBox="0 0 120 120" role="img" aria-label="קפי"
+      className={`capi capi-${mood}`}>
       <defs>
         <radialGradient id="capiBody" cx="42%" cy="34%" r="72%">
           <stop offset="0%" stopColor="#D8B489" />
