@@ -51,7 +51,7 @@ export default async function MapPage() {
           {subjects.map((s) => {
             const Icon = SUBJECT_ICON[s.subject] ?? STATION_ICON[s.kind];
             return (
-              <Link key={s.subject} href={`/exercise?focus=${s.subject}`} className="subject-card">
+              <Link key={s.subject} href={`/exercise?focus=${s.subject}&from=map`} className="subject-card">
                 <span className={`subject-ico ico-${s.kind}`}><Icon /></span>
                 <span className="subject-name">{s.label}</span>
                 <span className="subject-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.round(s.accuracy * 100)}%` }} /></span>
@@ -66,7 +66,7 @@ export default async function MapPage() {
           {leadWorlds.map((w) => {
             const Icon = WORLD_ICON[(w.order - 1) % 4] ?? HeartIcon;
             return (
-              <Link key={w.topicId} href={`/exercise?focus=leadership&topic=${w.topicId}`} className="subject-card">
+              <Link key={w.topicId} href={`/exercise?focus=leadership&topic=${w.topicId}&from=map`} className="subject-card">
                 <span className="subject-ico ico-lead"><Icon /></span>
                 <span className="subject-name">{w.name}</span>
                 <span className="subject-meta">מנהיגות</span>

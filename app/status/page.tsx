@@ -110,7 +110,7 @@ export default async function StatusPage() {
                         {s.answered > 0 ? `${Math.round(s.accuracy * 100)}% הצלחה` : 'טרם התחלת'}
                       </span>
                     </span>
-                    <Link href={`/exercise?focus=${s.subject}`} className="train-btn">בואו נתאמן</Link>
+                    <Link href={`/exercise?focus=${s.subject}&from=status`} className="train-btn">בואו נתאמן</Link>
                   </div>
                 );
               })}

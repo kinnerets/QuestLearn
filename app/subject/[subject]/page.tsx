@@ -43,14 +43,14 @@ export default async function SubjectPage({ params }: { params: { subject: strin
         </div>
 
         {topics.length > 0 && (
-          <Link href={`/exercise?focus=${subject}`} className="cta subject-all">תרגול מעורב בכל הנושא</Link>
+          <Link href={`/exercise?focus=${subject}&from=map`} className="cta subject-all">תרגול מעורב בכל הנושא</Link>
         )}
 
         <div className="topic-list">
           {topics.map((t) => {
             const done = t.total > 0 && t.solved >= t.total;
             return (
-              <Link key={t.id} href={`/exercise?focus=${subject}&topic=${t.id}`} className={`topic-card${done ? ' done' : ''}`}>
+              <Link key={t.id} href={`/exercise?focus=${subject}&topic=${t.id}&from=map`} className={`topic-card${done ? ' done' : ''}`}>
                 <span className="topic-main">
                   <span className="topic-name">{t.subTopic}</span>
                   <span className="topic-bar"><i className={tier(t.accuracy)} style={{ width: `${Math.round(t.accuracy * 100)}%` }} /></span>

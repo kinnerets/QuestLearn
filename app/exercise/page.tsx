@@ -46,6 +46,7 @@ function hrefForNext(n: NextTopic): string {
 
 export default function ExercisePage() {
   const router = useRouter();
+  const [backHref, setBackHref] = useState('/'); // where the X returns to (origin screen)
   const [nextInfo, setNextInfo] = useState<NextInfo | null>(null);
   const [journeyNext, setJourneyNext] = useState<NextInfo | null>(null); // prefetched: the next daily topic after this one
   const [newBadges, setNewBadges] = useState<{ key: string; label: string; desc: string }[]>([]);
@@ -104,6 +105,9 @@ export default function ExercisePage() {
     const params = new URLSearchParams(window.location.search);
     const focus = params.get('focus');
     const topic = params.get('topic');
+    const from = params.get('from');
+    // Closing mid-session returns to where the session was opened from.
+    setBackHref(from === 'map' ? '/map' : from === 'status' ? '/status' : '/');
     let url = '/api/lesson';
     if (focus) {
       url += `?focus=${encodeURIComponent(focus)}`;
@@ -186,8 +190,10 @@ export default function ExercisePage() {
         let ni: NextInfo = { next: null, done: true };
         try { ni = await (await fetch('/api/next')).json(); } catch { /* ignore */ }
         // Part of the daily journey and no badge to celebrate → glide straight
-        // into the next topic (no ending screen between topics).
-        if (ni.next && !badges.length) { window.location.href = hrefForNext(ni.next); return; }
+        // into the next topic (no ending screen between topics). But if the child
+        // picked this subject from the map, don't drag her into the journey.
+        const fromMap = backHref !== '/';
+        if (ni.next && !badges.length && !fromMap) { window.location.href = hrefForNext(ni.next); return; }
         setNewBadges(badges);
         setNextInfo(ni);
       })();
@@ -278,7 +284,7 @@ export default function ExercisePage() {
   return (
     <main className="app-shell">
       <div className="ex-bar">
-        <Link href="/" className="ex-back" aria-label="חזרה"><CloseIcon /></Link>
+        <Link href={backHref} className="ex-back" aria-label="חזרה"><CloseIcon /></Link>
         <div className="ex-progress">
           {stations.map((_, i) => (
             <span key={i} className={`pip${doneIdx.has(i) ? ' fill' : ''}${i === currentIdx ? ' cur' : ''}`} />
