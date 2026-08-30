@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { BottomNav } from '@/components/BottomNav';
-import { STATION_ICON, ChevronIcon, CloseIcon, CheckIcon } from '@/components/icons';
+import { STATION_ICON, ChevronIcon, CloseIcon, CheckIcon, LockIcon } from '@/components/icons';
 import { getChildren, getSubjectTopics } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import { SUBJECT_LABEL, SUBJECT_KIND } from '@/lib/constants';
@@ -49,16 +49,24 @@ export default async function SubjectPage({ params }: { params: { subject: strin
         <div className="topic-list">
           {topics.map((t) => {
             const done = t.total > 0 && t.solved >= t.total;
+            const gated = t.gated && !done;
             return (
-              <Link key={t.id} href={`/exercise?focus=${subject}&topic=${t.id}&from=map`} className={`topic-card${done ? ' done' : ''}`}>
+              <Link key={t.id} href={`/exercise?focus=${subject}&topic=${t.id}&from=map`}
+                className={`topic-card${done ? ' done' : ''}${gated ? ' gated' : ''}`}>
                 <span className="topic-main">
                   <span className="topic-name">{t.subTopic}</span>
-                  <span className="topic-bar"><i className={tier(t.accuracy)} style={{ width: `${Math.round(t.accuracy * 100)}%` }} /></span>
-                  <span className="topic-meta">
-                    {t.answered > 0
-                      ? `${Math.round(t.accuracy * 100)}% הצלחה · פתרת ${t.solved}/${t.total}`
-                      : `${t.total} שאלות · טרם התחלת`}
-                  </span>
+                  {gated ? (
+                    <span className="topic-gate"><LockIcon /> מומלץ אחרי: {t.prereq}</span>
+                  ) : (
+                    <>
+                      <span className="topic-bar"><i className={tier(t.accuracy)} style={{ width: `${Math.round(t.accuracy * 100)}%` }} /></span>
+                      <span className="topic-meta">
+                        {t.answered > 0
+                          ? `${Math.round(t.accuracy * 100)}% הצלחה · פתרת ${t.solved}/${t.total}`
+                          : `${t.total} שאלות · טרם התחלת`}
+                      </span>
+                    </>
+                  )}
                 </span>
                 {done ? <span className="topic-done"><CheckIcon /></span> : <span className="subject-go"><ChevronIcon /></span>}
               </Link>

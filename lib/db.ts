@@ -979,6 +979,14 @@ export interface TopicCard {
   answered: number;
   solved: number;
   total: number;
+  gated: boolean;    // soft gate: prerequisite not yet mastered (still playable)
+  prereq?: string;   // name of the sub-topic to master first
+}
+
+/** Have the basics of this sub-topic been reached? (self-contained, no extra query) */
+function topicSatisfied(c: { total: number; solved: number; answered: number; accuracy: number }): boolean {
+  if (c.total > 0 && c.solved >= c.total) return true;         // fully solved
+  return c.answered >= 3 && c.accuracy >= 0.65;                // enough practice, decent accuracy
 }
 
 /** Sub-topics within a subject, with per-topic progress — for the drill-down. */
@@ -989,7 +997,10 @@ export async function getSubjectTopics(
   if (!sb) return null;
   try {
     const { topics, qByTopic } = await fetchBank(sb, grade);
-    const st = topics.filter((t) => t.subject === subject && (qByTopic.get(t.id)?.length ?? 0) > 0);
+    // Prerequisite order — the soft gate reads the sub-topic just before each one.
+    const st = topics
+      .filter((t) => t.subject === subject && (qByTopic.get(t.id)?.length ?? 0) > 0)
+      .sort((a, b) => Number(a.order_index ?? 0) - Number(b.order_index ?? 0));
     if (!st.length) return null;
 
     const { data: attempts } = await sb
@@ -1013,8 +1024,16 @@ export async function getSubjectTopics(
         id: t.id, subTopic: t.sub_topic,
         accuracy: answered ? Number((correct / answered).toFixed(2)) : 0,
         answered, solved: e?.solved.size ?? 0, total,
+        gated: false,
       };
     });
+    // Soft gate: a sub-topic is "gated" when the one before it isn't mastered yet.
+    for (let i = 1; i < cards.length; i++) {
+      if (!topicSatisfied(cards[i - 1])) {
+        cards[i].gated = true;
+        cards[i].prereq = cards[i - 1].subTopic;
+      }
+    }
     return { label: SUBJECT_LABEL[subject] ?? subject, topics: cards };
   } catch {
     return null;

@@ -729,6 +729,13 @@ a { color: inherit; text-decoration: none; }
 .topic-bar i.mid { background: var(--gold); }
 .topic-bar i.low { background: var(--magenta); }
 .topic-meta { font-size: .74rem; color: var(--muted); font-weight: 600; }
+.topic-card.gated { background: var(--surface-2); border-style: dashed; }
+.topic-card.gated .topic-name { color: var(--muted); }
+.topic-gate {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .76rem; font-weight: 700; color: var(--muted);
+}
+.topic-gate .i { width: 13px; height: 13px; }
 .topic-done { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--mint); color: #fff; flex: none; }
 .topic-done .i { width: 18px; height: 18px; }
 
