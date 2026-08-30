@@ -182,6 +182,24 @@ a { color: inherit; text-decoration: none; }
 .qnote { color: var(--muted); font-weight: 600; font-size: .85rem; margin-top: 4px; }
 
 .answers { display: grid; gap: 10px; }
+.answers.tf { grid-template-columns: 1fr 1fr; }
+.answers.tf .ans { justify-content: center; font-size: 1.15rem; padding: 20px 12px; }
+/* Fill-in (type_in) */
+.typein { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.typein-input {
+  width: 100%; border: 2px solid var(--line); border-radius: 16px; padding: 16px 18px;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--ink);
+  background: var(--surface); text-align: center;
+}
+.typein-input:focus { outline: none; border-color: var(--magenta); }
+.typein-input:disabled { opacity: .8; }
+.typein-answer {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; align-self: center;
+  background: color-mix(in srgb, var(--mint) 16%, var(--surface)); color: var(--mint-ink, #1C7A57);
+  border: 1px solid var(--mint); border-radius: 12px; padding: 8px 14px; font-family: var(--font-display); font-weight: 800;
+}
+.typein-answer .i { width: 17px; height: 17px; }
+.typein-check { margin: 0; }
 .ans { display: flex; align-items: center; justify-content: space-between; text-align: start; background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 14px 16px; font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; color: var(--ink); cursor: pointer; transition: transform .12s, border-color .12s, background .12s; }
 .ans:hover:not(:disabled) { transform: translateX(-3px); border-color: var(--magenta); }
 .ans:disabled { cursor: default; }

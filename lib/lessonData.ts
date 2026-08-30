@@ -6,6 +6,8 @@ export interface Choice {
   misconception?: string;
 }
 
+export type QuestionType = 'multiple_choice' | 'true_false' | 'type_in';
+
 export interface AcademicStation {
   kind: Exclude<StationKind, 'lead'>;
   title: string;
@@ -13,8 +15,10 @@ export interface AcademicStation {
   subjectLabel?: string;
   tag: string;
   stem: string;
+  qtype?: QuestionType;      // defaults to multiple_choice
   choices: Choice[];
   correctId: string;
+  answers?: string[];        // accepted answers for a type_in question
   hint: string;
   hint2?: string;
   explanation?: string;

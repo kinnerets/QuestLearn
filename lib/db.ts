@@ -34,11 +34,13 @@ export interface DbAcademicStation {
   difficulty: number;
   tag: string;
   stem: string;
+  qtype: 'multiple_choice' | 'true_false' | 'type_in';
   hint: string;
   hint2?: string;
   explanation?: string;
   choices: { id: string; text: string; misconception?: string }[];
   correctId: string;
+  answers?: string[];
   coins: number;
 }
 
@@ -121,19 +123,37 @@ function buildStation(kind: StationKind, subject: string, topic: TopicRow, q: QR
     };
   }
   const hints = Array.isArray(p.hints) ? (p.hints as string[]) : [];
-  // Shuffle answer order so the correct choice isn't always first (content is
-  // authored with the right answer as "a"); ids stay intact for grading.
-  const choices = shuffle((p.choices as DbAcademicStation['choices']) ?? []);
-  return {
+  const common = {
     kind, subject, topicId: topic.id, questionId: q.id, title: topic.sub_topic, subtitle, minutes: 2,
     difficulty: Number(q.difficulty ?? 1),
     tag: String(p.tag ?? ''), stem: String(p.stem),
     hint: String(p.hint ?? hints[0] ?? ''),
     hint2: p.hint2 ? String(p.hint2) : hints[1],
     explanation: p.explanation ? String(p.explanation) : undefined,
-    choices,
-    correctId: String(p.correct_choice_id), coins: Number(p.coins ?? 10),
+    coins: Number(p.coins ?? 10),
   };
+  const qtype = String(q.type ?? 'multiple_choice');
+
+  // Fill-in: the child types the answer; grade against a list of accepted forms.
+  if (qtype === 'type_in') {
+    const raw = Array.isArray(p.answers) ? (p.answers as unknown[]) : [p.answer];
+    const answers = raw.filter((a) => a != null).map((a) => String(a));
+    return { ...common, qtype: 'type_in', choices: [], correctId: '', answers };
+  }
+
+  // True/false: a fixed two-option question (order stays נכון → לא נכון).
+  if (qtype === 'true_false') {
+    const yes = p.answer === true || p.answer === 'true' || p.correct_choice_id === 't';
+    return {
+      ...common, qtype: 'true_false',
+      choices: [{ id: 't', text: 'נכון' }, { id: 'f', text: 'לא נכון' }],
+      correctId: yes ? 't' : 'f',
+    };
+  }
+
+  // Multiple choice (default). Shuffle so the correct answer isn't always first.
+  const choices = shuffle((p.choices as DbAcademicStation['choices']) ?? []);
+  return { ...common, qtype: 'multiple_choice', choices, correctId: String(p.correct_choice_id) };
 }
 
 /** Fisher–Yates shuffle (returns a new array). */

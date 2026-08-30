@@ -27,8 +27,9 @@ function mapDbLesson(db: DbStation[]): Station[] {
     }
     return {
       kind: s.kind, title: s.title, position, subjectLabel: s.subtitle, tag: s.tag, stem: s.stem,
+      qtype: s.qtype,
       choices: s.choices.map((c) => ({ id: c.id, text: c.text, misconception: c.misconception })),
-      correctId: s.correctId, hint: s.hint, hint2: s.hint2, explanation: s.explanation,
+      correctId: s.correctId, answers: s.answers, hint: s.hint, hint2: s.hint2, explanation: s.explanation,
       difficulty: s.difficulty, coins: s.coins,
       questionId: s.questionId, topicId: s.topicId,
     };
@@ -42,6 +43,23 @@ function hrefForNext(n: NextTopic): string {
   return n.subject === 'leadership'
     ? `/exercise?focus=leadership&topic=${n.topicId}`
     : `/exercise?focus=${n.subject}`;
+}
+
+/** Loose comparison for typed answers: trim, lowercase, drop nikud, punctuation,
+ *  final-letter forms and inner spaces so "42 " / "ארבעים ושתיים" grade fairly. */
+function normalizeAnswer(s: string): string {
+  return s
+    .trim().toLowerCase()
+    .replace(/[֑-ׇ]/g, '')       // Hebrew nikud/te'amim
+    .replace(/[.,!?;:"'`״׳]/g, '')          // punctuation & Hebrew gershayim
+    .replace(/ך/g, 'כ').replace(/ם/g, 'מ').replace(/ן/g, 'נ').replace(/ף/g, 'פ').replace(/ץ/g, 'צ')
+    .replace(/\s+/g, ' ');
+}
+function typedMatches(typed: string, answers?: string[]): boolean {
+  if (!answers?.length) return false;
+  const g = normalizeAnswer(typed);
+  if (!g) return false;
+  return answers.some((a) => normalizeAnswer(a) === g);
 }
 
 export default function ExercisePage() {
@@ -72,6 +90,7 @@ export default function ExercisePage() {
   const [wrongIds, setWrongIds] = useState<string[]>([]);
   const [eliminated, setEliminated] = useState<string[]>([]);
   const [revealed, setRevealed] = useState(false);
+  const [typed, setTyped] = useState(''); // the fill-in answer being written
   const [phase, setPhase] = useState<Phase>('playing');
   const [mood, setMood] = useState<CapiMood>('chill');
   const [message, setMessage] = useState<string>('');
@@ -157,7 +176,7 @@ export default function ExercisePage() {
 
   function resetStation() {
     setTries(0); setChosenId(null); setWrongIds([]); setEliminated([]); setRevealed(false);
-    setPhase('playing'); setMood('chill'); setMessage('');
+    setTyped(''); setPhase('playing'); setMood('chill'); setMessage('');
   }
 
   // Ask the server to top up this subject's question bank (fire-and-forget).
@@ -250,6 +269,41 @@ export default function ExercisePage() {
     }
   }
 
+  function submitTyped(st: AcademicStation) {
+    if (phase === 'done') return;
+    if (typedMatches(typed, st.answers)) {
+      setCoins((c) => c + st.coins);
+      setEarned((e) => e + st.coins);
+      setCorrect((n) => n + 1);
+      setAnswered((n) => n + 1);
+      setMood('cheer');
+      setMessage(`${pick(PRAISE)} +${st.coins} מטבעות.`);
+      setPhase('done');
+      setRevealed(true);
+      logAttempt(st, true, tries);
+      if (tries === 0) {
+        setCleanStreak((s) => { const ns = s + 1; if (ns >= 2) { setLevel((l) => Math.min(5, l + 1)); return 0; } return ns; });
+      } else setCleanStreak(0);
+    } else {
+      const t = tries + 1;
+      setTries(t);
+      if (t === 1) { setMood('hint'); setMessage('כיוון: ' + st.hint); }
+      else if (t === 2) { setMood('hint'); setMessage(st.hint2 ? ('רמז נוסף: ' + st.hint2) : 'כמעט! בדקי שוב את הכתיב.'); }
+      else {
+        // Reveal the accepted answer, no punishment.
+        setRevealed(true);
+        setAnswered((n) => n + 1);
+        setMood('chill');
+        setCleanStreak(0);
+        setLevel((l) => Math.max(1, l - 1));
+        const ans = st.answers?.[0] ?? '';
+        setMessage(`${pick(GENTLE)} התשובה: ${ans}${st.explanation ? ' — ' + st.explanation : ''}`);
+        setPhase('done');
+        logAttempt(st, false, 2);
+      }
+    }
+  }
+
   function chooseLead(id: string) {
     if (phase === 'done') return;
     const st = station as LeadStation;
@@ -304,8 +358,11 @@ export default function ExercisePage() {
 
         {station.kind === 'lead'
           ? <LeadView st={station} picked={chosenId} onPick={chooseLead} />
-          : <AcademicView st={station} chosenId={chosenId} wrongIds={wrongIds} eliminated={eliminated}
-              revealed={revealed} locked={phase === 'done'} onAnswer={(id) => answer(station, id)} />}
+          : station.qtype === 'type_in'
+            ? <TypeInView st={station} value={typed} onChange={setTyped}
+                revealed={revealed} locked={phase === 'done'} onSubmit={() => submitTyped(station)} />
+            : <AcademicView st={station} chosenId={chosenId} wrongIds={wrongIds} eliminated={eliminated}
+                revealed={revealed} locked={phase === 'done'} onAnswer={(id) => answer(station, id)} />}
 
         {message && (
           <div className="capi-row" style={{ marginTop: 14 }}>
@@ -355,7 +412,7 @@ function AcademicView({
         <div className="qtag">{st.tag}</div>
         <div className="qtext">{st.stem}</div>
       </div>
-      <div className="answers">
+      <div className={`answers${st.qtype === 'true_false' ? ' tf' : ''}`}>
         {st.choices.map((c) => {
           const isCorrectPick = chosenId === c.id && c.id === st.correctId;
           const isWrong = wrongIds.includes(c.id);
@@ -371,6 +428,37 @@ function AcademicView({
             </button>
           );
         })}
+      </div>
+    </>
+  );
+}
+
+/** A fill-in question: the child types the answer and taps "בדיקה". */
+function TypeInView({
+  st, value, onChange, revealed, locked, onSubmit,
+}: {
+  st: AcademicStation; value: string; onChange: (v: string) => void;
+  revealed: boolean; locked: boolean; onSubmit: () => void;
+}) {
+  return (
+    <>
+      <div className="qcard">
+        <div className="qtag">{st.tag}</div>
+        <div className="qtext">{st.stem}</div>
+      </div>
+      <div className="typein">
+        <input
+          className="typein-input" value={value} disabled={locked}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' && value.trim() && !locked) onSubmit(); }}
+          placeholder="כתבי את התשובה כאן…" autoComplete="off" inputMode="text"
+        />
+        {revealed && st.answers?.[0] && (
+          <div className="typein-answer"><CheckIcon /> {st.answers[0]}</div>
+        )}
+        {!locked && (
+          <button className="cta typein-check" onClick={onSubmit} disabled={!value.trim()}>בדיקה</button>
+        )}
       </div>
     </>
   );
