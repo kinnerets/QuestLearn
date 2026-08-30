@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
 import { BottomNav } from '@/components/BottomNav';
-import { CoinIcon, FlameIcon, StarIcon, CheckIcon, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
+import { CoinIcon, FlameIcon, StarIcon, LevelIcon, CheckIcon, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
 import { getChildren, getChildStatus, type SubjectCard, type ChildStatus } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import { mili } from '@/lib/mockData';
@@ -70,7 +70,7 @@ export default async function StatusPage() {
         <div className="status-stats">
           <div className="status-stat"><CoinIcon /><b>{coins}</b><span>מטבעות</span></div>
           <div className="status-stat"><FlameIcon /><b>{streak}</b><span>ימי רצף</span></div>
-          <div className="status-stat"><StarIcon /><b>{level}</b><span>רמה</span></div>
+          <div className="status-stat"><LevelIcon /><b>{level}</b><span>רמה</span></div>
         </div>
 
         {subjects.length > 0 && (
