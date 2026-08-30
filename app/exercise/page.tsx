@@ -530,8 +530,8 @@ function LeadView({
         <div className="qnote">{st.note}</div>
       </div>
       <div className="choices">
-        {st.choices.map((c) => {
-          const Icon = LEAD_ICON[c.icon];
+        {(st.choices ?? []).map((c) => {
+          const Icon = LEAD_ICON[c.icon] ?? StarIcon;
           return (
             <button key={c.id} className={`choice${picked === c.id ? ' picked' : ''}`} onClick={() => onPick(c.id)}>
               <span className="choice-ico"><Icon /></span>

@@ -237,6 +237,9 @@ explanation: משפט קצר שמסביר למה התשובה נכונה.
 export async function ensureBufferForSubject(childId: string, grade: string, subject: string): Promise<number> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return 0;
+  // Leadership is reflective, hand-authored content (prompt + choices with icons),
+  // not multiple-choice — never auto-generate into it.
+  if (subject === 'leadership') return 0;
   const sb = getSupabase();
   if (!sb) return 0;
   try {

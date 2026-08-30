@@ -687,10 +687,17 @@ export async function composeFocus(
 
     // Leadership worlds are reflective and repeatable — never filter them as "solved".
     const repeatable = subject === LEADERSHIP_SUBJECT;
+    // A valid leadership question has a prompt + choices carrying an icon; skip any
+    // malformed (e.g. multiple-choice) rows that would break the leadership view.
+    const validLead = (p: Record<string, unknown>) => {
+      const opts = (p.options ?? p.choices) as { icon?: string }[] | undefined;
+      return !!p.prompt && Array.isArray(opts) && opts.length > 0 && opts.every((o) => !!o?.icon);
+    };
     const fresh: { topic: TopicRow; q: QRow }[] = [];
     const review: { topic: TopicRow; q: QRow }[] = [];   // already-solved, kept for padding
     for (const topic of subjectTopics) {
       for (const q of qByTopic.get(topic.id) ?? []) {
+        if (repeatable && !validLead(q.payload)) continue; // drop broken lead content
         if (repeatable || !solved.has(q.id)) fresh.push({ topic, q });
         else review.push({ topic, q });
       }
