@@ -652,6 +652,30 @@ function topicPriority(sig: MasterySig | undefined, jitter: number, interestBoos
   return 0.5 * gap + 0.35 * review + misc + interestBoost + jitter;
 }
 
+// Soft gating: a topic whose prerequisite (the previous sub-topic in the same
+// subject, by order_index) isn't yet mastered gets its priority *reduced* — not
+// locked. So the foundation tends to come first, but an overdue review or a
+// strong interest can still surface an advanced topic. When order_index isn't
+// populated (all equal), no topic has an earlier sibling, so gating stays off.
+const GATE_OPEN = 0.6;   // prereq mastery at/above this → gate fully open (no penalty)
+const GATE_WEIGHT = 0.6; // strongest push-down when the prereq is untouched
+
+function prereqPenalty(
+  t: TopicRow, sigs: Map<string, MasterySig>, bySubject: Map<string, TopicRow[]>,
+): number {
+  const sibs = bySubject.get(t.subject) ?? [];
+  const myOrder = Number(t.order_index ?? 0);
+  let prereq: TopicRow | undefined;
+  for (const s of sibs) {
+    const o = Number(s.order_index ?? 0);
+    if (o < myOrder && (!prereq || o > Number(prereq.order_index ?? 0))) prereq = s;
+  }
+  if (!prereq) return 0; // foundational topic — nothing gates it
+  const pm = sigs.get(prereq.id)?.mastery ?? 0;
+  if (pm >= GATE_OPEN) return 0;
+  return GATE_WEIGHT * ((GATE_OPEN - pm) / GATE_OPEN); // 0..GATE_WEIGHT
+}
+
 /** This child's interest ids (defensive: empty if the column isn't there yet). */
 export async function getChildInterests(childId: string): Promise<string[]> {
   const sb = getSupabase();
@@ -731,6 +755,17 @@ export async function getDailyLesson(grade = 'grade_3', childId?: string, round 
     const boostOf = (subject: string) =>
       (focusSubjects.has(subject) ? 0.55 : 0) + (likedSubjects.has(subject) ? 0.3 : 0);
 
+    // Sub-topics per subject, ordered — drives the soft prerequisite gate.
+    const topicsBySubject = new Map<string, TopicRow[]>();
+    for (const t of topics) {
+      const arr = topicsBySubject.get(t.subject) ?? [];
+      arr.push(t);
+      topicsBySubject.set(t.subject, arr);
+    }
+    for (const arr of topicsBySubject.values()) {
+      arr.sort((a, b) => Number(a.order_index ?? 0) - Number(b.order_index ?? 0));
+    }
+
     const stations: DbStation[] = [];
     DAILY_SLOTS.forEach((slot) => {
       // Base candidates for this slot + any interest/focus-matched enrichment
@@ -743,13 +778,21 @@ export async function getDailyLesson(grade = 'grade_3', childId?: string, round 
           }
         }
       }
-      const candidates = [...subjectPool]
-        .map((subject) => topics.find((t) => t.subject === subject && (qByTopic.get(t.id)?.length ?? 0) > 0))
-        .filter((t): t is TopicRow => !!t);
+      // Every sub-topic of every pool subject competes, so a foundational
+      // sub-topic can win over an advanced one within the same subject.
+      const candidates = topics.filter(
+        (t) => subjectPool.has(t.subject) && (qByTopic.get(t.id)?.length ?? 0) > 0,
+      );
       if (!candidates.length) return;
-      // Pick the highest-priority topic for THIS child (weak/overdue/misconception/interest first).
+      // Pick the highest-priority topic for THIS child (weak/overdue/misconception/
+      // interest first), softly gated so an un-mastered prerequisite pushes an
+      // advanced sub-topic down without hard-locking it.
       const topic = candidates
-        .map((t) => ({ t, score: topicPriority(sigs.get(t.id), jitterFor(t.id), boostOf(t.subject)) }))
+        .map((t) => ({
+          t,
+          score: topicPriority(sigs.get(t.id), jitterFor(t.id), boostOf(t.subject))
+            - prereqPenalty(t, sigs, topicsBySubject),
+        }))
         .sort((a, b) => b.score - a.score)[0].t;
       const qs = qByTopic.get(topic.id)!;
       // Prefer a question the child hasn't solved yet; else rotate by day.
@@ -832,7 +875,11 @@ export async function composeFocus(
   if (!sb) return null;
   try {
     const { topics, qByTopic } = await fetchBank(sb, grade);
-    const subjectTopics = topics.filter((t) => t.subject === subject && (!topicId || t.id === topicId));
+    // Foundational sub-topics first (soft gate): a focus session works through
+    // the subject in prerequisite order, so the base comes before the advanced.
+    const subjectTopics = topics
+      .filter((t) => t.subject === subject && (!topicId || t.id === topicId))
+      .sort((a, b) => Number(a.order_index ?? 0) - Number(b.order_index ?? 0));
     if (!subjectTopics.length) return null;
     const kind = SUBJECT_KIND[subject] ?? 'core';
     const solved = childId ? await solvedQuestionIds(sb, childId) : new Set<string>();
