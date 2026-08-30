@@ -107,17 +107,6 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {seasonal && (
-          <Link href={`/exercise?focus=seasonal&topic=${seasonal.topicId}`} className="season-banner">
-            <span className="season-emoji"><SparkIcon /></span>
-            <span className="place-banner-txt">
-              <b>מיוחד לעונה: {seasonal.label}</b>
-              <small>כמה שאלות חגיגיות — בונוס</small>
-            </span>
-            <span className="place-banner-go">›</span>
-          </Link>
-        )}
-
         {needsPlacement && (
           <Link href="/placement" className="place-banner">
             <span className="place-banner-emoji"><CompassIcon /></span>
@@ -152,6 +141,17 @@ export default async function HomePage() {
             );
           })}
         </div>
+
+        {seasonal && (
+          <Link href={`/exercise?focus=seasonal&topic=${seasonal.topicId}`} className="season-banner">
+            <span className="season-emoji"><SparkIcon /></span>
+            <span className="place-banner-txt">
+              <b>מיוחד לעונה: {seasonal.label}</b>
+              <small>כמה שאלות חגיגיות — בונוס</small>
+            </span>
+            <span className="place-banner-go">›</span>
+          </Link>
+        )}
 
         <HomeTasks />
       </div>

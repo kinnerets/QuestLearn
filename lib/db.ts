@@ -1289,7 +1289,9 @@ export async function getHomeTasks(childId?: string): Promise<HomeTask[] | null>
   try {
     const { data: tasks, error } = await sb
       .from('home_tasks').select('id,title,coins')
-      .eq('active', true).order('created_at', { ascending: true });
+      .eq('active', true)
+      .order('coins', { ascending: false })   // most valuable chores first
+      .order('created_at', { ascending: true });
     if (error || !tasks) return null;
 
     // The done-lookup is best-effort: if it fails, still show the tasks.
