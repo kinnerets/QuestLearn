@@ -66,8 +66,15 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
       <div className="screen-body parent">
         {kids.length === 0 && <div className="parent-empty">עדיין אין פרופילים במאגר.</div>}
 
-        {/* Shared settings (not per-child) sit above the kid tabs. */}
+        {/* ── Family-wide management (shared by both girls) ── */}
+        <div className="parent-section-label">כללי — לשתי הבנות</div>
+        <TasksPanel />
+        <RewardsPanel />
         <LocksPanel />
+        <FlagsPanel />
+
+        {/* ── Per-child area: the tabs switch only this part ── */}
+        <div className="parent-section-label per-kid">אישי — לכל בת</div>
 
         {kids.length > 1 && (
           <div className="kid-tabs">
@@ -84,18 +91,11 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
           </div>
         )}
 
-        {/* Per-child items follow the selected tab. */}
         <FocusPanel childId={shown?.id} childName={shown?.name} />
 
         <TaskApprovalsPanel childId={shown?.id} childName={shown?.name} />
 
         <RedemptionsPanel childName={shown?.name} />
-
-        <FlagsPanel />
-
-        <TasksPanel />
-
-        <RewardsPanel />
       </div>
 
       <div className="parent-foot">
