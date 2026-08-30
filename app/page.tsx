@@ -158,7 +158,7 @@ export default async function HomePage() {
         {team && (
           <section className={`team-card${team.done ? ' done' : ''}`}>
             <div className="team-head">
-              <span className="team-title">אתגר הצוות השבועי</span>
+              <span className="team-title">אתגר האחיות השבועי</span>
               <span className="team-count">{Math.min(team.correct, team.target)}/{team.target}</span>
             </div>
             <div className="team-bar">
@@ -166,8 +166,8 @@ export default async function HomePage() {
             </div>
             <div className="team-sub">
               {team.done
-                ? <b>הגעתם ליעד — כל הכבוד לצוות!</b>
-                : <>יחד לוקחים את היעד! {team.byChild.map((c) => `${c.name}: ${c.correct}`).join(' · ')}</>}
+                ? <b>הגעתן ליעד — כל הכבוד לאחיות!</b>
+                : <>יחד לוקחות את היעד! {team.byChild.map((c) => `${c.name}: ${c.correct}`).join(' · ')}</>}
             </div>
           </section>
         )}
