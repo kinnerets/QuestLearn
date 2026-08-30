@@ -105,6 +105,7 @@ export default async function HomePage() {
             {doneCount >= stations.length
               ? <>כל הכבוד {name}, סיימת את כל הנושאים להיום!</>
               : <>אהלן {name}. נתחיל ב<b>{firstActive.title}</b>?</>}
+            <Link href="/capi" className="ask-capi">שאלי אותי משהו ›</Link>
           </div>
         </div>
 
