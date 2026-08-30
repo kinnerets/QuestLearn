@@ -527,6 +527,33 @@ export async function setChildInterests(childId: string, interests: string[]): P
   }
 }
 
+/** Subjects a parent asked to emphasize for this child (a weekly focus). */
+export async function getParentFocus(childId: string): Promise<string[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  try {
+    const { data, error } = await sb.from('users').select('parent_focus').eq('id', childId).maybeSingle();
+    if (error || !data) return [];
+    const raw = (data as { parent_focus?: unknown }).parent_focus;
+    return Array.isArray(raw) ? raw.map((x) => String(x)) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Parent sets the emphasized subjects for this child. */
+export async function setParentFocus(childId: string, subjects: string[]): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const clean = [...new Set(subjects.map((s) => String(s)))].slice(0, 12);
+    const { error } = await sb.from('users').update({ parent_focus: clean }).eq('id', childId);
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 export async function getDailyLesson(grade = 'grade_3', childId?: string, round = 1): Promise<DbStation[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
@@ -540,20 +567,25 @@ export async function getDailyLesson(grade = 'grade_3', childId?: string, round 
     const solved = childId ? await solvedQuestionIds(sb, childId) : new Set<string>();
     const jitterFor = (id: string) => ((seed + Number('0x' + id.slice(0, 6))) % 100) / 1000; // 0..0.099, day-stable
 
-    // Interests nudge the mix toward subjects she loves (incl. surfacing an
-    // enrichment subject into the daily journey when it matches an interest).
-    const interests = childId ? await getChildInterests(childId) : [];
+    // Interests nudge the mix toward subjects she loves; a parent "weekly focus"
+    // nudges harder. Both can surface an enrichment subject into the journey.
+    const [interests, focus] = childId
+      ? await Promise.all([getChildInterests(childId), getParentFocus(childId)])
+      : [[], []];
     const likedSubjects = subjectsForInterests(interests);
-    const locked = likedSubjects.size ? await getLockedSubjects(sb) : new Set<string>();
-    const boostOf = (subject: string) => (likedSubjects.has(subject) ? 0.3 : 0);
+    const focusSubjects = new Set(focus);
+    const boostSubjects = new Set<string>([...likedSubjects, ...focusSubjects]);
+    const locked = boostSubjects.size ? await getLockedSubjects(sb) : new Set<string>();
+    const boostOf = (subject: string) =>
+      (focusSubjects.has(subject) ? 0.55 : 0) + (likedSubjects.has(subject) ? 0.3 : 0);
 
     const stations: DbStation[] = [];
     DAILY_SLOTS.forEach((slot) => {
-      // Base candidates for this slot + any interest-matched enrichment subject
-      // that has content and isn't parent-locked (surfaced into the 'future' slot).
+      // Base candidates for this slot + any interest/focus-matched enrichment
+      // subject that has content and isn't parent-locked (surfaced into 'future').
       const subjectPool = new Set<string>(slot.subjects);
       if (slot.kind === 'future') {
-        for (const s of likedSubjects) {
+        for (const s of boostSubjects) {
           if ((SUBJECT_KIND[s] ?? '') === 'future' && !slot.subjects.includes(s as Subject) && !locked.has(s)) {
             subjectPool.add(s);
           }

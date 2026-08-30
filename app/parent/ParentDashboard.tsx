@@ -6,6 +6,7 @@ import { Avatar } from '@/components/Avatar';
 import { CoinIcon, FlameIcon, CloseIcon } from '@/components/icons';
 import { TasksPanel } from './TasksPanel';
 import { TaskApprovalsPanel } from './TaskApprovalsPanel';
+import { FocusPanel } from './FocusPanel';
 import { RewardsPanel } from './RewardsPanel';
 import { FlagsPanel } from './FlagsPanel';
 import { RedemptionsPanel } from './RedemptionsPanel';
@@ -84,6 +85,8 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
         )}
 
         {/* Per-child items follow the selected tab. */}
+        <FocusPanel childId={shown?.id} childName={shown?.name} />
+
         <TaskApprovalsPanel childId={shown?.id} childName={shown?.name} />
 
         <RedemptionsPanel childName={shown?.name} />
