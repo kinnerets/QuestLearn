@@ -21,11 +21,10 @@ function Svg({ children, size = 24 }: { children: ReactNode; size?: number }) {
 
 export const CoinIcon = () => (
   <Svg>
-    <circle cx="12" cy="12" r="9.3" fill="#F5B70C" stroke="none" />
-    <circle cx="12" cy="12" r="9.3" fill="none" stroke="rgba(120,72,0,.22)" strokeWidth="1" />
-    <circle cx="12" cy="12" r="6.9" fill="none" stroke="rgba(255,255,255,.45)" strokeWidth="1" />
-    <path d="M12 7.4 L13.06 10.5 L16.33 10.55 L13.7 12.5 L14.66 15.65 L12 13.75 L9.34 15.65 L10.3 12.5 L7.67 10.55 L10.94 10.5 Z"
-      fill="#FFF8E1" stroke="none" />
+    <circle cx="12" cy="12" r="9.4" fill="#F5B70C" stroke="none" />
+    <circle cx="12" cy="12" r="9.4" fill="none" stroke="rgba(120,72,0,.28)" strokeWidth="1.1" />
+    <path d="M12 6.6 L13.5 10.35 L17.5 10.6 L14.35 13.05 L15.4 16.95 L12 14.7 L8.6 16.95 L9.65 13.05 L6.5 10.6 L10.5 10.35 Z"
+      fill="#FFFDF3" stroke="none" />
   </Svg>
 );
 export const FlameIcon = () => (
