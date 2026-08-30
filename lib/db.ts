@@ -277,14 +277,32 @@ function weekStartISO(): string {
   return d.toISOString();
 }
 
+/** Whole days remaining until the week resets (next Sunday 00:00 UTC). Min 1 while the week is live. */
+function weekDaysLeft(): number {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  start.setUTCDate(start.getUTCDate() - start.getUTCDay());
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 7); // next Sunday 00:00 UTC
+  return Math.max(1, Math.ceil((end.getTime() - now.getTime()) / 86400000));
+}
+
+const TEAM_PER_CHILD = 20; // each sister's fair share of the weekly team goal
+
 export interface TeamChallenge {
-  target: number; correct: number; done: boolean;
-  byChild: { name: string; correct: number }[];
+  target: number;        // total across the team (perChild × number of kids)
+  perChild: number;      // each child's equal share
+  correct: number;       // sum of capped contributions (so one can't carry the whole thing)
+  done: boolean;
+  daysLeft: number;
+  byChild: { name: string; correct: number; done: boolean }[];
 }
 
 /**
- * Co-Op: a shared weekly goal both sisters push toward together. Combines their
- * correct answers this week. Returns null unless there are at least two kids.
+ * Co-Op: a shared weekly goal both sisters push toward together — but made fair.
+ * Each sister has an equal share (TEAM_PER_CHILD) and her contribution counts
+ * only up to that share, so the team can finish only when *both* pull their
+ * weight. Returns null unless there are at least two kids.
  */
 export async function getTeamChallenge(): Promise<TeamChallenge | null> {
   const sb = getSupabase();
@@ -298,10 +316,15 @@ export async function getTeamChallenge(): Promise<TeamChallenge | null> {
       .eq('is_correct', true).gte('created_at', weekStartISO()).in('user_id', ids);
     const counts = new Map<string, number>();
     for (const r of rows ?? []) counts.set(r.user_id as string, (counts.get(r.user_id as string) ?? 0) + 1);
-    const byChild = kids.map((k) => ({ name: k.display_name as string, correct: counts.get(k.id as string) ?? 0 }));
-    const correct = byChild.reduce((s, c) => s + c.correct, 0);
-    const target = 40; // combined correct answers for the week
-    return { target, correct, done: correct >= target, byChild };
+    const perChild = TEAM_PER_CHILD;
+    const byChild = kids.map((k) => {
+      const raw = counts.get(k.id as string) ?? 0;
+      return { name: k.display_name as string, correct: raw, done: raw >= perChild };
+    });
+    // Cap each contribution at her share so neither sister can complete the goal alone.
+    const correct = byChild.reduce((s, c) => s + Math.min(c.correct, perChild), 0);
+    const target = perChild * kids.length;
+    return { target, perChild, correct, done: byChild.every((c) => c.done), daysLeft: weekDaysLeft(), byChild };
   } catch {
     return null;
   }

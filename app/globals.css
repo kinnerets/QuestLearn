@@ -237,6 +237,14 @@ a { color: inherit; text-decoration: none; }
 .team-count { font-family: var(--font-display); font-weight: 800; color: var(--mint-ink, #1C7A57); }
 .team-bar { height: 10px; border-radius: 999px; background: rgba(28,122,87,.14); overflow: hidden; margin: 9px 0 8px; }
 .team-bar i { display: block; height: 100%; background: var(--mint); border-radius: 999px; transition: width .4s; }
+.team-kids { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.team-kid {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(28,122,87,.10); color: var(--mint-ink, #1C7A57);
+  border-radius: 999px; padding: 4px 11px; font-weight: 800; font-size: .82rem;
+}
+.team-kid.done { background: var(--mint); color: #fff; }
+.team-kid .i { width: 13px; height: 13px; }
 .team-sub { font-weight: 600; font-size: .84rem; color: var(--muted); }
 .team-sub b { color: var(--mint-ink, #1C7A57); font-weight: 800; }
 

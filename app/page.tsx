@@ -30,6 +30,12 @@ function GoalRing({ done, total }: { done: number; total: number }) {
   );
 }
 
+function daysLabel(n: number): string {
+  if (n <= 1) return 'נשאר יום אחד';
+  if (n === 2) return 'נשארו יומיים';
+  return `נשארו ${n} ימים`;
+}
+
 export default async function HomePage() {
   const selectedId = selectedChildId();
   const children = await getChildren();
@@ -163,15 +169,23 @@ export default async function HomePage() {
               <span className="team-count">{Math.min(team.correct, team.target)}/{team.target}</span>
             </div>
             <div className="team-goal">
-              המשימה: יחד לענות נכון על {team.target} שאלות עד סוף השבוע. כל תשובה נכונה של כל אחת מקדמת את הצוות.
+              המשימה: כל אחת עונה נכון על {team.perChild} שאלות עד סוף השבוע — חלק שווה לכל אחת. הצוות מסיים רק כששתיכן משלימות את החלק שלכן.
             </div>
             <div className="team-bar">
               <i style={{ width: `${Math.min(100, Math.round((team.correct / team.target) * 100))}%` }} />
             </div>
+            <div className="team-kids">
+              {team.byChild.map((c) => (
+                <span key={c.name} className={`team-kid${c.done ? ' done' : ''}`}>
+                  {c.name} {Math.min(c.correct, team.perChild)}/{team.perChild}
+                  {c.done && <CheckIcon />}
+                </span>
+              ))}
+            </div>
             <div className="team-sub">
               {team.done
-                ? <b>הגעתן ליעד — כל הכבוד לאחיות!</b>
-                : <>{team.byChild.map((c) => `${c.name}: ${c.correct}`).join(' · ')} — עוד {Math.max(0, team.target - team.correct)} לצוות!</>}
+                ? <b>הגעתן ליעד יחד — כל הכבוד לאחיות!</b>
+                : <>{daysLabel(team.daysLeft)} לסיום האתגר</>}
             </div>
           </section>
         )}
