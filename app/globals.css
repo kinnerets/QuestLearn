@@ -54,6 +54,9 @@ body {
 .i { display: block; flex: none; }
 a { color: inherit; text-decoration: none; }
 
+/* Accessibility: a clear focus ring for keyboard / switch-control users. */
+:focus-visible { outline: 3px solid var(--magenta); outline-offset: 2px; border-radius: 8px; }
+
 /* app shell — constrained mobile column */
 .app-shell {
   max-width: 480px;
@@ -179,7 +182,16 @@ a { color: inherit; text-decoration: none; }
 .ex-pos { margin-inline-start: auto; font-weight: 600; color: var(--muted); font-size: .8rem; }
 
 .qcard { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: 0 8px 20px -14px rgba(0,0,0,.3); }
-.qtag { font-family: var(--font-display); font-weight: 700; font-size: .68rem; letter-spacing: .1em; color: var(--muted); }
+.qcard-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.qtag { font-family: var(--font-display); font-weight: 700; font-size: .68rem; letter-spacing: .1em; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; }
+.speak-btn {
+  flex: none; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--line); color: var(--magenta-deep, #C21361);
+  display: grid; place-items: center; box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+.speak-btn .i { width: 21px; height: 21px; }
+.speak-btn.on { background: var(--magenta-deep, #C21361); border-color: var(--magenta-deep, #C21361); color: #fff; }
+.speak-btn:active { transform: scale(.92); }
 .qtext { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin-top: 6px; text-wrap: balance; }
 .qnote { color: var(--muted); font-weight: 600; font-size: .85rem; margin-top: 4px; }
 

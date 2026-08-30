@@ -41,6 +41,14 @@ export const LevelIcon = () => (
   </Svg>
 );
 
+export const SpeakerIcon = () => (
+  <Svg>
+    <path d="M4 9.5h3l4.5-3.6v12.2L7 14.5H4z" fill="currentColor" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    <path d="M15.5 9a4 4 0 0 1 0 6" />
+    <path d="M18 6.7a7.5 7.5 0 0 1 0 10.6" />
+  </Svg>
+);
+
 // ── Achievement-badge glyphs (monochrome — the badge circle colors them). ──
 export const FlagIcon = () => (
   <Svg><path d="M6 21V4" /><path d="M6 4.5h11l-2.3 3.3L17 11H6" /></Svg>

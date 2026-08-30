@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Capi, type CapiMood } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
+import { SpeakButton } from '@/components/SpeakButton';
 import {
   CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon, ChevronIcon, StarIcon, MicIcon, BADGE_ICON,
 } from '@/components/icons';
@@ -425,7 +426,10 @@ function AcademicView({
   return (
     <>
       <div className="qcard">
-        <div className="qtag">{st.tag}</div>
+        <div className="qcard-top">
+          <div className="qtag">{st.tag}</div>
+          <SpeakButton text={`${st.stem}. ${st.choices.map((c) => c.text).join('. ')}`} />
+        </div>
         <div className="qtext">{st.stem}</div>
       </div>
       <div className={`answers${st.qtype === 'true_false' ? ' tf' : ''}`}>
@@ -490,7 +494,10 @@ function TypeInView({
   return (
     <>
       <div className="qcard">
-        <div className="qtag">{st.tag}</div>
+        <div className="qcard-top">
+          <div className="qtag">{st.tag}</div>
+          <SpeakButton text={st.stem} />
+        </div>
         <div className="qtext">{st.stem}</div>
       </div>
       <div className="typein">
@@ -525,7 +532,10 @@ function LeadView({
   return (
     <>
       <div className="qcard">
-        <div className="qtag"><HeartIcon /> רגע של מנהיגות</div>
+        <div className="qcard-top">
+          <div className="qtag"><HeartIcon /> רגע של מנהיגות</div>
+          <SpeakButton text={`${st.prompt}. ${st.note ?? ''}. ${(st.choices ?? []).map((c) => c.label).join('. ')}`} />
+        </div>
         <div className="qtext" style={{ fontSize: '1.12rem' }}>{st.prompt}</div>
         <div className="qnote">{st.note}</div>
       </div>
