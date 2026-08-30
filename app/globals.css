@@ -396,14 +396,10 @@ a { color: inherit; text-decoration: none; }
 /* Profile chip — small avatar + name in the hero corner; taps to switch child */
 .profile-chip {
   align-self: flex-end; z-index: 3; margin-bottom: 12px;
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,.22); color: #fff; border-radius: 999px; padding: 4px 10px 4px 5px;
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,.22); color: #fff; border-radius: 999px; padding: 7px 12px;
 }
-.profile-chip-av {
-  width: 24px; height: 24px; border-radius: 50%; overflow: hidden; flex: none;
-  background: #FFE0EC; border: 1.5px solid rgba(255,255,255,.7);
-}
-.profile-chip .i { width: 15px; height: 15px; opacity: .95; }
+.profile-chip .i { width: 17px; height: 17px; opacity: .95; }
 
 /* Floating Capi — opens the chat from any relaxed screen */
 .capi-fab {

@@ -4,7 +4,7 @@ import { Avatar } from '@/components/Avatar';
 import { Greeting } from '@/components/Greeting';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
-import { ChevronIcon, CheckIcon, STATION_ICON, SUBJECT_ICON, SparkIcon, CompassIcon, SwapIcon } from '@/components/icons';
+import { ChevronIcon, CheckIcon, STATION_ICON, SUBJECT_ICON, SparkIcon, CompassIcon, SwapIcon, UsersIcon } from '@/components/icons';
 import { HomeTasks } from './HomeTasks';
 import { TeamReward } from './TeamReward';
 import { mili, todayStations } from '@/lib/mockData';
@@ -88,8 +88,8 @@ export default async function HomePage() {
       <div className="screen-body">
         <section className="hero">
           {multiProfile && (
-            <Link href="/profiles" className="profile-chip" aria-label="החלפת פרופיל">
-              <span className="profile-chip-av"><Avatar config={avatar} crop size={24} /></span>
+            <Link href="/profiles" className="profile-chip" aria-label="החלפת משתמש">
+              <UsersIcon />
               <SwapIcon />
             </Link>
           )}
