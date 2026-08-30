@@ -77,6 +77,11 @@ rows = ",\n".join(
 
 out = f"""-- Curated true_false + type_in questions (new question types).
 -- Safe to re-run: clears prior curated rows of these types for these topics.
+
+-- The type column had a CHECK that only allowed the original types, so
+-- 'true_false'/'type_in' were rejected. Drop it — the app owns the type list.
+alter table questions_bank drop constraint if exists questions_bank_type_check;
+
 delete from questions_bank
  where source = 'curated' and type in ('true_false','type_in')
    and topic_id in (
@@ -88,6 +93,4 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
 """
 
 open(os.path.join(SUP, 'question_types.sql'), 'w', encoding='utf-8').write(out)
-with open(os.path.join(SUP, 'seed.sql'), 'a', encoding='utf-8') as f:
-    f.write('\n\n-- New question types (true/false + fill-in).\n' + out)
 print('wrote question_types.sql ·', len(Q), 'questions across', len(topic_ids), 'topics')

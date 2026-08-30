@@ -1,5 +1,10 @@
 -- Curated true_false + type_in questions (new question types).
 -- Safe to re-run: clears prior curated rows of these types for these topics.
+
+-- The type column had a CHECK that only allowed the original types, so
+-- 'true_false'/'type_in' were rejected. Drop it — the app owns the type list.
+alter table questions_bank drop constraint if exists questions_bank_type_check;
+
 delete from questions_bank
  where source = 'curated' and type in ('true_false','type_in')
    and topic_id in (
