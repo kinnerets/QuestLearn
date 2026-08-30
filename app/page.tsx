@@ -6,6 +6,7 @@ import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import { ChevronIcon, CheckIcon, STATION_ICON, SUBJECT_ICON, SparkIcon, CompassIcon, SwapIcon } from '@/components/icons';
 import { HomeTasks } from './HomeTasks';
+import { TeamReward } from './TeamReward';
 import { mili, todayStations } from '@/lib/mockData';
 import { getChildren, getDailyLesson, getTodaySubjects, getSeasonalHighlight, getTeamChallenge } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
@@ -169,7 +170,7 @@ export default async function HomePage() {
               <span className="team-count">{Math.min(team.correct, team.target)}/{team.target}</span>
             </div>
             <div className="team-goal">
-              המשימה: כל אחת עונה נכון על {team.perChild} שאלות עד סוף השבוע — חלק שווה לכל אחת. הצוות מסיים רק כששתיכן משלימות את החלק שלכן.
+              המשימה: כל אחת עונה נכון על {team.perChild} שאלות עד סוף השבוע — חלק שווה לכל אחת. כששתיכן משלימות, כל אחת מקבלת {team.reward} מטבעות.
             </div>
             <div className="team-bar">
               <i style={{ width: `${Math.min(100, Math.round((team.correct / team.target) * 100))}%` }} />
@@ -187,6 +188,7 @@ export default async function HomePage() {
                 ? <b>הגעתן ליעד יחד — כל הכבוד לאחיות!</b>
                 : <>{daysLabel(team.daysLeft)} לסיום האתגר</>}
             </div>
+            {team.done && <TeamReward claimed={team.claimed} reward={team.reward} />}
           </section>
         )}
 

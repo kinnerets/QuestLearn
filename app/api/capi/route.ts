@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { askCapi, type CapiTurn } from '@/lib/capi';
+import { askCapi, looksLikeHomework, type CapiTurn } from '@/lib/capi';
 import { getChildProfileById, logCapiChat } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 
@@ -19,7 +19,8 @@ export async function POST(req: Request) {
       })
     : [];
   const res = await askCapi(child?.name ?? '', child?.grade ?? 'grade_3', message, history);
-  // Log the exchange so a parent can review it later (best-effort).
-  if (id && res.ok) { void logCapiChat(id, message, res.reply); }
+  // Log the exchange so a parent can review it later (best-effort). Flag the
+  // ones that look like homework so the parent can spot them at a glance.
+  if (id && res.ok) { void logCapiChat(id, message, res.reply, looksLikeHomework(message)); }
   return NextResponse.json(res);
 }

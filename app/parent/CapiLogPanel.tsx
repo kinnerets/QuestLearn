@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Section } from './Section';
+import { FlagIcon } from '@/components/icons';
 
-interface Chat { id: string; childName: string; question: string; reply: string; when: string }
+interface Chat { id: string; childName: string; question: string; reply: string; when: string; flagged: boolean }
 
 function whenLabel(iso: string): string {
   const d = new Date(iso);
@@ -27,13 +28,24 @@ export function CapiLogPanel({ childId }: { childId?: string }) {
 
   if (!childId || !loaded || chats.length === 0) return null;
 
+  const flaggedCount = chats.filter((c) => c.flagged).length;
+
   return (
     <Section title="שיחות עם קפי" count={chats.length}
       hint="מה הבת שאלה את קפי לאחרונה. קפי מכוון ללמידה ולא מוסר תשובות לשיעורי בית.">
+      {flaggedCount > 0 && (
+        <div className="capi-alert">
+          <FlagIcon />
+          {flaggedCount === 1 ? 'שאלה אחת נראתה כמו שיעורי בית' : `${flaggedCount} שאלות נראו כמו שיעורי בית`} — מסומנות למטה
+        </div>
+      )}
       <div className="capi-log">
         {chats.map((c) => (
-          <div key={c.id} className="capi-log-item">
-            <div className="capi-log-when">{whenLabel(c.when)}</div>
+          <div key={c.id} className={`capi-log-item${c.flagged ? ' flagged' : ''}`}>
+            <div className="capi-log-when">
+              {whenLabel(c.when)}
+              {c.flagged && <span className="capi-log-flag"><FlagIcon /> נראה כמו שיעורי בית</span>}
+            </div>
             <div className="capi-log-q">{c.question}</div>
             <div className="capi-log-a">{c.reply}</div>
           </div>

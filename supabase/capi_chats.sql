@@ -5,8 +5,11 @@ create table if not exists capi_chats (
   child_id uuid not null references users(id) on delete cascade,
   question text not null,
   reply text not null,
+  flagged boolean not null default false,
   created_at timestamptz not null default now()
 );
+-- Upgrade an older capi_chats table that predates the homework flag.
+alter table capi_chats add column if not exists flagged boolean not null default false;
 create index if not exists capi_chats_child_time on capi_chats (child_id, created_at desc);
 
 -- Permissive access for the app (matches the project's existing setup). Adjust

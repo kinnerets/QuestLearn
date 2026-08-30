@@ -234,28 +234,28 @@ export async function getChildren(): Promise<ChildProfile[] | null> {
 
 /** Record one Capi chat exchange for parent visibility. Best-effort — if the
  *  table isn't there yet, it's silently skipped. */
-export async function logCapiChat(childId: string, question: string, reply: string): Promise<void> {
+export async function logCapiChat(childId: string, question: string, reply: string, flagged = false): Promise<void> {
   const sb = getSupabase();
   if (!sb) return;
   try {
     await sb.from('capi_chats').insert({
-      child_id: childId, question: question.slice(0, 1000), reply: reply.slice(0, 2000),
+      child_id: childId, question: question.slice(0, 1000), reply: reply.slice(0, 2000), flagged,
     });
-  } catch { /* table may not exist yet */ }
+  } catch { /* table/column may not exist yet */ }
 }
 
-export interface CapiChat { id: string; childName: string; question: string; reply: string; when: string }
+export interface CapiChat { id: string; childName: string; question: string; reply: string; when: string; flagged: boolean }
 
 /** Recent Capi conversations (optionally for one child) — for the parent area. */
 export async function getCapiChats(childId?: string, limit = 40): Promise<CapiChat[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    let q = sb.from('capi_chats').select('id,child_id,question,reply,created_at')
+    let q = sb.from('capi_chats').select('id,child_id,question,reply,created_at,flagged')
       .order('created_at', { ascending: false }).limit(limit);
     if (childId) q = q.eq('child_id', childId);
     const { data, error } = await q;
-    if (error) return []; // table not there yet
+    if (error) return []; // table/column not there yet
     if (!data?.length) return [];
     const ids = [...new Set(data.map((r) => r.child_id as string))];
     const { data: kids } = await sb.from('users').select('id,display_name').in('id', ids);
@@ -263,6 +263,7 @@ export async function getCapiChats(childId?: string, limit = 40): Promise<CapiCh
     return data.map((r) => ({
       id: r.id as string, childName: names.get(r.child_id as string) ?? 'ילדה',
       question: String(r.question ?? ''), reply: String(r.reply ?? ''), when: r.created_at as string,
+      flagged: r.flagged === true,
     }));
   } catch {
     return null;
@@ -288,6 +289,7 @@ function weekDaysLeft(): number {
 }
 
 const TEAM_PER_CHILD = 20; // each sister's fair share of the weekly team goal
+const TEAM_REWARD_COINS = 30; // bonus coins each sister gets when the team finishes
 
 export interface TeamChallenge {
   target: number;        // total across the team (perChild × number of kids)
@@ -295,6 +297,8 @@ export interface TeamChallenge {
   correct: number;       // sum of capped contributions (so one can't carry the whole thing)
   done: boolean;
   daysLeft: number;
+  reward: number;        // coins each sister earns on completion
+  claimed: boolean;      // whether this week's reward was already collected
   byChild: { name: string; correct: number; done: boolean }[];
 }
 
@@ -324,9 +328,48 @@ export async function getTeamChallenge(): Promise<TeamChallenge | null> {
     // Cap each contribution at her share so neither sister can complete the goal alone.
     const correct = byChild.reduce((s, c) => s + Math.min(c.correct, perChild), 0);
     const target = perChild * kids.length;
-    return { target, perChild, correct, done: byChild.every((c) => c.done), daysLeft: weekDaysLeft(), byChild };
+    const done = byChild.every((c) => c.done);
+    let claimed = false;
+    if (done) {
+      try {
+        const { data: rr } = await sb.from('team_rewards').select('week_start').eq('week_start', weekStartISO()).maybeSingle();
+        claimed = !!rr;
+      } catch { claimed = false; }
+    }
+    return {
+      target, perChild, correct, done, daysLeft: weekDaysLeft(),
+      reward: TEAM_REWARD_COINS, claimed, byChild,
+    };
   } catch {
     return null;
+  }
+}
+
+/**
+ * Collect this week's team reward once both sisters have finished their share.
+ * Reserves the week (unique week_start) before granting so it can't double-pay,
+ * then adds bonus coins to every child. Best-effort; needs the team_rewards table.
+ */
+export async function claimTeamReward(): Promise<{ ok: boolean; reason?: string }> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, reason: 'no-db' };
+  try {
+    const tc = await getTeamChallenge();
+    if (!tc) return { ok: false, reason: 'no-team' };
+    if (!tc.done) return { ok: false, reason: 'not-done' };
+    if (tc.claimed) return { ok: false, reason: 'claimed' };
+    const week = weekStartISO();
+    // Reserve first: the unique week_start makes a second claim fail cleanly.
+    const { error: insErr } = await sb.from('team_rewards').insert({ week_start: week });
+    if (insErr) return { ok: false, reason: 'claimed' };
+    const { data: kids } = await sb.from('users').select('id,quest_coins').eq('role', 'child');
+    for (const k of kids ?? []) {
+      const now = (k.quest_coins as number) ?? 0;
+      await sb.from('users').update({ quest_coins: now + TEAM_REWARD_COINS }).eq('id', k.id);
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'error' };
   }
 }
 

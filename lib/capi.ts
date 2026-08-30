@@ -6,6 +6,29 @@ const MODEL = 'claude-haiku-4-5';
 
 export interface CapiTurn { role: 'user' | 'assistant'; text: string }
 
+/**
+ * Cheap heuristic: does this message look like a homework/exercise answer-fetch,
+ * as opposed to open curiosity? Used to flag chats for the parent (not to block).
+ * Conservative on purpose — better to miss a few than to flag every question.
+ */
+export function looksLikeHomework(text: string): boolean {
+  const t = (text || '').toLowerCase();
+  const hwWords = [
+    'שיעורי בית', 'שיעורים לבית', 'תרגיל', 'דף עבודה', 'דף העבודה', 'במחברת',
+    'מבחן', 'למבחן', 'חיבור', 'סיכום', 'השלם', 'השלימי', 'שאלה מספר', 'שאלה מס',
+    'המורה נתנה', 'המורה נתן', 'צריך להגיש', 'עד מחר',
+  ];
+  if (hwWords.some((w) => t.includes(w))) return true;
+
+  const mathExpr = /\d\s*[+\-*/×xX÷=]\s*\d/.test(t);
+  const answerVerbs = ['מה התשובה', 'מה הפתרון', 'פתור', 'תפתור', 'פתרי', 'תפתרי', 'כמה זה', 'כמה יוצא', 'חשב לי', 'תחשב'];
+  if (mathExpr && answerVerbs.some((w) => t.includes(w))) return true;
+  // a bare equation plonked in, e.g. "37x8=?" or "125+? =300"
+  if (mathExpr && /^[\s\d+\-*/×xX÷=().,?]+$/.test(text || '')) return true;
+
+  return false;
+}
+
 /** A friendly, safety-guarded reply from Capi. Falls back gracefully. */
 export async function askCapi(
   childName: string, grade: string, message: string, history: CapiTurn[] = [],
