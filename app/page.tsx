@@ -169,7 +169,7 @@ export default async function HomePage() {
               <span className="team-count">{Math.min(team.correct, team.target)}/{team.target}</span>
             </div>
             <div className="team-goal">
-              המשימה: כל אחת עונה נכון על {team.perChild} שאלות עד סוף השבוע — חלק שווה לכל אחת. כששתיכן משלימות, כל אחת מקבלת {team.reward} מטבעות.
+              המשימה: כל אחת עונה נכון על {team.perChild} שאלות עד סוף השבוע — חלק שווה לכל אחת. כשתסיימו יחד, כל אחת זוכה ב־{team.reward} מטבעות!
             </div>
             <div className="team-bar">
               <i style={{ width: `${Math.min(100, Math.round((team.correct / team.target) * 100))}%` }} />
