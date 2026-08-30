@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Capi, type CapiMood } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import {
-  CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon, ChevronIcon, StarIcon, MicIcon,
+  CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon, ChevronIcon, StarIcon, MicIcon, BADGE_ICON,
 } from '@/components/icons';
 import {
   lesson as bundledLesson, PRAISE, GENTLE, HEART, pick,
@@ -645,12 +645,15 @@ function BadgeCelebration({ badges, next }: {
         <div className="wow">תג חדש!</div>
         <Capi mood="cheer" size={110} />
         <div className="badge-pop-list">
-          {badges.map((b) => (
-            <div key={b.key} className="badge-pop">
-              <span className="badge-pop-ico"><StarIcon /></span>
-              <span className="badge-pop-txt"><b>{b.label}</b><small>{b.desc}</small></span>
-            </div>
-          ))}
+          {badges.map((b) => {
+            const Icon = BADGE_ICON[b.key] ?? StarIcon;
+            return (
+              <div key={b.key} className="badge-pop">
+                <span className="badge-pop-ico"><Icon /></span>
+                <span className="badge-pop-txt"><b>{b.label}</b><small>{b.desc}</small></span>
+              </div>
+            );
+          })}
         </div>
         <div className="cele-actions">
           {href

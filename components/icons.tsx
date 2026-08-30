@@ -44,6 +44,27 @@ export const LevelIcon = () => (
     <path d="M8.2 10.6 L12 6.4 L15.8 10.6" fill="none" stroke="#FFF8E1" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
+
+// ── Achievement-badge glyphs (monochrome — the badge circle colors them). ──
+export const FlagIcon = () => (
+  <Svg><path d="M6 21V4" /><path d="M6 4.5h11l-2.3 3.3L17 11H6" /></Svg>
+);
+export const FlameBadgeIcon = () => (
+  <Svg><path d="M12 2.6c.4 3.3 4.1 4.5 4.1 8.6a4.6 4.6 0 0 1-9.2 0c0-1.9.8-3.4 2-4.6.2 2 2.3 2.1 2.3.2 0-2-.3-3.3.8-4.2z" fill="currentColor" stroke="none" /></Svg>
+);
+export const CalendarStarIcon = () => (
+  <Svg><rect x="4" y="5" width="16" height="15" rx="2.5" /><path d="M4 9.5h16" /><path d="M8 3v3.5M16 3v3.5" /><path d="M8.4 14l1.7 1.7 3.5-3.5" /></Svg>
+);
+export const TargetIcon = () => (
+  <Svg><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.6" /><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" /></Svg>
+);
+export const TrophyIcon = () => (
+  <Svg>
+    <path d="M7 4h10v4a5 5 0 0 1-10 0z" />
+    <path d="M7 5H4.6a2.4 2.4 0 0 0 2.6 3" /><path d="M17 5h2.4a2.4 2.4 0 0 1-2.6 3" />
+    <path d="M12 13v3" /><path d="M9.3 20h5.4" /><path d="M9.8 20l.4-3.6h3.6l.4 3.6" />
+  </Svg>
+);
 export const CalcIcon = () => (
   <Svg>
     <rect x="4" y="3" width="16" height="18" rx="3" />
@@ -168,6 +189,17 @@ export const SUBJECT_ICON: Record<string, () => JSX.Element> = {
 };
 
 export const LEAD_ICON = { star: StarIcon, home: HomeIcon, ear: EarIcon } as const;
+
+/** A distinct glyph per achievement badge (keys match db.ts StatusBadge). */
+export const BADGE_ICON: Record<string, () => JSX.Element> = {
+  first_step: FlagIcon,
+  streak_3: FlameBadgeIcon,
+  streak_7: CalendarStarIcon,
+  sharp: TargetIcon,
+  century: TrophyIcon,
+  gold_heart: HeartIcon,
+  wise_time: BulbIcon,
+};
 
 // Icons usable inside leadership worlds (compass).
 export const COMPASS_ICON = {

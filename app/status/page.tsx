@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
 import { BottomNav } from '@/components/BottomNav';
-import { CoinIcon, FlameIcon, StarIcon, LevelIcon, CheckIcon, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
+import { CoinIcon, FlameIcon, StarIcon, LevelIcon, BADGE_ICON, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
 import { getChildren, getChildStatus, type SubjectCard, type ChildStatus } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import { mili } from '@/lib/mockData';
@@ -121,13 +121,16 @@ export default async function StatusPage() {
         <section className="status-card">
           <div className="status-title">תגי הישג</div>
           <div className="badge-grid">
-            {badges.map((b) => (
-              <div key={b.key} className={`badge${b.earned ? ' earned' : ''}`}>
-                <span className="badge-ico">{b.earned ? <CheckIcon /> : <StarIcon />}</span>
-                <span className="badge-label">{b.label}</span>
-                <span className="badge-desc">{b.desc}</span>
-              </div>
-            ))}
+            {badges.map((b) => {
+              const Icon = BADGE_ICON[b.key] ?? StarIcon;
+              return (
+                <div key={b.key} className={`badge${b.earned ? ' earned' : ''}`}>
+                  <span className="badge-ico"><Icon /></span>
+                  <span className="badge-label">{b.label}</span>
+                  <span className="badge-desc">{b.desc}</span>
+                </div>
+              );
+            })}
           </div>
         </section>
       </div>
