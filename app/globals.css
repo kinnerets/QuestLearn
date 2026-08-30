@@ -492,9 +492,9 @@ a { color: inherit; text-decoration: none; }
 .report-coins span { display: inline-flex; align-items: center; gap: 4px; }
 .report-coins .i { width: 14px; height: 14px; }
 .report-empty { color: var(--muted); font-weight: 600; font-size: .85rem; margin-top: 12px; text-align: center; padding: 8px; }
-.report-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 6px; }
-.report-stat { background: var(--surface-2); border-radius: 14px; padding: 10px 6px; text-align: center; }
-.report-stat-val { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: var(--ink); }
+.report-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin: 14px 0 6px; }
+.report-stat { background: var(--surface-2); border-radius: 14px; padding: 10px 4px; text-align: center; }
+.report-stat-val { font-family: var(--font-display); font-weight: 800; font-size: 1.08rem; color: var(--ink); }
 .report-stat-lbl { font-size: .68rem; color: var(--muted); font-weight: 600; margin-top: 2px; }
 .report-section { margin-top: 12px; }
 .report-section-title { font-family: var(--font-display); font-weight: 700; font-size: .74rem; letter-spacing: .05em; color: var(--muted); margin-bottom: 8px; }

@@ -135,6 +135,7 @@ function ReportCard({ kid }: { kid: Kid }) {
             <Stat value={`${pct(r.accuracy)}%`} label="דיוק" />
             <Stat value={String(r.answered)} label="שאלות השבוע" />
             <Stat value={`${r.activeDays}/7`} label="ימים פעילים" />
+            <Stat value={`~${r.learnMinutes}׳`} label="זמן למידה" />
           </div>
 
           {r.subjects.length > 0 && (

@@ -306,6 +306,7 @@ export interface ChildReport {
   answered: number;     // questions answered, last 7 days
   correct: number;
   accuracy: number;     // 0..1
+  learnMinutes: number; // estimated active learning minutes, last 7 days
   subjects: SubjectMastery[];
   misconceptions: string[];
 }
@@ -330,6 +331,15 @@ export async function getChildReport(childId: string): Promise<ChildReport | nul
     const answered = graded.length;
     const correct = graded.filter((a) => a.is_correct).length;
     const activeDays = new Set((attempts ?? []).map((a) => String(a.created_at).slice(0, 10))).size;
+
+    // Estimate active learning time: sum gaps between consecutive answers, but
+    // treat a gap over 3 minutes as a break (not counted), plus a little for the
+    // start/end of each sitting.
+    const times = (attempts ?? []).map((a) => new Date(a.created_at as string).getTime()).sort((x, y) => x - y);
+    let ms = 0;
+    for (let i = 1; i < times.length; i++) ms += Math.min(times[i] - times[i - 1], 180_000);
+    if (times.length) ms += 45_000;
+    const learnMinutes = Math.round(ms / 60_000);
 
     const { data: mastery } = await sb
       .from('user_mastery')
@@ -362,6 +372,7 @@ export async function getChildReport(childId: string): Promise<ChildReport | nul
     return {
       activeDays, answered, correct,
       accuracy: answered ? correct / answered : 0,
+      learnMinutes,
       subjects, misconceptions: [...misc],
     };
   } catch {
@@ -976,7 +987,11 @@ export async function completeQuest(coinsEarned: number, childId?: string, xpEar
 
     const alreadyAwarded = row?.coins_awarded_today ?? 0;
     const firstToday = !row?.quest_completed;
-    const grant = Math.max(0, Math.min(coinsEarned, DAILY_COIN_CAP - alreadyAwarded));
+    // Diminishing returns: each extra round the same day is worth progressively
+    // less (down to 30%), then the daily cap stops earning entirely.
+    const factor = Math.max(0.3, 1 - alreadyAwarded / DAILY_COIN_CAP);
+    const decayed = Math.round(coinsEarned * factor);
+    const grant = Math.max(0, Math.min(decayed, DAILY_COIN_CAP - alreadyAwarded));
 
     await sb.from('users').update({
       quest_coins: child.coins + grant,
