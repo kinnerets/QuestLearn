@@ -232,6 +232,44 @@ export async function getChildren(): Promise<ChildProfile[] | null> {
   }
 }
 
+/** Start of the current week (Sunday 00:00 UTC) as an ISO string. */
+function weekStartISO(): string {
+  const now = new Date();
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  d.setUTCDate(d.getUTCDate() - d.getUTCDay()); // back to Sunday
+  return d.toISOString();
+}
+
+export interface TeamChallenge {
+  target: number; correct: number; done: boolean;
+  byChild: { name: string; correct: number }[];
+}
+
+/**
+ * Co-Op: a shared weekly goal both sisters push toward together. Combines their
+ * correct answers this week. Returns null unless there are at least two kids.
+ */
+export async function getTeamChallenge(): Promise<TeamChallenge | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data: kids } = await sb.from('users').select('id,display_name').eq('role', 'child');
+    if (!kids || kids.length < 2) return null; // a team needs at least two
+    const ids = kids.map((k) => k.id as string);
+    const { data: rows } = await sb
+      .from('attempts_log').select('user_id')
+      .eq('is_correct', true).gte('created_at', weekStartISO()).in('user_id', ids);
+    const counts = new Map<string, number>();
+    for (const r of rows ?? []) counts.set(r.user_id as string, (counts.get(r.user_id as string) ?? 0) + 1);
+    const byChild = kids.map((k) => ({ name: k.display_name as string, correct: counts.get(k.id as string) ?? 0 }));
+    const correct = byChild.reduce((s, c) => s + c.correct, 0);
+    const target = 40; // combined correct answers for the week
+    return { target, correct, done: correct >= target, byChild };
+  } catch {
+    return null;
+  }
+}
+
 /** A single child by id (from the selected-profile cookie). */
 export async function getChildProfileById(id: string): Promise<ChildProfile | null> {
   const sb = getSupabase();

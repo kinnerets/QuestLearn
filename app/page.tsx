@@ -7,7 +7,7 @@ import { BottomNav } from '@/components/BottomNav';
 import { ChevronIcon, CheckIcon, STATION_ICON, SUBJECT_ICON, SparkIcon, CompassIcon, SwapIcon } from '@/components/icons';
 import { HomeTasks } from './HomeTasks';
 import { mili, todayStations } from '@/lib/mockData';
-import { getChildren, getDailyLesson, getTodaySubjects, getSeasonalHighlight } from '@/lib/db';
+import { getChildren, getDailyLesson, getTodaySubjects, getSeasonalHighlight, getTeamChallenge } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import type { DailyStation } from '@/lib/types';
 
@@ -39,10 +39,11 @@ export default async function HomePage() {
     redirect('/profiles');
   }
   const child = children?.find((c) => c.id === selectedId) ?? children?.[0] ?? null;
-  const [dbLesson, doneSubjects, seasonal] = await Promise.all([
+  const [dbLesson, doneSubjects, seasonal, team] = await Promise.all([
     getDailyLesson(child?.grade ?? 'grade_3', child?.id),
     child ? getTodaySubjects(child.id) : Promise.resolve([]),
     getSeasonalHighlight(),
+    getTeamChallenge(),
   ]);
 
   const name = child?.name ?? mili.display_name;
@@ -151,6 +152,23 @@ export default async function HomePage() {
             </span>
             <span className="place-banner-go">›</span>
           </Link>
+        )}
+
+        {team && (
+          <section className={`team-card${team.done ? ' done' : ''}`}>
+            <div className="team-head">
+              <span className="team-title">אתגר הצוות השבועי</span>
+              <span className="team-count">{Math.min(team.correct, team.target)}/{team.target}</span>
+            </div>
+            <div className="team-bar">
+              <i style={{ width: `${Math.min(100, Math.round((team.correct / team.target) * 100))}%` }} />
+            </div>
+            <div className="team-sub">
+              {team.done
+                ? <b>הגעתם ליעד — כל הכבוד לצוות!</b>
+                : <>יחד לוקחים את היעד! {team.byChild.map((c) => `${c.name}: ${c.correct}`).join(' · ')}</>}
+            </div>
+          </section>
         )}
 
         <HomeTasks />
