@@ -1211,10 +1211,14 @@ export async function getTopicsOverview(): Promise<TopicOverview[] | null> {
 }
 
 // ─────────────────────────── Home tasks (chores) ───────────────────────────
-export interface HomeTask { id: string; title: string; coins: number; doneToday: boolean; pending: boolean }
+export interface HomeTask {
+  id: string; title: string; coins: number;
+  pending: boolean;        // waiting for a parent → not tappable now
+  approvedToday: boolean;  // done & approved today → can be done again (repeatable)
+}
 
-/** Active chores + whether this child already did each one today (and if it's
- *  still waiting for a parent to approve it). */
+/** Active chores + today's state per chore: waiting for approval (locked), or
+ *  already approved today (still repeatable — tidy the room again). */
 export async function getHomeTasks(childId?: string): Promise<HomeTask[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
@@ -1225,8 +1229,8 @@ export async function getHomeTasks(childId?: string): Promise<HomeTask[] | null>
     if (error || !tasks) return null;
 
     // The done-lookup is best-effort: if it fails, still show the tasks.
-    const doneSet = new Set<string>();
     const pendingSet = new Set<string>();
+    const approvedSet = new Set<string>();
     if (childId) {
       const day = new Date().toISOString().slice(0, 10);
       // Prefer the status column (approval flow); fall back if it's not there yet.
@@ -1237,13 +1241,15 @@ export async function getHomeTasks(childId?: string): Promise<HomeTask[] | null>
           .eq('child_id', childId).eq('day', day)).data as { task_id: string }[] | null;
       }
       for (const r of rows ?? []) {
-        doneSet.add(r.task_id);
-        if ((r as { status?: string }).status === 'pending') pendingSet.add(r.task_id);
+        const status = (r as { status?: string }).status;
+        if (status === 'pending') pendingSet.add(r.task_id);
+        else approvedSet.add(r.task_id); // 'approved', or no status column (old rows)
       }
     }
     return tasks.map((t) => ({
       id: t.id as string, title: t.title as string, coins: t.coins as number,
-      doneToday: doneSet.has(t.id as string), pending: pendingSet.has(t.id as string),
+      pending: pendingSet.has(t.id as string),
+      approvedToday: approvedSet.has(t.id as string),
     }));
   } catch {
     return null;
@@ -1287,8 +1293,9 @@ export interface TaskDoneResult { ok: boolean; reason?: string; coins?: number; 
 /**
  * Child checks off a chore. It goes to the parent as "pending" — the coins are
  * credited only when a parent approves (so the parent verifies it was really
- * done). If the status column isn't there yet, we fall back to the old behavior
- * (credit immediately) so nothing breaks before the migration runs.
+ * done). Chores are repeatable: after a chore is approved the child can do it
+ * again (the same day's row simply cycles back to 'pending').
+ * Falls back to instant-credit if the status column isn't there yet.
  */
 export async function completeHomeTask(childId: string, taskId: string): Promise<TaskDoneResult> {
   const sb = getSupabase();
@@ -1302,17 +1309,27 @@ export async function completeHomeTask(childId: string, taskId: string): Promise
     const earned = (task.coins as number) ?? 0;
     const day = new Date().toISOString().slice(0, 10);
 
-    // Preferred path: record it as pending for parent approval (no coins yet).
-    const { error: insErr } = await sb
-      .from('home_task_done').insert({ task_id: taskId, child_id: childId, day, status: 'pending' });
-    if (!insErr) return { ok: true, pending: true, earned };
+    // Already waiting for a parent? Don't stack another request.
+    const { data: existing } = await sb
+      .from('home_task_done').select('id,status')
+      .eq('task_id', taskId).eq('child_id', childId).eq('day', day).maybeSingle();
+    if (existing && (existing as { status?: string }).status === 'pending') {
+      return { ok: false, reason: 'already' };
+    }
 
-    // The insert failed — either already done today, or the status column is
-    // missing (pre-migration). Retry without status to tell the two apart.
-    const { error: retryErr } = await sb
+    // Mark pending (new, or re-doing an already-approved chore). Upsert keeps the
+    // one-row-per-day unique key intact while allowing repeats.
+    const { error: upErr } = await sb
+      .from('home_task_done')
+      .upsert({ task_id: taskId, child_id: childId, day, status: 'pending' }, { onConflict: 'task_id,child_id,day' });
+    if (!upErr) return { ok: true, pending: true, earned };
+
+    // Status column missing (pre-migration) → old behavior: credit immediately.
+    if (existing) return { ok: false, reason: 'already' };
+    const { error: insErr } = await sb
       .from('home_task_done').insert({ task_id: taskId, child_id: childId, day });
-    if (retryErr) return { ok: false, reason: 'already' }; // unique(task,child,day)
-    const coins = child.coins + earned;                    // no status column → old behavior
+    if (insErr) return { ok: false, reason: 'already' };
+    const coins = child.coins + earned;
     await sb.from('users').update({ quest_coins: coins }).eq('id', childId);
     return { ok: true, coins, earned };
   } catch {

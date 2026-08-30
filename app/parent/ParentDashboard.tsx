@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
 import { CoinIcon, FlameIcon, CloseIcon } from '@/components/icons';
@@ -43,12 +44,15 @@ function masteryClass(m: number) { return m >= 0.7 ? 'good' : m >= 0.4 ? 'mid' :
 
 export function ParentDashboard({ kids }: { kids: Kid[] }) {
   const router = useRouter();
+  const [activeKid, setActiveKid] = useState(kids[0]?.id ?? '');
 
   async function lock() {
     await fetch('/api/parent/lock', { method: 'POST' }).catch(() => {});
     router.push('/');
     router.refresh();
   }
+
+  const shown = kids.find((k) => k.id === activeKid) ?? kids[0];
 
   return (
     <main className="app-shell">
@@ -58,17 +62,22 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
         <div style={{ width: 34 }} />
       </div>
       <div className="screen-body parent">
-        <div className="parent-head">
-          <h1>סקירה</h1>
-        </div>
-
         {kids.length === 0 && <div className="parent-empty">עדיין אין פרופילים במאגר.</div>}
 
-        <div className="parent-reports">
-          {kids.map((k) => (
-            <ReportCard key={k.id} kid={k} />
-          ))}
-        </div>
+        {kids.length > 1 && (
+          <div className="kid-tabs">
+            {kids.map((k) => (
+              <button key={k.id} className={`kid-tab${k.id === shown?.id ? ' on' : ''}`}
+                onClick={() => setActiveKid(k.id)}>{k.name}</button>
+            ))}
+          </div>
+        )}
+
+        {shown && (
+          <div className="parent-reports">
+            <ReportCard key={shown.id} kid={shown} />
+          </div>
+        )}
 
         <TaskApprovalsPanel />
 

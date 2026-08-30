@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
 import { Capi } from '@/components/Capi';
-import { CoinIcon, FlameIcon } from '@/components/icons';
+import { CoinIcon, FlameIcon, GearIcon } from '@/components/icons';
 import { CHILD_COOKIE } from '@/lib/constants';
 import { mili, miliAvatar } from '@/lib/mockData';
 import type { AvatarConfig } from '@/lib/types';
@@ -73,6 +74,11 @@ export default function ProfilesPage() {
             </button>
           ))}
           {kids === null && <div className="profile-loading">טוען פרופילים…</div>}
+        </div>
+
+        <div className="profiles-foot">
+          <Link href="/avatar" className="profiles-foot-link">עריכת אווטאר</Link>
+          <Link href="/parent" className="profiles-parent"><GearIcon /> אזור הורים</Link>
         </div>
       </div>
     </main>
