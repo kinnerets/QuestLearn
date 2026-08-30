@@ -996,6 +996,56 @@ export async function getRewards(): Promise<Reward[] | null> {
   }
 }
 
+/** The single family's id (from an existing reward or any user). */
+async function getFamilyId(sb: NonNullable<ReturnType<typeof getSupabase>>): Promise<string | null> {
+  try {
+    const r = await sb.from('reward_store').select('family_id').limit(1).maybeSingle();
+    if (r.data?.family_id) return r.data.family_id as string;
+    const u = await sb.from('users').select('family_id').not('family_id', 'is', null).limit(1).maybeSingle();
+    return (u.data?.family_id as string) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Parent: add a reward to the family store. */
+export async function addReward(title: string, cost: number, category = 'כללי'): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const familyId = await getFamilyId(sb);
+    if (!familyId) return false;
+    const { error } = await sb.from('reward_store').insert({
+      family_id: familyId, title, category, cost_coins: Math.max(1, Math.round(cost)), is_active: true,
+    });
+    return !error;
+  } catch { return false; }
+}
+
+/** Parent: change a reward's title and/or cost. */
+export async function updateReward(id: string, patch: { title?: string; cost?: number }): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const update: Record<string, unknown> = {};
+    if (patch.title != null) update.title = patch.title;
+    if (patch.cost != null) update.cost_coins = Math.max(1, Math.round(patch.cost));
+    if (!Object.keys(update).length) return true;
+    const { error } = await sb.from('reward_store').update(update).eq('id', id);
+    return !error;
+  } catch { return false; }
+}
+
+/** Parent: retire a reward (soft delete). */
+export async function removeReward(id: string): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { error } = await sb.from('reward_store').update({ is_active: false }).eq('id', id);
+    return !error;
+  } catch { return false; }
+}
+
 export interface RedeemResult {
   ok: boolean;
   reason?: string;

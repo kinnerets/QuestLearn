@@ -6,6 +6,7 @@ import { Avatar } from '@/components/Avatar';
 import { CoinIcon, FlameIcon, CloseIcon } from '@/components/icons';
 import { TasksPanel } from './TasksPanel';
 import { TaskApprovalsPanel } from './TaskApprovalsPanel';
+import { RewardsPanel } from './RewardsPanel';
 import { FlagsPanel } from './FlagsPanel';
 import { RedemptionsPanel } from './RedemptionsPanel';
 import { LocksPanel } from './LocksPanel';
@@ -90,6 +91,8 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
         <FlagsPanel />
 
         <TasksPanel />
+
+        <RewardsPanel />
       </div>
 
       <div className="parent-foot">
