@@ -232,6 +232,43 @@ export async function getChildren(): Promise<ChildProfile[] | null> {
   }
 }
 
+/** Record one Capi chat exchange for parent visibility. Best-effort — if the
+ *  table isn't there yet, it's silently skipped. */
+export async function logCapiChat(childId: string, question: string, reply: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) return;
+  try {
+    await sb.from('capi_chats').insert({
+      child_id: childId, question: question.slice(0, 1000), reply: reply.slice(0, 2000),
+    });
+  } catch { /* table may not exist yet */ }
+}
+
+export interface CapiChat { id: string; childName: string; question: string; reply: string; when: string }
+
+/** Recent Capi conversations (optionally for one child) — for the parent area. */
+export async function getCapiChats(childId?: string, limit = 40): Promise<CapiChat[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    let q = sb.from('capi_chats').select('id,child_id,question,reply,created_at')
+      .order('created_at', { ascending: false }).limit(limit);
+    if (childId) q = q.eq('child_id', childId);
+    const { data, error } = await q;
+    if (error) return []; // table not there yet
+    if (!data?.length) return [];
+    const ids = [...new Set(data.map((r) => r.child_id as string))];
+    const { data: kids } = await sb.from('users').select('id,display_name').in('id', ids);
+    const names = new Map((kids ?? []).map((k) => [k.id as string, k.display_name as string]));
+    return data.map((r) => ({
+      id: r.id as string, childName: names.get(r.child_id as string) ?? 'ילדה',
+      question: String(r.question ?? ''), reply: String(r.reply ?? ''), when: r.created_at as string,
+    }));
+  } catch {
+    return null;
+  }
+}
+
 /** Start of the current week (Sunday 00:00 UTC) as an ISO string. */
 function weekStartISO(): string {
   const now = new Date();

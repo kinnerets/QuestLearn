@@ -7,6 +7,7 @@ import { CoinIcon, FlameIcon, CloseIcon } from '@/components/icons';
 import { TasksPanel } from './TasksPanel';
 import { TaskApprovalsPanel } from './TaskApprovalsPanel';
 import { FocusPanel } from './FocusPanel';
+import { CapiLogPanel } from './CapiLogPanel';
 import { RewardsPanel } from './RewardsPanel';
 import { FlagsPanel } from './FlagsPanel';
 import { RedemptionsPanel } from './RedemptionsPanel';
@@ -96,6 +97,8 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
         <TaskApprovalsPanel childId={shown?.id} childName={shown?.name} />
 
         <RedemptionsPanel childName={shown?.name} />
+
+        <CapiLogPanel childId={shown?.id} />
       </div>
 
       <div className="parent-foot">

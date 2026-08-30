@@ -183,6 +183,12 @@ a { color: inherit; text-decoration: none; }
 
 /* Capi chat */
 .capi-chat { display: flex; flex-direction: column; gap: 12px; padding: 16px 14px 8px; }
+/* Parent: Capi conversation log */
+.capi-log { display: flex; flex-direction: column; gap: 10px; }
+.capi-log-item { background: var(--surface); border: 1px solid var(--line); border-radius: 13px; padding: 10px 12px; }
+.capi-log-when { font-size: .68rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.capi-log-q { font-family: var(--font-display); font-weight: 800; font-size: .92rem; color: var(--ink); }
+.capi-log-a { font-weight: 600; font-size: .86rem; color: var(--muted); margin-top: 3px; line-height: 1.45; }
 .chat-row { display: flex; align-items: flex-end; gap: 8px; }
 .chat-row.user { justify-content: flex-start; flex-direction: row-reverse; }
 .chat-capi { flex: none; }

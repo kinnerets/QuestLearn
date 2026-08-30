@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { askCapi, type CapiTurn } from '@/lib/capi';
-import { getChildProfileById } from '@/lib/db';
+import { getChildProfileById, logCapiChat } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
@@ -19,5 +19,7 @@ export async function POST(req: Request) {
       })
     : [];
   const res = await askCapi(child?.name ?? '', child?.grade ?? 'grade_3', message, history);
+  // Log the exchange so a parent can review it later (best-effort).
+  if (id && res.ok) { void logCapiChat(id, message, res.reply); }
   return NextResponse.json(res);
 }
