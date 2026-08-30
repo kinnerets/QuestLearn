@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Rubik, Assistant } from 'next/font/google';
 import './globals.css';
+import { CapiFab } from '@/components/CapiFab';
 
 const rubik = Rubik({
   subsets: ['hebrew', 'latin'],
@@ -32,7 +33,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="he" dir="rtl" className={`${rubik.variable} ${assistant.variable}`}>
-      <body>{children}</body>
+      <body>{children}<CapiFab /></body>
     </html>
   );
 }

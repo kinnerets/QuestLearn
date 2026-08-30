@@ -5,10 +5,10 @@ export type CapiMood = 'chill' | 'hint' | 'cheer';
  * key: rounded huggable proportions, warm radial shading, big kind eyes with a
  * catch-light, a gentle smile and a little flower for charm. Three moods.
  */
-export function Capi({ mood = 'chill', size = 74 }: { mood?: CapiMood; size?: number }) {
+export function Capi({ mood = 'chill', size = 74, still = false }: { mood?: CapiMood; size?: number; still?: boolean }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" role="img" aria-label="קפי"
-      className={`capi capi-${mood}`}>
+      className={still ? `capi-still capi-${mood}` : `capi capi-${mood}`}>
       <defs>
         <radialGradient id="capiBody" cx="42%" cy="34%" r="72%">
           <stop offset="0%" stopColor="#D8B489" />

@@ -81,8 +81,10 @@ export default async function HomePage() {
       <div className="screen-body">
         <section className="hero">
           {multiProfile && (
-            <Link href="/profiles" className="hero-switch-pill" aria-label="החלפת פרופיל">
-              <SwapIcon /> החלפה
+            <Link href="/profiles" className="profile-chip" aria-label="החלפת פרופיל">
+              <span className="profile-chip-av"><Avatar config={avatar} crop size={24} /></span>
+              <span className="profile-chip-name">{name}</span>
+              <SwapIcon />
             </Link>
           )}
           <div className="hero-row">
@@ -107,15 +109,6 @@ export default async function HomePage() {
               : <>אהלן {name}. נתחיל ב<b>{firstActive.title}</b>?</>}
           </div>
         </div>
-
-        <Link href="/capi" className="ask-capi-card">
-          <span className="ask-capi-ico"><Capi mood="chill" size={38} /></span>
-          <span className="ask-capi-txt">
-            <b>יש לך שאלה?</b>
-            <small>שאלי את קפי כל דבר שמסקרן אותך</small>
-          </span>
-          <span className="place-banner-go">›</span>
-        </Link>
 
         {needsPlacement && (
           <Link href="/placement" className="place-banner">
