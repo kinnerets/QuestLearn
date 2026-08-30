@@ -79,23 +79,33 @@ export default async function HomePage() {
     <main className="app-shell">
       <div className="screen-body">
         <section className="hero">
+          {multiProfile && (
+            <Link href="/profiles" className="hero-switch-pill" aria-label="החלפת פרופיל">
+              <SwapIcon /> החלפה
+            </Link>
+          )}
           <div className="hero-row">
-            <Link href="/profiles" className="hero-avatar switchable" aria-label="החלפת פרופיל ואזור הורים">
+            <Link href="/avatar" className="hero-avatar" aria-label="עריכת אווטאר">
               <Avatar config={avatar} crop size={52} />
-              <span className="hero-avatar-swap"><SwapIcon /></span>
             </Link>
             <div style={{ flex: 1 }}>
               <div className="hero-title"><Greeting name={name} /></div>
               <div className="hero-sub">
                 {doneCount}/{stations.length} נושאים היום · יעד ~{goalMinutes} דק׳
               </div>
-              {multiProfile && (
-                <Link href="/profiles" className="hero-switch"><SwapIcon /> החלפת פרופיל</Link>
-              )}
             </div>
             <GoalRing done={doneCount} total={stations.length} />
           </div>
         </section>
+
+        <div className="capi-row capi-top">
+          <Capi mood={doneCount >= stations.length ? 'cheer' : 'chill'} size={70} />
+          <div className="bubble">
+            {doneCount >= stations.length
+              ? <>כל הכבוד {name}, סיימת את כל הנושאים להיום!</>
+              : <>אהלן {name}. נתחיל ב<b>{firstActive.title}</b>?</>}
+          </div>
+        </div>
 
         {seasonal && (
           <Link href={`/exercise?focus=seasonal&topic=${seasonal.topicId}`} className="season-banner">
@@ -144,20 +154,6 @@ export default async function HomePage() {
         </div>
 
         <HomeTasks />
-
-        <Link href="/map" className="map-cta">
-          <span>רוצה נושא אחר? כל הנושאים</span>
-          <ChevronIcon />
-        </Link>
-
-        <div className="capi-row">
-          <Capi mood="chill" size={70} />
-          <div className="bubble">
-            {doneCount >= stations.length
-              ? <>כל הכבוד {name}, סיימת את כל הנושאים להיום!</>
-              : <>אהלן {name}. נתחיל ב<b>{firstActive.title}</b>?</>}
-          </div>
-        </div>
       </div>
 
       <BottomNav active="/" />

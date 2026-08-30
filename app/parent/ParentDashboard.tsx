@@ -64,6 +64,9 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
       <div className="screen-body parent">
         {kids.length === 0 && <div className="parent-empty">עדיין אין פרופילים במאגר.</div>}
 
+        {/* Shared settings (not per-child) sit above the kid tabs. */}
+        <LocksPanel />
+
         {kids.length > 1 && (
           <div className="kid-tabs">
             {kids.map((k) => (
@@ -79,13 +82,12 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
           </div>
         )}
 
-        <TaskApprovalsPanel />
+        {/* Per-child items follow the selected tab. */}
+        <TaskApprovalsPanel childId={shown?.id} childName={shown?.name} />
 
-        <RedemptionsPanel />
+        <RedemptionsPanel childName={shown?.name} />
 
         <FlagsPanel />
-
-        <LocksPanel />
 
         <TasksPanel />
       </div>

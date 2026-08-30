@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { CoinIcon, CheckIcon, CloseIcon } from '@/components/icons';
 
 interface Approval {
-  id: string; childName: string; taskTitle: string; coins: number; day: string;
+  id: string; childId: string; childName: string; taskTitle: string; coins: number; day: string;
 }
 
-export function TaskApprovalsPanel() {
+export function TaskApprovalsPanel({ childId, childName }: { childId?: string; childName?: string }) {
   const [items, setItems] = useState<Approval[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -34,16 +34,18 @@ export function TaskApprovalsPanel() {
     setBusy(null);
   }
 
-  if (!loaded || items.length === 0) return null; // only shows when something's waiting
+  // Only this child's pending chores (don't show Lia's in Mili's tab).
+  const shownItems = childId ? items.filter((a) => a.childId === childId) : items;
+  if (!loaded || shownItems.length === 0) return null;
 
   return (
     <section className="content-panel">
       <div className="parent-head" style={{ marginBottom: 8 }}>
-        <h2 style={{ fontSize: '1.15rem' }}>מטלות לאישור <span className="flag-count">{items.length}</span></h2>
+        <h2 style={{ fontSize: '1.15rem' }}>מטלות לאישור{childName ? ` · ${childName}` : ''} <span className="flag-count">{shownItems.length}</span></h2>
       </div>
-      <p className="content-hint">הבנות סימנו שביצעו. אישור → המטבעות נזקפות; דחייה → המטלה חוזרת אליהן.</p>
+      <p className="content-hint">{childName ?? 'הבנות'} סימנה שביצעה. אישור → המטבעות נזקפות; דחייה → המטלה חוזרת אליה.</p>
 
-      {items.map((a) => (
+      {shownItems.map((a) => (
         <div key={a.id} className="approve-card">
           <div className="approve-main">
             <div className="approve-title">{a.taskTitle}</div>

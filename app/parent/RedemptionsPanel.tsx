@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { CoinIcon, CheckIcon, CloseIcon } from '@/components/icons';
 import type { Redemption } from '@/lib/db';
 
-export function RedemptionsPanel() {
+export function RedemptionsPanel({ childName }: { childName?: string }) {
   const [items, setItems] = useState<Redemption[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -31,16 +31,17 @@ export function RedemptionsPanel() {
     setBusy(null);
   }
 
-  if (!loaded || items.length === 0) return null;
+  const shownItems = childName ? items.filter((r) => r.childName === childName) : items;
+  if (!loaded || shownItems.length === 0) return null;
 
   return (
     <section className="content-panel">
       <div className="parent-head" style={{ marginBottom: 8 }}>
-        <h2 style={{ fontSize: '1.15rem' }}>בקשות פרס <span className="flag-count">{items.length}</span></h2>
+        <h2 style={{ fontSize: '1.15rem' }}>בקשות פרס{childName ? ` · ${childName}` : ''} <span className="flag-count">{shownItems.length}</span></h2>
       </div>
-      <p className="content-hint">הבנות מימשו מטבעות על פרסים. "בוצע" מסמן שנתת את הפרס; "ביטול" מחזיר להן את המטבעות.</p>
+      <p className="content-hint">מימוש מטבעות על פרסים. "בוצע" מסמן שנתת את הפרס; "ביטול" מחזיר את המטבעות.</p>
 
-      {items.map((r) => (
+      {shownItems.map((r) => (
         <div key={r.id} className="redeem-card">
           <span className="redeem-main">
             <span className="redeem-title">{r.rewardTitle}</span>

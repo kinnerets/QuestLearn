@@ -233,11 +233,13 @@ a { color: inherit; text-decoration: none; }
   color: #fff; opacity: .92;
 }
 .hero-switch .i { width: 13px; height: 13px; }
-.hero-gear {
-  flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
-  background: rgba(255,255,255,.18); color: #fff; align-self: flex-start;
+.hero-switch-pill {
+  display: inline-flex; align-items: center; gap: 5px; margin-bottom: 11px;
+  background: rgba(255,255,255,.22); color: #fff; border-radius: 999px; padding: 7px 14px;
+  font-family: var(--font-display); font-weight: 800; font-size: .84rem;
 }
-.hero-gear .i { width: 20px; height: 20px; }
+.hero-switch-pill .i { width: 15px; height: 15px; }
+.capi-row.capi-top { margin: 12px 0 4px; }
 
 /* ── Celebration extra note ── */
 .cele-note {
@@ -300,7 +302,11 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-display); cursor: pointer; transition: border-color .12s, background .12s;
 }
 .chip.on { border-color: var(--magenta); background: rgba(255,42,133,.10); color: var(--magenta-deep); }
-.chip.locked { opacity: .58; border-style: dashed; cursor: not-allowed; }
+.chip.locked { opacity: .72; border-style: dashed; cursor: pointer; }
+.chip-price { display: inline-flex; align-items: center; gap: 3px; margin-inline-start: 5px; color: var(--gold-ink); font-weight: 800; }
+.chip-price .i { width: 14px; height: 14px; }
+.av-buy-hint { margin-top: 9px; font-size: .8rem; font-weight: 700; color: var(--muted); }
+.av-note { text-align: center; font-weight: 800; font-size: .9rem; color: var(--magenta-deep); background: #FFF1F7; border: 1px solid #FFC7DF; border-radius: 12px; padding: 8px 12px; margin: 0 auto 10px; max-width: 320px; }
 .chip-lock { margin-inline-start: 5px; display: inline-flex; vertical-align: -2px; }
 .chip-lock .i { width: 13px; height: 13px; }
 .av-shop-hint { display: block; margin-top: 9px; font-size: .8rem; font-weight: 700; color: var(--magenta-deep); text-decoration: none; }
