@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CoinIcon, GiftIcon, CheckIcon } from '@/components/icons';
+import { Capi } from '@/components/Capi';
 import type { Reward, AvatarItem } from '@/lib/db';
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -89,6 +90,11 @@ export function ShopList({ rewards, coins: initialCoins, avatarItems = [] }: {
       <div className="shop-head">
         <h1>חנות הפרסים</h1>
         <div className="shop-coins"><CoinIcon /><span>{coins}</span></div>
+      </div>
+
+      <div className="capi-row capi-top">
+        <Capi mood="chill" size={64} />
+        <div className="bubble">טיפ ממני: לפעמים כדאי לחסוך למשהו גדול — סבלנות תמיד משתלמת.</div>
       </div>
 
       <div className="reward-list">

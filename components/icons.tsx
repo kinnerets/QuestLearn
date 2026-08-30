@@ -29,18 +29,15 @@ export const CoinIcon = () => (
 );
 export const FlameIcon = () => (
   <Svg>
-    <path d="M12 2.2c.4 3.5 4.4 4.7 4.4 9.1a4.9 4.9 0 0 1-9.8 0c0-2 .9-3.7 2.2-4.9.2 2.2 2.4 2.3 2.4.2 0-2.1-.3-3.6 .8-4.4z"
-      fill="#FB6A2E" stroke="none" />
-    <path d="M12 10.4c.2 1.9 2.3 2.5 2.3 4.8a2.6 2.6 0 0 1-5.2 0c0-1.1.5-2 1.2-2.7.1 1.2 1.3 1.2 1.3.1 0-1.1-.2-1.9.4-2.2z"
-      fill="#FFC93C" stroke="none" />
+    <path d="M12 2.5C12.3 5.6 15.8 7.2 15.8 11.4A3.8 3.8 0 1 1 8.2 11.4C8.2 9.6 9.1 8.3 10.3 7.4 10.2 9.1 11.8 9.3 11.8 7.5 11.8 5.8 11.5 4.2 12 2.5Z"
+      fill="#F5883C" stroke="none" />
   </Svg>
 );
 export const LevelIcon = () => (
   <Svg>
-    <path d="M8.4 12.5 L6.8 22 L10 20 L12 22.3 L14 20 L17.2 22 L15.6 12.5 Z" fill="#FF3D8B" stroke="none" />
-    <circle cx="12" cy="9" r="7.1" fill="#F5B70C" stroke="none" />
-    <circle cx="12" cy="9" r="7.1" fill="none" stroke="rgba(120,72,0,.22)" strokeWidth="1" />
-    <path d="M8.2 10.6 L12 6.4 L15.8 10.6" fill="none" stroke="#FFF8E1" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    <rect x="4" y="13.4" width="4.1" height="6.6" rx="1.3" fill="#F5B70C" stroke="none" />
+    <rect x="9.95" y="9.4" width="4.1" height="10.6" rx="1.3" fill="#F0A400" stroke="none" />
+    <rect x="15.9" y="5" width="4.1" height="15" rx="1.3" fill="#E69100" stroke="none" />
   </Svg>
 );
 

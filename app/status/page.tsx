@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
+import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import { CoinIcon, FlameIcon, StarIcon, LevelIcon, BADGE_ICON, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
 import { getChildren, getChildStatus, type SubjectCard, type ChildStatus } from '@/lib/db';
@@ -71,6 +72,15 @@ export default async function StatusPage() {
           <div className="status-stat"><CoinIcon /><b>{coins}</b><span>מטבעות</span></div>
           <div className="status-stat"><FlameIcon /><b>{streak}</b><span>ימי רצף</span></div>
           <div className="status-stat"><LevelIcon /><b>{level}</b><span>רמה</span></div>
+        </div>
+
+        <div className="capi-row capi-top">
+          <Capi mood="chill" size={64} />
+          <div className="bubble">
+            {streak >= 3
+              ? <>{streak} ימים ברצף, {name}! ההתמדה הקטנה של כל יום היא הכוח הכי גדול.</>
+              : <>כל תרגול קטן בונה משהו גדול, {name}. תראי כמה כבר התקדמת.</>}
+          </div>
         </div>
 
         {subjects.length > 0 && (
