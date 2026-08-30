@@ -90,7 +90,6 @@ export default async function HomePage() {
           {multiProfile && (
             <Link href="/profiles" className="profile-chip" aria-label="החלפת פרופיל">
               <span className="profile-chip-av"><Avatar config={avatar} crop size={24} /></span>
-              <span className="profile-chip-name">{name}</span>
               <SwapIcon />
             </Link>
           )}
