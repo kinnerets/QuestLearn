@@ -126,6 +126,9 @@ export const GearIcon = () => (
 export const SwapIcon = () => (
   <Svg><path d="M7 4L4 7l3 3" /><path d="M4 7h11a4 4 0 0 1 4 4" /><path d="M17 20l3-3-3-3" /><path d="M20 17H9a4 4 0 0 1-4-4" /></Svg>
 );
+export const MicIcon = () => (
+  <Svg><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M6 11a6 6 0 0 0 12 0" /><path d="M12 17v4" /><path d="M9 21h6" /></Svg>
+);
 export const UnlockIcon = () => (
   <Svg><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 7.9-1" /></Svg>
 );

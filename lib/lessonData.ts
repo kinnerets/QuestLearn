@@ -13,6 +13,7 @@ export interface AcademicStation {
   title: string;
   position: string;
   subjectLabel?: string;
+  subject?: string;
   tag: string;
   stem: string;
   qtype?: QuestionType;      // defaults to multiple_choice

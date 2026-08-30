@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Capi, type CapiMood } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import {
-  CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon, ChevronIcon, StarIcon,
+  CoinIcon, FlameIcon, CheckIcon, CloseIcon, HeartIcon, LEAD_ICON, GridIcon, ChevronIcon, StarIcon, MicIcon,
 } from '@/components/icons';
 import {
   lesson as bundledLesson, PRAISE, GENTLE, HEART, pick,
@@ -26,7 +26,7 @@ function mapDbLesson(db: DbStation[]): Station[] {
         choices: s.choices, topicId: s.topicId, questionId: s.questionId, coins: 5 };
     }
     return {
-      kind: s.kind, title: s.title, position, subjectLabel: s.subtitle, tag: s.tag, stem: s.stem,
+      kind: s.kind, title: s.title, position, subjectLabel: s.subtitle, subject: s.subject, tag: s.tag, stem: s.stem,
       qtype: s.qtype,
       choices: s.choices.map((c) => ({ id: c.id, text: c.text, misconception: c.misconception })),
       correctId: s.correctId, answers: s.answers, hint: s.hint, hint2: s.hint2, explanation: s.explanation,
@@ -60,6 +60,19 @@ function typedMatches(typed: string, answers?: string[]): boolean {
   const g = normalizeAnswer(typed);
   if (!g) return false;
   return answers.some((a) => normalizeAnswer(a) === g);
+}
+
+/** A short celebratory buzz on a correct answer (no-op where unsupported, e.g.
+ *  iOS Safari — harmless). */
+function buzz() {
+  try { (navigator as Navigator & { vibrate?: (p: number | number[]) => boolean }).vibrate?.([18, 40, 22]); } catch { /* ignore */ }
+}
+
+/** Speech-to-text language for a subject (only used where the browser supports it). */
+function sttLang(subject?: string): string {
+  if (subject === 'english') return 'en-US';
+  if (subject === 'arabic') return 'ar-SA';
+  return 'he-IL';
 }
 
 export default function ExercisePage() {
@@ -226,6 +239,7 @@ export default function ExercisePage() {
   function answer(st: AcademicStation, choiceId: string) {
     if (phase === 'done') return;
     if (choiceId === st.correctId) {
+      buzz();
       setChosenId(choiceId);
       setCoins((c) => c + st.coins);
       setEarned((e) => e + st.coins);
@@ -272,6 +286,7 @@ export default function ExercisePage() {
   function submitTyped(st: AcademicStation) {
     if (phase === 'done') return;
     if (typedMatches(typed, st.answers)) {
+      buzz();
       setCoins((c) => c + st.coins);
       setEarned((e) => e + st.coins);
       setCorrect((n) => n + 1);
@@ -307,6 +322,7 @@ export default function ExercisePage() {
   function chooseLead(id: string) {
     if (phase === 'done') return;
     const st = station as LeadStation;
+    buzz();
     setChosenId(id);
     setMood('cheer');
     const reward = st.coins ?? 5;               // a small fixed reward — reflective, never scored
@@ -433,13 +449,44 @@ function AcademicView({
   );
 }
 
-/** A fill-in question: the child types the answer and taps "בדיקה". */
+/** A fill-in question: the child types (or dictates) the answer and taps "בדיקה". */
 function TypeInView({
   st, value, onChange, revealed, locked, onSubmit,
 }: {
   st: AcademicStation; value: string; onChange: (v: string) => void;
   revealed: boolean; locked: boolean; onSubmit: () => void;
 }) {
+  const [listening, setListening] = useState(false);
+  const recRef = useRef<{ stop: () => void } | null>(null);
+  // Speech recognition exists on Chrome/Android; on iOS Safari it doesn't, so
+  // the mic button simply isn't shown there.
+  const SR = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    return (window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown })
+      .SpeechRecognition ?? (window as unknown as { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition ?? null;
+  }, []);
+
+  function dictate() {
+    if (!SR || locked) return;
+    if (listening) { recRef.current?.stop(); return; }
+    try {
+      const rec = new (SR as new () => {
+        lang: string; interimResults: boolean; maxAlternatives: number;
+        onresult: (e: { results: { 0: { 0: { transcript: string } } } }) => void;
+        onend: () => void; onerror: () => void; start: () => void; stop: () => void;
+      })();
+      rec.lang = sttLang(st.subject);
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.onresult = (e) => onChange(e.results[0][0].transcript);
+      rec.onend = () => setListening(false);
+      rec.onerror = () => setListening(false);
+      recRef.current = rec;
+      setListening(true);
+      rec.start();
+    } catch { setListening(false); }
+  }
+
   return (
     <>
       <div className="qcard">
@@ -447,12 +494,18 @@ function TypeInView({
         <div className="qtext">{st.stem}</div>
       </div>
       <div className="typein">
-        <input
-          className="typein-input" value={value} disabled={locked}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && value.trim() && !locked) onSubmit(); }}
-          placeholder="כתבי את התשובה כאן…" autoComplete="off" inputMode="text"
-        />
+        <div className="typein-field">
+          <input
+            className="typein-input" value={value} disabled={locked}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && value.trim() && !locked) onSubmit(); }}
+            placeholder="כתבי או הקליטי את התשובה…" autoComplete="off" inputMode="text"
+          />
+          {SR && !locked && (
+            <button type="button" className={`mic-btn${listening ? ' on' : ''}`} onClick={dictate}
+              aria-label={listening ? 'עצירת הקלטה' : 'דיבור'}><MicIcon /></button>
+          )}
+        </div>
         {revealed && st.answers?.[0] && (
           <div className="typein-answer"><CheckIcon /> {st.answers[0]}</div>
         )}
