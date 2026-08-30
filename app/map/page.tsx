@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
-import { STATION_ICON, SUBJECT_ICON, ChevronIcon } from '@/components/icons';
+import { STATION_ICON, SUBJECT_ICON, ChevronIcon, SparkIcon } from '@/components/icons';
 import { getChildren, getSubjectCatalog, getCompassWorlds, type SubjectCard, type CompassWorld } from '@/lib/db';
 import { BookIcon, CoinIcon, StarIcon, HeartIcon } from '@/components/icons';
 import { selectedChildId } from '@/lib/session';
@@ -46,6 +46,15 @@ export default async function MapPage() {
             <p>על מה בא לך לתרגל היום?</p>
           </div>
         </div>
+
+        <Link href="/interests" className="interests-cta">
+          <span className="interests-cta-ico"><SparkIcon /></span>
+          <span className="interests-cta-txt">
+            <b>מה מעניין אותך?</b>
+            <small>עדכני את תחומי העניין — נתאים לך יותר תרגולים בכיוון</small>
+          </span>
+          <span className="place-banner-go">›</span>
+        </Link>
 
         <div className="subject-grid">
           {subjects.map((s) => {

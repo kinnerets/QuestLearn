@@ -77,7 +77,6 @@ export default function ProfilesPage() {
         </div>
 
         <div className="profiles-foot">
-          <Link href="/interests" className="profiles-foot-link">תחומי עניין</Link>
           <Link href="/parent" className="profiles-parent"><GearIcon /> אזור הורים</Link>
         </div>
       </div>

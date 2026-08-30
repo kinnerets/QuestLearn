@@ -181,6 +181,18 @@ a { color: inherit; text-decoration: none; }
 .qtext { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin-top: 6px; text-wrap: balance; }
 .qnote { color: var(--muted); font-weight: 600; font-size: .85rem; margin-top: 4px; }
 
+/* Interests entry on the subjects (map) screen */
+.interests-cta {
+  display: flex; align-items: center; gap: 12px; margin: 0 0 14px;
+  background: linear-gradient(150deg, #FFF1F7, #FFE3EF); border: 2px solid #FFC7DF;
+  border-radius: 18px; padding: 13px 15px; color: var(--ink);
+}
+.interests-cta-ico { color: var(--magenta); display: flex; }
+.interests-cta-ico .i { width: 24px; height: 24px; }
+.interests-cta-txt { flex: 1; display: flex; flex-direction: column; }
+.interests-cta-txt b { font-family: var(--font-display); font-weight: 800; color: var(--magenta-deep); }
+.interests-cta-txt small { color: var(--muted); font-weight: 600; font-size: .8rem; }
+
 /* Interests picker */
 .interests { padding: 18px 16px 24px; }
 .interests-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; margin-bottom: 16px; }
