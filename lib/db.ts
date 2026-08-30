@@ -1375,26 +1375,33 @@ export async function completeHomeTask(childId: string, taskId: string): Promise
     const earned = (task.coins as number) ?? 0;
     const day = new Date().toISOString().slice(0, 10);
 
-    // Already waiting for a parent? Don't stack another request.
+    // Look at today's row (if any) with an explicit select — no reliance on a
+    // specific unique-constraint name for upsert onConflict, which was flaky.
     const { data: existing } = await sb
       .from('home_task_done').select('id,status')
       .eq('task_id', taskId).eq('child_id', childId).eq('day', day).maybeSingle();
-    if (existing && (existing as { status?: string }).status === 'pending') {
-      return { ok: false, reason: 'already' };
+
+    if (existing) {
+      if ((existing as { status?: string }).status === 'pending') {
+        return { ok: false, reason: 'already' }; // already waiting for a parent
+      }
+      // Approved earlier today → she's doing it again: cycle back to pending.
+      const { error } = await sb
+        .from('home_task_done').update({ status: 'pending' }).eq('id', (existing as { id: string }).id);
+      if (!error) return { ok: true, pending: true, earned };
+      return { ok: false, reason: 'already' }; // couldn't update → treat as done
     }
 
-    // Mark pending (new, or re-doing an already-approved chore). Upsert keeps the
-    // one-row-per-day unique key intact while allowing repeats.
-    const { error: upErr } = await sb
-      .from('home_task_done')
-      .upsert({ task_id: taskId, child_id: childId, day, status: 'pending' }, { onConflict: 'task_id,child_id,day' });
-    if (!upErr) return { ok: true, pending: true, earned };
-
-    // Status column missing (pre-migration) → old behavior: credit immediately.
-    if (existing) return { ok: false, reason: 'already' };
+    // No row today → create a pending one (parent must approve before coins).
     const { error: insErr } = await sb
+      .from('home_task_done').insert({ task_id: taskId, child_id: childId, day, status: 'pending' });
+    if (!insErr) return { ok: true, pending: true, earned };
+
+    // The status column isn't there yet (pre-migration) → old behavior: insert
+    // plainly and credit immediately.
+    const { error: insErr2 } = await sb
       .from('home_task_done').insert({ task_id: taskId, child_id: childId, day });
-    if (insErr) return { ok: false, reason: 'already' };
+    if (insErr2) return { ok: false, reason: 'already' };
     const coins = child.coins + earned;
     await sb.from('users').update({ quest_coins: coins }).eq('id', childId);
     return { ok: true, coins, earned };
