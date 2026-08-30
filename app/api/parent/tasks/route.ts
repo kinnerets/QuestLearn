@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { listHomeTasks, addHomeTask, removeHomeTask } from '@/lib/db';
+import { listHomeTasks, addHomeTask, removeHomeTask, updateHomeTask } from '@/lib/db';
 import { parentUnlocked } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
@@ -18,6 +18,13 @@ export async function POST(req: Request) {
     const coins = Math.min(50, Math.max(1, Number(b?.coins ?? 5)));
     if (!title) return NextResponse.json({ ok: false, reason: 'no-title' });
     const ok = await addHomeTask(title, coins);
+    return NextResponse.json({ ok });
+  }
+  if (b?.action === 'update' && b?.id) {
+    const patch: { title?: string; coins?: number } = {};
+    if (typeof b?.title === 'string') patch.title = b.title.trim().slice(0, 80);
+    if (b?.coins != null) patch.coins = Math.min(50, Math.max(1, Number(b.coins)));
+    const ok = await updateHomeTask(String(b.id), patch);
     return NextResponse.json({ ok });
   }
   if (b?.action === 'remove' && b?.id) {

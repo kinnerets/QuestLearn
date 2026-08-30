@@ -737,6 +737,10 @@ a { color: inherit; text-decoration: none; }
 .section-chev .i { width: 20px; height: 20px; transition: transform .2s; transform: rotate(-90deg); }
 .section-chev.open .i { transform: rotate(90deg); }
 .section-body { padding: 12px 3px 4px; animation: cardIn .3s both; }
+/* When open, the whole section is one framed card containing its content. */
+.psec.open { border: 2px solid var(--line); border-radius: 18px; background: var(--surface-2); overflow: hidden; }
+.psec.open .section-toggle { border: none; border-radius: 0; border-bottom: 1px solid var(--line); background: var(--surface); }
+.psec.open .section-body { padding: 14px 13px 16px; }
 .content-group { margin-bottom: 12px; }
 .content-subject { font-family: var(--font-display); font-weight: 800; font-size: .9rem; color: var(--magenta-deep); margin-bottom: 6px; }
 .content-row { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin-bottom: 7px; }

@@ -1436,6 +1436,20 @@ export async function removeHomeTask(id: string): Promise<boolean> {
   } catch { return false; }
 }
 
+/** Parent: change a chore's title and/or its coin value. */
+export async function updateHomeTask(id: string, patch: { title?: string; coins?: number }): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const update: Record<string, unknown> = {};
+    if (patch.title != null) update.title = patch.title;
+    if (patch.coins != null) update.coins = Math.max(1, Math.round(patch.coins));
+    if (!Object.keys(update).length) return true;
+    const { error } = await sb.from('home_tasks').update(update).eq('id', id);
+    return !error;
+  } catch { return false; }
+}
+
 export interface TaskDoneResult { ok: boolean; reason?: string; coins?: number; earned?: number; pending?: boolean }
 
 /**

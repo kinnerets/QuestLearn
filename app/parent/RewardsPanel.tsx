@@ -18,7 +18,7 @@ export function RewardsPanel() {
     try {
       const r = await fetch('/api/parent/rewards');
       const j = await r.json();
-      if (Array.isArray(j?.rewards)) setRewards(j.rewards);
+      if (Array.isArray(j?.rewards)) setRewards([...j.rewards].sort((a, b) => b.cost - a.cost)); // expensive first
     } catch { /* ignore */ }
   }
   useEffect(() => { load(); }, []);
@@ -45,7 +45,7 @@ export function RewardsPanel() {
   }
 
   async function saveCost(id: string) {
-    setRewards((xs) => xs.map((x) => (x.id === id ? { ...x, cost: editCost } : x)));
+    setRewards((xs) => xs.map((x) => (x.id === id ? { ...x, cost: editCost } : x)).sort((a, b) => b.cost - a.cost));
     setEditId(null);
     await post({ action: 'update', id, cost: editCost });
   }

@@ -13,7 +13,7 @@ export function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className="content-panel">
+    <section className={`content-panel psec${open ? ' open' : ''}`}>
       <button className="section-toggle" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         <span className="section-title">
           {title}
