@@ -181,8 +181,7 @@ a { color: inherit; text-decoration: none; }
 .qtext { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin-top: 6px; text-wrap: balance; }
 .qnote { color: var(--muted); font-weight: 600; font-size: .85rem; margin-top: 4px; }
 
-/* Ask-Capi entry + chat */
-.ask-capi { display: inline-block; margin-top: 6px; font-family: var(--font-display); font-weight: 800; font-size: .82rem; color: var(--magenta-deep); }
+/* Capi chat */
 .capi-chat { display: flex; flex-direction: column; gap: 12px; padding: 16px 14px 8px; }
 .chat-row { display: flex; align-items: flex-end; gap: 8px; }
 .chat-row.user { justify-content: flex-start; flex-direction: row-reverse; }
@@ -207,12 +206,23 @@ a { color: inherit; text-decoration: none; }
 .chat-send:disabled { background: var(--line); color: var(--muted); }
 .chat-send .i { width: 22px; height: 22px; transform: rotate(180deg); }
 
+/* Ask-Capi card (home) */
+.ask-capi-card {
+  display: flex; align-items: center; gap: 10px; margin: 12px 14px 0;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 10px 14px;
+}
+.ask-capi-ico { flex: none; }
+.ask-capi-txt { flex: 1; display: flex; flex-direction: column; }
+.ask-capi-txt b { font-family: var(--font-display); font-weight: 800; color: var(--ink); }
+.ask-capi-txt small { color: var(--muted); font-weight: 600; font-size: .8rem; }
+
 /* Co-Op team challenge (home) */
 .team-card {
-  margin: 4px 14px 0; background: linear-gradient(150deg, #EAF7F1, #DCEFE6);
+  margin: 16px 14px 0; background: linear-gradient(150deg, #EAF7F1, #DCEFE6);
   border: 2px solid #B6E3CE; border-radius: 18px; padding: 14px 16px;
   animation: cardIn .45s both cubic-bezier(.2,1,.4,1);
 }
+.team-goal { font-weight: 600; font-size: .84rem; color: var(--mint-ink, #1C7A57); line-height: 1.5; margin: 6px 0 2px; }
 .team-card.done { background: linear-gradient(150deg, #E7F7EE, #CBEFD8); border-color: var(--mint); }
 .team-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .team-title { font-family: var(--font-display); font-weight: 800; font-size: 1.02rem; color: var(--mint-ink, #1C7A57); }

@@ -105,9 +105,17 @@ export default async function HomePage() {
             {doneCount >= stations.length
               ? <>כל הכבוד {name}, סיימת את כל הנושאים להיום!</>
               : <>אהלן {name}. נתחיל ב<b>{firstActive.title}</b>?</>}
-            <Link href="/capi" className="ask-capi">שאלי אותי משהו ›</Link>
           </div>
         </div>
+
+        <Link href="/capi" className="ask-capi-card">
+          <span className="ask-capi-ico"><Capi mood="chill" size={38} /></span>
+          <span className="ask-capi-txt">
+            <b>יש לך שאלה?</b>
+            <small>שאלי את קפי כל דבר שמסקרן אותך</small>
+          </span>
+          <span className="place-banner-go">›</span>
+        </Link>
 
         {needsPlacement && (
           <Link href="/placement" className="place-banner">
@@ -161,13 +169,16 @@ export default async function HomePage() {
               <span className="team-title">אתגר האחיות השבועי</span>
               <span className="team-count">{Math.min(team.correct, team.target)}/{team.target}</span>
             </div>
+            <div className="team-goal">
+              המשימה: יחד לענות נכון על {team.target} שאלות עד סוף השבוע. כל תשובה נכונה של כל אחת מקדמת את הצוות.
+            </div>
             <div className="team-bar">
               <i style={{ width: `${Math.min(100, Math.round((team.correct / team.target) * 100))}%` }} />
             </div>
             <div className="team-sub">
               {team.done
                 ? <b>הגעתן ליעד — כל הכבוד לאחיות!</b>
-                : <>יחד לוקחות את היעד! {team.byChild.map((c) => `${c.name}: ${c.correct}`).join(' · ')}</>}
+                : <>{team.byChild.map((c) => `${c.name}: ${c.correct}`).join(' · ')} — עוד {Math.max(0, team.target - team.correct)} לצוות!</>}
             </div>
           </section>
         )}
