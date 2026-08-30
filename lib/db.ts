@@ -1,6 +1,6 @@
 import { getSupabase } from './supabaseClient';
 import { sm2, qualityFrom, updateMastery } from './composer';
-import { SUBJECT_LABEL, SUBJECT_KIND, SENSITIVE_SUBJECTS } from './constants';
+import { SUBJECT_LABEL, SUBJECT_KIND, SENSITIVE_SUBJECTS, subjectsForInterests } from './constants';
 import type { AvatarConfig, StationKind, Subject } from './types';
 
 export interface AttemptInput {
@@ -490,13 +490,41 @@ async function loadMasterySignals(
 /**
  * Priority score for a topic: weak mastery, due reviews, and lingering
  * misconceptions all raise it. A small day-stable jitter breaks ties so the mix
- * still rotates. (interest_match / parent_directive weights = 0 until built.)
+ * still rotates. `interestBoost` nudges subjects the child said she loves.
+ * (parent_directive weight = 0 until built.)
  */
-function topicPriority(sig: MasterySig | undefined, jitter: number): number {
+function topicPriority(sig: MasterySig | undefined, jitter: number, interestBoost = 0): number {
   const gap = 1 - (sig?.mastery ?? 0);                                   // weak → high (0..1)
   const review = sig ? Math.max(0, Math.min(1, sig.overdueDays / 3)) : 0; // overdue up to 3d → 0..1
   const misc = sig ? Math.min(0.4, sig.misconceptions * 0.2) : 0;        // repeated misconceptions
-  return 0.5 * gap + 0.35 * review + misc + jitter;
+  return 0.5 * gap + 0.35 * review + misc + interestBoost + jitter;
+}
+
+/** This child's interest ids (defensive: empty if the column isn't there yet). */
+export async function getChildInterests(childId: string): Promise<string[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  try {
+    const { data, error } = await sb.from('users').select('interests').eq('id', childId).maybeSingle();
+    if (error || !data) return [];
+    const raw = (data as { interests?: unknown }).interests;
+    return Array.isArray(raw) ? raw.map((x) => String(x)) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Save this child's chosen interests. Returns false if the column is missing. */
+export async function setChildInterests(childId: string, interests: string[]): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const clean = [...new Set(interests.map((s) => String(s)))].slice(0, 20);
+    const { error } = await sb.from('users').update({ interests: clean }).eq('id', childId);
+    return !error;
+  } catch {
+    return false;
+  }
 }
 
 export async function getDailyLesson(grade = 'grade_3', childId?: string, round = 1): Promise<DbStation[] | null> {
@@ -512,16 +540,32 @@ export async function getDailyLesson(grade = 'grade_3', childId?: string, round 
     const solved = childId ? await solvedQuestionIds(sb, childId) : new Set<string>();
     const jitterFor = (id: string) => ((seed + Number('0x' + id.slice(0, 6))) % 100) / 1000; // 0..0.099, day-stable
 
+    // Interests nudge the mix toward subjects she loves (incl. surfacing an
+    // enrichment subject into the daily journey when it matches an interest).
+    const interests = childId ? await getChildInterests(childId) : [];
+    const likedSubjects = subjectsForInterests(interests);
+    const locked = likedSubjects.size ? await getLockedSubjects(sb) : new Set<string>();
+    const boostOf = (subject: string) => (likedSubjects.has(subject) ? 0.3 : 0);
+
     const stations: DbStation[] = [];
     DAILY_SLOTS.forEach((slot) => {
-      // Candidate topics in this slot that have playable content.
-      const candidates = slot.subjects
+      // Base candidates for this slot + any interest-matched enrichment subject
+      // that has content and isn't parent-locked (surfaced into the 'future' slot).
+      const subjectPool = new Set<string>(slot.subjects);
+      if (slot.kind === 'future') {
+        for (const s of likedSubjects) {
+          if ((SUBJECT_KIND[s] ?? '') === 'future' && !slot.subjects.includes(s as Subject) && !locked.has(s)) {
+            subjectPool.add(s);
+          }
+        }
+      }
+      const candidates = [...subjectPool]
         .map((subject) => topics.find((t) => t.subject === subject && (qByTopic.get(t.id)?.length ?? 0) > 0))
         .filter((t): t is TopicRow => !!t);
       if (!candidates.length) return;
-      // Pick the highest-priority topic for THIS child (weak/overdue/misconception first).
+      // Pick the highest-priority topic for THIS child (weak/overdue/misconception/interest first).
       const topic = candidates
-        .map((t) => ({ t, score: topicPriority(sigs.get(t.id), jitterFor(t.id)) }))
+        .map((t) => ({ t, score: topicPriority(sigs.get(t.id), jitterFor(t.id), boostOf(t.subject)) }))
         .sort((a, b) => b.score - a.score)[0].t;
       const qs = qByTopic.get(topic.id)!;
       // Prefer a question the child hasn't solved yet; else rotate by day.

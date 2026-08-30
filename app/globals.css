@@ -181,6 +181,24 @@ a { color: inherit; text-decoration: none; }
 .qtext { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin-top: 6px; text-wrap: balance; }
 .qnote { color: var(--muted); font-weight: 600; font-size: .85rem; margin-top: 4px; }
 
+/* Interests picker */
+.interests { padding: 18px 16px 24px; }
+.interests-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; margin-bottom: 16px; }
+.interests-head p { color: var(--muted); font-weight: 600; max-width: 320px; }
+.interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.interest-chip {
+  display: flex; align-items: center; gap: 8px; background: var(--surface); border: 2px solid var(--line);
+  border-radius: 16px; padding: 14px 14px; font-family: var(--font-display); font-weight: 800; font-size: .98rem;
+  color: var(--ink); cursor: pointer; text-align: start;
+}
+.interest-chip.on { border-color: var(--magenta); background: #FFF1F7; color: var(--magenta-deep); }
+.interest-check {
+  width: 22px; height: 22px; flex: none; border-radius: 7px; border: 2px solid var(--line);
+  display: grid; place-items: center; background: var(--surface);
+}
+.interest-chip.on .interest-check { background: var(--magenta); border-color: var(--magenta); color: #fff; }
+.interest-check .i { width: 14px; height: 14px; }
+
 .answers { display: grid; gap: 10px; }
 .answers.tf { grid-template-columns: 1fr 1fr; }
 .answers.tf .ans { justify-content: center; font-size: 1.15rem; padding: 20px 12px; }

@@ -48,6 +48,7 @@ insert into users (id, role, parent_id, family_id, grade_level, display_name, qu
 alter table curriculum_topics drop constraint if exists curriculum_topics_subject_check;
 alter table curriculum_topics add column if not exists parent_locked boolean not null default false;
 alter table home_task_done add column if not exists status text not null default 'pending';
+alter table users add column if not exists interests jsonb not null default '[]'::jsonb;
 
 -- Topics. future_skills + leadership are shared (grade = enrichment);
 -- math + arabic are grade-specific so each girl gets her own level.
