@@ -9,6 +9,7 @@ export function TeamReward({ claimed, reward }: { claimed: boolean; reward: numb
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(claimed);
+  const [err, setErr] = useState(false);
 
   if (done) {
     return (
@@ -20,14 +21,21 @@ export function TeamReward({ claimed, reward }: { claimed: boolean; reward: numb
 
   async function claim() {
     setBusy(true);
+    setErr(false);
     const r = await fetch('/api/team/claim', { method: 'POST' }).then((x) => x.json()).catch(() => null);
-    if (r?.ok || r?.reason === 'claimed') { setDone(true); router.refresh(); }
+    // Only mark collected on a real grant, or when it was already claimed this
+    // week (coins already given). A real error must NOT look like success.
+    if (r?.ok || r?.reason === 'already') { setDone(true); router.refresh(); }
+    else { setErr(true); }
     setBusy(false);
   }
 
   return (
-    <button className="team-reward-btn" onClick={claim} disabled={busy}>
-      <CoinIcon /> אספו את הפרס - {reward} מטבעות לכל אחת
-    </button>
+    <>
+      <button className="team-reward-btn" onClick={claim} disabled={busy}>
+        <CoinIcon /> {busy ? 'אוספים…' : `אספו את הפרס - ${reward} מטבעות לכל אחת`}
+      </button>
+      {err && <div className="team-reward-err">לא הצלחנו לגבות את הפרס כרגע. נסו שוב עוד רגע.</div>}
+    </>
   );
 }

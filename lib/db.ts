@@ -361,9 +361,16 @@ export async function claimTeamReward(): Promise<{ ok: boolean; reason?: string 
     const week = weekStartISO();
     // Reserve first: the unique week_start makes a second claim fail cleanly.
     const { error: insErr } = await sb.from('team_rewards').insert({ week_start: week });
-    if (insErr) return { ok: false, reason: 'claimed' };
+    if (insErr) {
+      // 23505 = unique violation → already claimed this week (coins already given).
+      // Anything else (e.g. the table doesn't exist) is a real error: DON'T mark
+      // the reward collected, so no coins are silently skipped.
+      if ((insErr as { code?: string }).code === '23505') return { ok: false, reason: 'already' };
+      return { ok: false, reason: 'error' };
+    }
     const { data: kids } = await sb.from('users').select('id,quest_coins').eq('role', 'child');
-    for (const k of kids ?? []) {
+    if (!kids?.length) return { ok: false, reason: 'error' };
+    for (const k of kids) {
       const now = (k.quest_coins as number) ?? 0;
       await sb.from('users').update({ quest_coins: now + TEAM_REWARD_COINS }).eq('id', k.id);
     }
