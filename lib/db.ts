@@ -1500,7 +1500,9 @@ async function getFamilyId(sb: NonNullable<ReturnType<typeof getSupabase>>): Pro
 }
 
 /** Parent: add a reward to the family store. */
-export async function addReward(title: string, cost: number, category = 'כללי'): Promise<boolean> {
+// reward_store.category is a fixed enum; 'privilege' is the safe generic default
+// (the UI doesn't ask for a category, so an invalid value would silently fail).
+export async function addReward(title: string, cost: number, category = 'privilege'): Promise<boolean> {
   const sb = getSupabase();
   if (!sb) return false;
   try {

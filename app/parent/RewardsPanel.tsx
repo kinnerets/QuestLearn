@@ -13,6 +13,7 @@ export function RewardsPanel() {
   const [busy, setBusy] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editCost, setEditCost] = useState(0);
+  const [err, setErr] = useState(false);
 
   async function load() {
     try {
@@ -33,9 +34,16 @@ export function RewardsPanel() {
     const t = title.trim();
     if (!t || busy) return;
     setBusy(true);
-    await post({ action: 'add', title: t, cost });
-    setTitle('');
-    await load();
+    setErr(false);
+    let ok = false;
+    try {
+      const r = await fetch('/api/parent/rewards', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'add', title: t, cost }),
+      });
+      ok = (await r.json())?.ok === true;
+    } catch { ok = false; }
+    if (ok) { setTitle(''); await load(); } else { setErr(true); }
     setBusy(false);
   }
 
@@ -64,6 +72,7 @@ export function RewardsPanel() {
           </label>
           <button className="content-btn" disabled={busy || !title.trim()} onClick={add}>הוספה</button>
         </div>
+        {err && <div className="task-err">לא הצלחנו להוסיף את הפרס. נסי שוב.</div>}
       </div>
 
       <div className="task-manage-list">
