@@ -33,7 +33,19 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="he" dir="rtl" className={`${rubik.variable} ${assistant.variable}`}>
-      <body>{children}<CapiFab /></body>
+      <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var t=localStorage.getItem('ql_theme');" +
+              "if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);" +
+              "var s=localStorage.getItem('ql_textscale');" +
+              "if(s==='112%'||s==='125%')document.documentElement.style.fontSize=s;}catch(e){}})();",
+          }}
+        />
+        {children}
+        <CapiFab />
+      </body>
     </html>
   );
 }

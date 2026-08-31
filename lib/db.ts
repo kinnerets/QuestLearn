@@ -857,10 +857,11 @@ async function solvedQuestionIds(
   }
 }
 
-/** Base session length — short and snappy (5). The bank holds many more for
- *  "עוד תרגול"; we just don't serve them all at once. */
+/** Base session length. Grade 5 runs longer so the full daily journey
+ *  (3 subjects + a leadership moment) lands near the ~30-minute goal; grade 3
+ *  stays shorter. The bank holds many more for "עוד תרגול". */
 function focusLength(grade: string): number {
-  return grade === 'grade_5' ? 6 : 5;
+  return grade === 'grade_5' ? 8 : 5;
 }
 
 /**
