@@ -41,6 +41,9 @@ export const LevelIcon = () => (
   </Svg>
 );
 
+export const MenuIcon = () => (
+  <Svg><line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" /></Svg>
+);
 export const SpeakerIcon = () => (
   <Svg>
     <path d="M4 9.5h3l4.5-3.6v12.2L7 14.5H4z" fill="currentColor" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />

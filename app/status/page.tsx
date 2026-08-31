@@ -4,7 +4,6 @@ import { Avatar } from '@/components/Avatar';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import { CoinIcon, FlameIcon, StarIcon, LevelIcon, BADGE_ICON, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
-import { DisplaySettings } from '@/components/DisplaySettings';
 import { getChildren, getChildStatus, type SubjectCard, type ChildStatus } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import { mili } from '@/lib/mockData';
@@ -144,8 +143,6 @@ export default async function StatusPage() {
             })}
           </div>
         </section>
-
-        <DisplaySettings />
       </div>
 
       <BottomNav active="/status" />
