@@ -48,7 +48,10 @@ export default function ProfilesPage() {
     if (kid.id) {
       document.cookie = `${CHILD_COOKIE}=${kid.id}; path=/; max-age=31536000; samesite=lax`;
     }
-    router.push('/');
+    // First time on this device for this child → guided onboarding; otherwise home.
+    let onboarded = true;
+    try { onboarded = !kid.id || !!localStorage.getItem('ql_onboarded_' + kid.id); } catch { onboarded = true; }
+    router.push(onboarded ? '/' : '/onboarding');
     router.refresh();
   }
 
