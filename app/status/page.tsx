@@ -5,6 +5,7 @@ import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import { CoinIcon, FlameIcon, StarIcon, LevelIcon, BADGE_ICON, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
 import { SubjectBars } from '@/components/SubjectBars';
+import { assessmentSeason } from '@/lib/assessment';
 import { getChildren, getChildStatus, getSubjectBreakdown, type ChildStatus } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import { mili } from '@/lib/mockData';
@@ -33,6 +34,7 @@ export default async function StatusPage() {
   const streak = status?.streak ?? child?.streak ?? mili.current_streak;
   const avatar = child?.avatar ?? mili.avatar_config;
   const subjectBars = breakdown ?? [];
+  const season = assessmentSeason();
   const strengths = status?.strengths ?? [];
   const toTrain = status?.toTrain ?? [];
   const badges = status?.badges ?? [];
@@ -65,13 +67,15 @@ export default async function StatusPage() {
           </div>
         </div>
 
-        <Link href="/assessment" className="assess-cta-card">
-          <span className="assess-cta-txt">
-            <b>מבדק סוף שנה</b>
-            <small>20 שאלות מכל המקצועות - תמונת מצב, בלי לחץ</small>
-          </span>
-          <span className="place-banner-go">›</span>
-        </Link>
+        {season && (
+          <Link href="/assessment" className="assess-cta-card">
+            <span className="assess-cta-txt">
+              <b>{season.label}</b>
+              <small>{season.kind === 'mid' ? '20 שאלות על החומר מתחילת השנה' : '20 שאלות מכל מקצועות השנה'} - תמונת מצב, בלי לחץ</small>
+            </span>
+            <span className="place-banner-go">›</span>
+          </Link>
+        )}
 
         {subjectBars.length > 0 && (
           <section className="status-card">

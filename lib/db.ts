@@ -1168,14 +1168,32 @@ function correctChoiceOf(type: string, p: Record<string, unknown>): string {
 
 /** Sample a spread of graded questions across the grade's subjects for a test.
  *  Multiple-choice + true/false only; no hints/answers are exposed to the client. */
-export async function getAssessmentQuestions(grade: string, count = 20): Promise<AssessmentQuestion[] | null> {
+export async function getAssessmentQuestions(
+  grade: string, count = 20, kind: 'mid' | 'end' = 'end',
+): Promise<AssessmentQuestion[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
     const { topics, qByTopic } = await fetchBank(sb, grade);
-    const bySubject = new Map<string, { subject: string; q: QRow }[]>();
+    // Topics per subject, ordered — for a mid-year test we only draw from the
+    // first half of each subject's sequence (the material covered by then).
+    const topicsBySubject = new Map<string, TopicRow[]>();
     for (const t of topics) {
       if (t.subject === LEADERSHIP_SUBJECT) continue;
+      if ((qByTopic.get(t.id)?.length ?? 0) === 0) continue;
+      const arr = topicsBySubject.get(t.subject) ?? [];
+      arr.push(t);
+      topicsBySubject.set(t.subject, arr);
+    }
+    const eligible = new Set<string>();
+    for (const arr of topicsBySubject.values()) {
+      arr.sort((a, b) => Number(a.order_index ?? 0) - Number(b.order_index ?? 0));
+      const keep = kind === 'mid' ? Math.max(1, Math.ceil(arr.length / 2)) : arr.length;
+      arr.slice(0, keep).forEach((t) => eligible.add(t.id));
+    }
+    const bySubject = new Map<string, { subject: string; q: QRow }[]>();
+    for (const t of topics) {
+      if (!eligible.has(t.id)) continue;
       for (const q of qByTopic.get(t.id) ?? []) {
         if (q.type !== 'multiple_choice' && q.type !== 'true_false') continue;
         const arr = bySubject.get(t.subject) ?? [];
@@ -1214,6 +1232,7 @@ export async function getAssessmentQuestions(grade: string, count = 20): Promise
 /** Grade a submitted assessment server-side (never trust the client) and save it. */
 export async function gradeAndSaveAssessment(
   childId: string, grade: string, answers: { questionId: string; choiceId: string }[],
+  kind: 'mid' | 'end' = 'end',
 ): Promise<AssessmentReport | null> {
   const sb = getSupabase();
   if (!sb) return null;
@@ -1245,9 +1264,11 @@ export async function gradeAndSaveAssessment(
       .sort((a, b) => b.total - a.total);
     const score = total ? Math.round((correct / total) * 100) : 0;
 
-    // Best-effort save (needs the assessments table).
+    // Best-effort save (needs the assessments table). Include kind if the column
+    // exists; fall back without it so an un-migrated DB still records the result.
     try {
-      await sb.from('assessments').insert({ child_id: childId, grade, score, correct, total, subjects });
+      const { error } = await sb.from('assessments').insert({ child_id: childId, grade, kind, score, correct, total, subjects });
+      if (error) await sb.from('assessments').insert({ child_id: childId, grade, score, correct, total, subjects });
     } catch { /* table may not exist yet */ }
 
     return { score, correct, total, subjects };
@@ -1256,20 +1277,30 @@ export async function gradeAndSaveAssessment(
   }
 }
 
-export interface AssessmentRecord { id: string; grade: string; score: number; correct: number; total: number; when: string; subjects: AssessmentSubjectScore[] }
+export interface AssessmentRecord { id: string; grade: string; kind: 'mid' | 'end'; score: number; correct: number; total: number; when: string; subjects: AssessmentSubjectScore[] }
 
 /** Past assessments for a child (parent view). [] if the table isn't there yet. */
 export async function getAssessments(childId: string, limit = 10): Promise<AssessmentRecord[]> {
   const sb = getSupabase();
   if (!sb) return [];
   try {
-    const { data, error } = await sb.from('assessments')
-      .select('id,grade,score,correct,total,subjects,created_at')
+    const withKind = await sb.from('assessments')
+      .select('id,grade,kind,score,correct,total,subjects,created_at')
       .eq('child_id', childId).order('created_at', { ascending: false }).limit(limit);
-    if (error || !data) return [];
-    return data.map((r) => ({
-      id: r.id as string, grade: r.grade as string, score: r.score as number,
-      correct: r.correct as number, total: r.total as number, when: r.created_at as string,
+    let rows = withKind.data as Record<string, unknown>[] | null;
+    if (withKind.error) { // older DB without the kind column
+      const noKind = await sb.from('assessments')
+        .select('id,grade,score,correct,total,subjects,created_at')
+        .eq('child_id', childId).order('created_at', { ascending: false }).limit(limit);
+      if (noKind.error || !noKind.data) return [];
+      rows = noKind.data as Record<string, unknown>[];
+    }
+    if (!rows) return [];
+    return rows.map((r) => ({
+      id: r.id as string, grade: r.grade as string,
+      kind: ((r as { kind?: string }).kind === 'mid' ? 'mid' : 'end') as 'mid' | 'end',
+      score: r.score as number, correct: r.correct as number, total: r.total as number,
+      when: r.created_at as string,
       subjects: Array.isArray(r.subjects) ? (r.subjects as AssessmentSubjectScore[]) : [],
     }));
   } catch {

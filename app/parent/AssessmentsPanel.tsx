@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Section } from './Section';
 
 interface SubjScore { subject: string; label: string; correct: number; total: number }
-interface Rec { id: string; grade: string; score: number; correct: number; total: number; when: string; subjects: SubjScore[] }
+interface Rec { id: string; grade: string; kind: 'mid' | 'end'; score: number; correct: number; total: number; when: string; subjects: SubjScore[] }
 
 function whenLabel(iso: string): string {
   const d = new Date(iso);
@@ -28,14 +28,14 @@ export function AssessmentsPanel({ childId }: { childId?: string }) {
   if (!childId || !loaded || recs.length === 0) return null;
 
   return (
-    <Section title="מבדקי סוף שנה" count={recs.length}
-      hint="תוצאות המבדקים שהבת עשתה, כולל פירוט לפי מקצוע.">
+    <Section title="מבדקים" count={recs.length}
+      hint="תוצאות מבדקי המחצית וסוף השנה שהבת עשתה, כולל פירוט לפי מקצוע.">
       <div className="assess-log">
         {recs.map((r) => (
           <div key={r.id} className="assess-log-item">
             <div className="assess-log-top">
               <span className="assess-log-score">{r.score}%</span>
-              <span className="assess-log-meta">{r.correct}/{r.total} · {whenLabel(r.when)}</span>
+              <span className="assess-log-meta">{r.kind === 'mid' ? 'מחצית' : 'סוף שנה'} · {r.correct}/{r.total} · {whenLabel(r.when)}</span>
             </div>
             {r.subjects.length > 0 && (
               <div className="assess-log-subs">

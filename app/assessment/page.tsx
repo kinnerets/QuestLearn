@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Capi } from '@/components/Capi';
 import { CloseIcon, CheckIcon } from '@/components/icons';
+import { assessmentSeason, assessmentLabel } from '@/lib/assessment';
 
 interface Q { id: string; subject: string; subjectLabel: string; tag: string; stem: string; choices: { id: string; text: string }[] }
 interface SubjScore { subject: string; label: string; correct: number; total: number }
@@ -17,11 +18,13 @@ export default function AssessmentPage() {
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [report, setReport] = useState<Report | null>(null);
+  const kind = assessmentSeason()?.kind ?? 'end';
+  const title = assessmentLabel(kind);
 
   async function start() {
     setPhase('loading');
     try {
-      const j = await fetch('/api/assessment').then((r) => r.json());
+      const j = await fetch(`/api/assessment?kind=${kind}`).then((r) => r.json());
       if (Array.isArray(j?.questions) && j.questions.length) {
         setQuestions(j.questions); setIdx(0); setAnswers({}); setPhase('quiz');
       } else { setPhase('intro'); }
@@ -39,7 +42,7 @@ export default function AssessmentPage() {
 
   async function submit() {
     setPhase('submitting');
-    const payload = { answers: questions.map((q) => ({ questionId: q.id, choiceId: answers[q.id] ?? '' })) };
+    const payload = { kind, answers: questions.map((q) => ({ questionId: q.id, choiceId: answers[q.id] ?? '' })) };
     try {
       const j = await fetch('/api/assessment', {
         method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload),
@@ -55,7 +58,7 @@ export default function AssessmentPage() {
     <main className="app-shell">
       <div className="ex-bar">
         <Link href="/status" className="ex-back" aria-label="יציאה"><CloseIcon /></Link>
-        <div className="ex-head-title">מבדק סוף שנה</div>
+        <div className="ex-head-title">{title}</div>
         <div style={{ width: 34 }} />
       </div>
 
@@ -63,8 +66,8 @@ export default function AssessmentPage() {
         {phase === 'intro' && (
           <div className="assess-intro">
             <Capi mood="chill" size={104} />
-            <h1>מבדק סוף שנה</h1>
-            <p>כ-20 שאלות מכל המקצועות, בלי רמזים - כדי לראות מה כבר יודעים. אין לחץ, זה רק תמונת מצב. אפשר לעשות אותו מתי שרוצים.</p>
+            <h1>{title}</h1>
+            <p>כ-20 שאלות {kind === 'mid' ? 'על החומר מתחילת השנה' : 'מכל מקצועות השנה'}, בלי רמזים - כדי לראות מה כבר יודעים. אין לחץ, זו רק תמונת מצב.</p>
             <button className="cta" onClick={start}>מתחילים את המבדק</button>
           </div>
         )}
