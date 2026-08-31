@@ -4,35 +4,12 @@ import { Avatar } from '@/components/Avatar';
 import { Capi } from '@/components/Capi';
 import { BottomNav } from '@/components/BottomNav';
 import { CoinIcon, FlameIcon, StarIcon, LevelIcon, BADGE_ICON, STATION_ICON, SUBJECT_ICON } from '@/components/icons';
-import { getChildren, getChildStatus, type SubjectCard, type ChildStatus } from '@/lib/db';
+import { SubjectBars } from '@/components/SubjectBars';
+import { getChildren, getChildStatus, getSubjectBreakdown, type ChildStatus } from '@/lib/db';
 import { selectedChildId } from '@/lib/session';
 import { mili } from '@/lib/mockData';
 
 export const dynamic = 'force-dynamic';
-
-function tier(m: number) { return m >= 0.7 ? 'good' : m >= 0.4 ? 'mid' : 'low'; }
-
-function KnowledgeBars({ subjects }: { subjects: SubjectCard[] }) {
-  const sorted = [...subjects].sort((a, b) => b.accuracy - a.accuracy);
-  return (
-    <div className="kbars">
-      {sorted.map((s) => {
-        const Icon = SUBJECT_ICON[s.subject] ?? STATION_ICON[s.kind];
-        const pct = Math.round(s.accuracy * 100);
-        return (
-          <div key={s.subject} className="kbar-row">
-            <span className={`kbar-ico ico-${s.kind}`}><Icon /></span>
-            <span className="kbar-main">
-              <span className="kbar-name">{s.label}</span>
-              <span className="kbar-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.max(s.answered ? 5 : 0, pct)}%` }} /></span>
-            </span>
-            <span className="kbar-pct">{s.answered > 0 ? `${pct}%` : '-'}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 export default async function StatusPage() {
   const selectedId = selectedChildId();
@@ -41,7 +18,12 @@ export default async function StatusPage() {
     redirect('/profiles');
   }
   const child = children?.find((c) => c.id === selectedId) ?? children?.[0] ?? null;
-  const status: ChildStatus | null = child ? await getChildStatus(child.id, child.grade ?? 'grade_3') : null;
+  const [status, breakdown] = child
+    ? await Promise.all([
+        getChildStatus(child.id, child.grade ?? 'grade_3'),
+        getSubjectBreakdown(child.grade ?? 'grade_3', child.id),
+      ])
+    : [null as ChildStatus | null, null];
 
   const name = status?.name ?? child?.name ?? mili.display_name;
   const level = status?.level ?? 1;
@@ -50,7 +32,7 @@ export default async function StatusPage() {
   const coins = status?.coins ?? child?.coins ?? mili.quest_coins;
   const streak = status?.streak ?? child?.streak ?? mili.current_streak;
   const avatar = child?.avatar ?? mili.avatar_config;
-  const subjects = status?.subjects ?? [];
+  const subjectBars = breakdown ?? [];
   const strengths = status?.strengths ?? [];
   const toTrain = status?.toTrain ?? [];
   const badges = status?.badges ?? [];
@@ -83,11 +65,12 @@ export default async function StatusPage() {
           </div>
         </div>
 
-        {subjects.length > 0 && (
+        {subjectBars.length > 0 && (
           <section className="status-card">
             <div className="status-title">מפת הכוחות שלך</div>
-            {subjects.some((s) => s.answered > 0)
-              ? <KnowledgeBars subjects={subjects} />
+            <p className="status-hint">הקישי על מקצוע כדי לראות את תתי-הנושאים. נושא שעדיין לא תורגל לא נספר בציון.</p>
+            {subjectBars.some((s) => s.answered > 0)
+              ? <SubjectBars subjects={subjectBars} />
               : <p className="status-empty">עדיין אין נתונים · אחרי כמה תרגולים כאן תופיע רמת השליטה בכל מקצוע - באחוזים.</p>}
           </section>
         )}

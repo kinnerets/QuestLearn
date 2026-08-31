@@ -745,11 +745,12 @@ export async function getDailyLesson(grade = 'grade_3', childId?: string, round 
 
     // Interests nudge the mix toward subjects she loves; a parent "weekly focus"
     // nudges harder. Both can surface an enrichment subject into the journey.
-    const [interests, focus] = childId
-      ? await Promise.all([getChildInterests(childId), getParentFocus(childId)])
-      : [[], []];
+    const [interests, focus, focusTopicIds] = childId
+      ? await Promise.all([getChildInterests(childId), getParentFocus(childId), getParentFocusTopics(childId)])
+      : [[], [], []];
     const likedSubjects = subjectsForInterests(interests);
     const focusSubjects = new Set(focus);
+    const focusTopics = new Set(focusTopicIds); // specific sub-topics a parent asked to reinforce
     const boostSubjects = new Set<string>([...likedSubjects, ...focusSubjects]);
     const locked = boostSubjects.size ? await getLockedSubjects(sb) : new Set<string>();
     const boostOf = (subject: string) =>
@@ -791,7 +792,8 @@ export async function getDailyLesson(grade = 'grade_3', childId?: string, round 
         .map((t) => ({
           t,
           score: topicPriority(sigs.get(t.id), jitterFor(t.id), boostOf(t.subject))
-            - prereqPenalty(t, sigs, topicsBySubject),
+            - prereqPenalty(t, sigs, topicsBySubject)
+            + (focusTopics.has(t.id) ? 0.7 : 0), // parent reinforced this exact sub-topic
         }))
         .sort((a, b) => b.score - a.score)[0].t;
       const qs = qByTopic.get(topic.id)!;
@@ -1038,6 +1040,103 @@ export async function getSubjectTopics(
     return { label: SUBJECT_LABEL[subject] ?? subject, topics: cards };
   } catch {
     return null;
+  }
+}
+
+export interface SubTopicStat {
+  id: string; subTopic: string; accuracy: number; answered: number; solved: number; total: number;
+}
+export interface SubjectBreakdown {
+  subject: string; label: string; kind: StationKind;
+  accuracy: number;   // only over practised sub-topics (untrained ones don't count)
+  answered: number;
+  sub: SubTopicStat[];
+}
+
+/** Per-subject → per-sub-topic mastery for one child, in a single pass. Powers
+ *  the child's expandable status view and the parent's sub-topic reinforce view. */
+export async function getSubjectBreakdown(grade: string, childId: string): Promise<SubjectBreakdown[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { topics, qByTopic } = await fetchBank(sb, grade);
+    const { data: attempts } = await sb
+      .from('attempts_log').select('topic_id,question_id,is_correct').eq('user_id', childId);
+    const tally = new Map<string, { answered: number; correct: number; solved: Set<string> }>();
+    for (const a of attempts ?? []) {
+      const e = tally.get(a.topic_id as string) ?? { answered: 0, correct: 0, solved: new Set<string>() };
+      e.answered += 1;
+      if (a.is_correct) { e.correct += 1; e.solved.add(a.question_id as string); }
+      tally.set(a.topic_id as string, e);
+    }
+    const bySubject = new Map<string, TopicRow[]>();
+    for (const t of topics) {
+      if ((qByTopic.get(t.id)?.length ?? 0) === 0) continue;
+      const arr = bySubject.get(t.subject) ?? [];
+      arr.push(t);
+      bySubject.set(t.subject, arr);
+    }
+    const locked = await getLockedSubjects(sb);
+    const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography',
+      'future_skills', 'economics', 'fashion', 'politics', 'ai', 'philosophy'];
+    const out: SubjectBreakdown[] = [];
+    for (const subject of order) {
+      if (locked.has(subject)) continue;
+      const ts = bySubject.get(subject);
+      if (!ts) continue;
+      ts.sort((a, b) => Number(a.order_index ?? 0) - Number(b.order_index ?? 0));
+      const sub: SubTopicStat[] = ts.map((t) => {
+        const total = qByTopic.get(t.id)?.length ?? 0;
+        const e = tally.get(t.id);
+        const answered = e?.answered ?? 0;
+        const correct = e?.correct ?? 0;
+        return {
+          id: t.id, subTopic: t.sub_topic,
+          accuracy: answered ? Number((correct / answered).toFixed(2)) : 0,
+          answered, solved: e?.solved.size ?? 0, total,
+        };
+      });
+      const ans = sub.reduce((s, x) => s + x.answered, 0);
+      const cor = sub.reduce((s, x) => s + Math.round(x.accuracy * x.answered), 0);
+      out.push({
+        subject, label: SUBJECT_LABEL[subject] ?? subject,
+        kind: (SUBJECT_KIND[subject] ?? 'core') as StationKind,
+        accuracy: ans ? Number((cor / ans).toFixed(2)) : 0, answered: ans, sub,
+      });
+    }
+    return out;
+  } catch {
+    return null;
+  }
+}
+
+/** Topic ids a parent asked to reinforce for this child (defensive: [] if the
+ *  column isn't there yet). */
+export async function getParentFocusTopics(childId: string): Promise<string[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  try {
+    const { data, error } = await sb.from('users').select('parent_focus_topics').eq('id', childId).maybeSingle();
+    if (error || !data) return [];
+    const raw = (data as { parent_focus_topics?: unknown }).parent_focus_topics;
+    return Array.isArray(raw) ? raw.map((x) => String(x)) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Parent toggles reinforcement of one sub-topic. Returns false if unsupported. */
+export async function setParentFocusTopic(childId: string, topicId: string, on: boolean): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const current = await getParentFocusTopics(childId);
+    const set = new Set(current);
+    if (on) set.add(topicId); else set.delete(topicId);
+    const { error } = await sb.from('users').update({ parent_focus_topics: [...set].slice(0, 40) }).eq('id', childId);
+    return !error;
+  } catch {
+    return false;
   }
 }
 
