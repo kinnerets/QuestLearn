@@ -17,6 +17,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: false, reason: 'unauthorized' }, { status: 401 });
     }
   }
-  const result = await ensureGlobalBuffer(4);
+  // Fill up to 10 of the thinnest topics per night (each ~generate+verify). Keeps
+  // the growing catalogue filling within a few nights while staying in the budget.
+  const result = await ensureGlobalBuffer(10);
   return NextResponse.json({ ok: true, ...result });
 }
