@@ -9,6 +9,7 @@ import { TaskApprovalsPanel } from './TaskApprovalsPanel';
 import { FocusPanel } from './FocusPanel';
 import { SubtopicFocusPanel } from './SubtopicFocusPanel';
 import { CapiLogPanel } from './CapiLogPanel';
+import { AssessmentsPanel } from './AssessmentsPanel';
 import { RewardsPanel } from './RewardsPanel';
 import { SeedContentPanel } from './SeedContentPanel';
 import { FlagsPanel } from './FlagsPanel';
@@ -102,6 +103,8 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
         <TaskApprovalsPanel childId={shown?.id} childName={shown?.name} />
 
         <RedemptionsPanel childName={shown?.name} />
+
+        <AssessmentsPanel childId={shown?.id} />
 
         <CapiLogPanel childId={shown?.id} />
       </div>

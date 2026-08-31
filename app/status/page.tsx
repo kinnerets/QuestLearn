@@ -65,6 +65,14 @@ export default async function StatusPage() {
           </div>
         </div>
 
+        <Link href="/assessment" className="assess-cta-card">
+          <span className="assess-cta-txt">
+            <b>מבדק סוף שנה</b>
+            <small>20 שאלות מכל המקצועות - תמונת מצב, בלי לחץ</small>
+          </span>
+          <span className="place-banner-go">›</span>
+        </Link>
+
         {subjectBars.length > 0 && (
           <section className="status-card">
             <div className="status-title">מפת הכוחות שלך</div>

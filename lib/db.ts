@@ -1140,6 +1140,136 @@ export async function setParentFocusTopic(childId: string, topicId: string, on: 
   }
 }
 
+// ── End-of-year assessment (מבדק) ──────────────────────────────────────────
+export interface AssessmentQuestion {
+  id: string; subject: string; subjectLabel: string; tag: string; stem: string;
+  choices: { id: string; text: string }[];
+}
+export interface AssessmentSubjectScore { subject: string; label: string; correct: number; total: number }
+export interface AssessmentReport {
+  score: number; correct: number; total: number; subjects: AssessmentSubjectScore[];
+}
+
+/** The correct choice id for a bank row (mirrors buildStation for MC + true/false). */
+function correctChoiceOf(type: string, p: Record<string, unknown>): string {
+  if (type === 'true_false') {
+    const yes = p.answer === true || p.answer === 'true' || p.correct_choice_id === 't';
+    return yes ? 't' : 'f';
+  }
+  return String(p.correct_choice_id ?? '');
+}
+
+/** Sample a spread of graded questions across the grade's subjects for a test.
+ *  Multiple-choice + true/false only; no hints/answers are exposed to the client. */
+export async function getAssessmentQuestions(grade: string, count = 20): Promise<AssessmentQuestion[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { topics, qByTopic } = await fetchBank(sb, grade);
+    const bySubject = new Map<string, { subject: string; q: QRow }[]>();
+    for (const t of topics) {
+      if (t.subject === LEADERSHIP_SUBJECT) continue;
+      for (const q of qByTopic.get(t.id) ?? []) {
+        if (q.type !== 'multiple_choice' && q.type !== 'true_false') continue;
+        const arr = bySubject.get(t.subject) ?? [];
+        arr.push({ subject: t.subject, q });
+        bySubject.set(t.subject, arr);
+      }
+    }
+    const subjects = [...bySubject.keys()];
+    if (!subjects.length) return [];
+    for (const arr of bySubject.values()) shuffle(arr);
+    // Round-robin across subjects for a balanced spread.
+    const picked: { subject: string; q: QRow }[] = [];
+    let added = true;
+    while (picked.length < count && added) {
+      added = false;
+      for (const s of subjects) {
+        const arr = bySubject.get(s)!;
+        if (arr.length) { picked.push(arr.pop()!); added = true; if (picked.length >= count) break; }
+      }
+    }
+    return picked.map(({ subject, q }) => {
+      const p = q.payload;
+      const choices = q.type === 'true_false'
+        ? [{ id: 't', text: 'נכון' }, { id: 'f', text: 'לא נכון' }]
+        : shuffle(((p.choices as { id: string; text: string }[]) ?? []).map((c) => ({ id: c.id, text: c.text })));
+      return {
+        id: q.id, subject, subjectLabel: SUBJECT_LABEL[subject] ?? subject,
+        tag: String(p.tag ?? ''), stem: String(p.stem ?? ''), choices,
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+/** Grade a submitted assessment server-side (never trust the client) and save it. */
+export async function gradeAndSaveAssessment(
+  childId: string, grade: string, answers: { questionId: string; choiceId: string }[],
+): Promise<AssessmentReport | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const ids = answers.map((a) => a.questionId);
+    if (!ids.length) return null;
+    const { data: rows } = await sb.from('questions_bank').select('id,type,topic_id,payload').in('id', ids);
+    const byId = new Map((rows ?? []).map((r) => [r.id as string, r]));
+    const topicIds = [...new Set((rows ?? []).map((r) => r.topic_id as string))];
+    const { data: tps } = await sb.from('curriculum_topics').select('id,subject').in('id', topicIds);
+    const subjOf = new Map((tps ?? []).map((t) => [t.id as string, t.subject as string]));
+
+    const tally = new Map<string, { correct: number; total: number }>();
+    let correct = 0;
+    for (const a of answers) {
+      const row = byId.get(a.questionId);
+      if (!row) continue;
+      const subject = subjOf.get(row.topic_id as string) ?? 'other';
+      const e = tally.get(subject) ?? { correct: 0, total: 0 };
+      e.total += 1;
+      if (a.choiceId === correctChoiceOf(String(row.type), row.payload as Record<string, unknown>)) {
+        e.correct += 1; correct += 1;
+      }
+      tally.set(subject, e);
+    }
+    const total = answers.length;
+    const subjects: AssessmentSubjectScore[] = [...tally.entries()]
+      .map(([subject, e]) => ({ subject, label: SUBJECT_LABEL[subject] ?? subject, correct: e.correct, total: e.total }))
+      .sort((a, b) => b.total - a.total);
+    const score = total ? Math.round((correct / total) * 100) : 0;
+
+    // Best-effort save (needs the assessments table).
+    try {
+      await sb.from('assessments').insert({ child_id: childId, grade, score, correct, total, subjects });
+    } catch { /* table may not exist yet */ }
+
+    return { score, correct, total, subjects };
+  } catch {
+    return null;
+  }
+}
+
+export interface AssessmentRecord { id: string; grade: string; score: number; correct: number; total: number; when: string; subjects: AssessmentSubjectScore[] }
+
+/** Past assessments for a child (parent view). [] if the table isn't there yet. */
+export async function getAssessments(childId: string, limit = 10): Promise<AssessmentRecord[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  try {
+    const { data, error } = await sb.from('assessments')
+      .select('id,grade,score,correct,total,subjects,created_at')
+      .eq('child_id', childId).order('created_at', { ascending: false }).limit(limit);
+    if (error || !data) return [];
+    return data.map((r) => ({
+      id: r.id as string, grade: r.grade as string, score: r.score as number,
+      correct: r.correct as number, total: r.total as number, when: r.created_at as string,
+      subjects: Array.isArray(r.subjects) ? (r.subjects as AssessmentSubjectScore[]) : [],
+    }));
+  } catch {
+    return [];
+  }
+}
+
 /** Subjects the child has practised today - for the home "completed" marks. */
 export async function getTodaySubjects(childId: string): Promise<string[]> {
   const sb = getSupabase();
