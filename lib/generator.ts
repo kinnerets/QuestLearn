@@ -278,6 +278,26 @@ export async function ensureBufferForSubject(childId: string, grade: string, sub
 // an automatic top-up. Kept modest so the whole catalogue stays cheap to keep full.
 const HEALTHY_BANK = 12;
 
+/** How many topics still have fewer than a healthy bank of questions. Lets the
+ *  parent's "fill content" tool show progress and know when it's done. */
+export async function thinTopicCount(): Promise<number> {
+  const sb = getSupabase();
+  if (!sb) return 0;
+  try {
+    const { data: topics } = await sb.from('curriculum_topics').select('id,subject');
+    if (!topics?.length) return 0;
+    const { data: qs } = await sb.from('questions_bank').select('topic_id');
+    const count = new Map<string, number>();
+    for (const q of qs ?? []) {
+      const id = q.topic_id as string;
+      count.set(id, (count.get(id) ?? 0) + 1);
+    }
+    return topics.filter((t) => t.subject !== 'leadership' && (count.get(t.id as string) ?? 0) < HEALTHY_BANK).length;
+  } catch {
+    return 0;
+  }
+}
+
 export interface GlobalRefillResult { scanned: number; filledTopics: number; inserted: number }
 
 /**

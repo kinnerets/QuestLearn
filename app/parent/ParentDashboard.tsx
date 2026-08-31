@@ -10,6 +10,7 @@ import { FocusPanel } from './FocusPanel';
 import { SubtopicFocusPanel } from './SubtopicFocusPanel';
 import { CapiLogPanel } from './CapiLogPanel';
 import { RewardsPanel } from './RewardsPanel';
+import { SeedContentPanel } from './SeedContentPanel';
 import { FlagsPanel } from './FlagsPanel';
 import { RedemptionsPanel } from './RedemptionsPanel';
 import { LocksPanel } from './LocksPanel';
@@ -74,6 +75,7 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
         <RewardsPanel />
         <LocksPanel />
         <FlagsPanel />
+        <SeedContentPanel />
 
         {/* ── Per-child area: the tabs switch only this part ── */}
         <div className="parent-section-label per-kid">אישי - לכל בת</div>
