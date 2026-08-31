@@ -11,7 +11,7 @@ const STARTERS = ['ספר לי עובדה מגניבה', 'איך זוכרים א
 
 export default function CapiChatPage() {
   const [msgs, setMsgs] = useState<Msg[]>([
-    { role: 'assistant', text: 'היי! אני קפי. אפשר לשאול אותי כל דבר שמסקרן אותך — או לבקש עזרה בלימודים. על מה בא לך לדבר?' },
+    { role: 'assistant', text: 'היי! אני קפי. אפשר לשאול אותי כל דבר שמסקרן אותך - או לבקש עזרה בלימודים. על מה בא לך לדבר?' },
   ]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -34,7 +34,7 @@ export default function CapiChatPage() {
       const j = await r.json();
       setMsgs((m) => [...m, { role: 'assistant', text: j?.reply ?? 'ננסה שוב עוד רגע?' }]);
     } catch {
-      setMsgs((m) => [...m, { role: 'assistant', text: 'משהו השתבש — ננסה שוב עוד רגע?' }]);
+      setMsgs((m) => [...m, { role: 'assistant', text: 'משהו השתבש - ננסה שוב עוד רגע?' }]);
     }
     setBusy(false);
   }

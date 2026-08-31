@@ -52,7 +52,7 @@ export default function InterestsPage() {
       <div className="screen-body interests">
         <div className="interests-head">
           <Capi mood="cheer" size={78} />
-          <p>בחרי כמה דברים שאת אוהבת — ונתאים לך יותר תרגולים בכיוון!</p>
+          <p>בחרי כמה דברים שאת אוהבת - ונתאים לך יותר תרגולים בכיוון!</p>
         </div>
 
         <div className="interest-grid">

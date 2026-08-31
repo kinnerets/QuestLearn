@@ -26,7 +26,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('b0000001-0000-4000-8000-000000000002','multiple_choice',2,'curated','auto_passed',
    '{"tag":"סוכות","stem":"איזה פרי הוא אחד מארבעת המינים?","hints":["ריחני וצהוב","לא לימון"],"explanation":"האתרוג הוא אחד מארבעת המינים (יחד עם לולב, הדס וערבה).","choices":[{"id":"a","text":"אתרוג"},{"id":"b","text":"תפוז"},{"id":"c","text":"אגס"},{"id":"d","text":"ענב"}],"correct_choice_id":"a","coins":11}'::jsonb),
   ('b0000001-0000-4000-8000-000000000002','multiple_choice',2,'curated','auto_passed',
-   '{"tag":"סוכות","stem":"ממה עשוי ה''סכך'' שמכסה את הסוכה?","hints":["מהצומח","ענפים ועלים"],"explanation":"הסכך עשוי מצמחייה — ענפים ועלים.","choices":[{"id":"a","text":"ענפים ועלים"},{"id":"b","text":"מתכת"},{"id":"c","text":"זכוכית"},{"id":"d","text":"פלסטיק"}],"correct_choice_id":"a","coins":11}'::jsonb),
+   '{"tag":"סוכות","stem":"ממה עשוי ה''סכך'' שמכסה את הסוכה?","hints":["מהצומח","ענפים ועלים"],"explanation":"הסכך עשוי מצמחייה - ענפים ועלים.","choices":[{"id":"a","text":"ענפים ועלים"},{"id":"b","text":"מתכת"},{"id":"c","text":"זכוכית"},{"id":"d","text":"פלסטיק"}],"correct_choice_id":"a","coins":11}'::jsonb),
   -- חנוכה
   ('b0000001-0000-4000-8000-000000000003','multiple_choice',1,'curated','auto_passed',
    '{"tag":"חנוכה","stem":"כמה נרות מדליקים בלילה האחרון של חנוכה (בלי השמש)?","hints":["חנוכה נמשך 8 ימים","מספר הימים"],"explanation":"בלילה השמיני מדליקים 8 נרות (ועוד השמש).","choices":[{"id":"a","text":"שמונה"},{"id":"b","text":"שבעה"},{"id":"c","text":"שישה"},{"id":"d","text":"עשרה"}],"correct_choice_id":"a","coins":10}'::jsonb),
@@ -45,9 +45,9 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('b0000001-0000-4000-8000-000000000005','multiple_choice',1,'curated','auto_passed',
    '{"tag":"פורים","stem":"איזו מגילה קוראים בפורים?","hints":["שם של מלכה","מתחיל ב‑א"],"explanation":"בפורים קוראים את מגילת אסתר.","choices":[{"id":"a","text":"מגילת אסתר"},{"id":"b","text":"מגילת רות"},{"id":"c","text":"מגילת יונה"},{"id":"d","text":"מגילת דוד"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('b0000001-0000-4000-8000-000000000005','multiple_choice',1,'curated','auto_passed',
-   '{"tag":"פורים","stem":"איזו עוגייה משולשת אוכלים בפורים?","hints":["על שם דמות מהמגילה","צורת משולש"],"explanation":"אוכלים אוזני המן — עוגייה משולשת.","choices":[{"id":"a","text":"אוזני המן"},{"id":"b","text":"סופגנייה"},{"id":"c","text":"מצה"},{"id":"d","text":"בייגלה"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"פורים","stem":"איזו עוגייה משולשת אוכלים בפורים?","hints":["על שם דמות מהמגילה","צורת משולש"],"explanation":"אוכלים אוזני המן - עוגייה משולשת.","choices":[{"id":"a","text":"אוזני המן"},{"id":"b","text":"סופגנייה"},{"id":"c","text":"מצה"},{"id":"d","text":"בייגלה"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('b0000001-0000-4000-8000-000000000005','multiple_choice',2,'curated','auto_passed',
-   '{"tag":"פורים","stem":"מה נהוג לשלוח לחברים בפורים?","hints":["חבילה עם ממתקים ומאכלים","שתי מנות לפחות"],"explanation":"נהוג לשלוח משלוח מנות — מאכלים לחברים.","choices":[{"id":"a","text":"משלוח מנות"},{"id":"b","text":"שיעורי בית"},{"id":"c","text":"אבנים"},{"id":"d","text":"בגדים ישנים"}],"correct_choice_id":"a","coins":11}'::jsonb),
+   '{"tag":"פורים","stem":"מה נהוג לשלוח לחברים בפורים?","hints":["חבילה עם ממתקים ומאכלים","שתי מנות לפחות"],"explanation":"נהוג לשלוח משלוח מנות - מאכלים לחברים.","choices":[{"id":"a","text":"משלוח מנות"},{"id":"b","text":"שיעורי בית"},{"id":"c","text":"אבנים"},{"id":"d","text":"בגדים ישנים"}],"correct_choice_id":"a","coins":11}'::jsonb),
   -- פסח
   ('b0000001-0000-4000-8000-000000000006','multiple_choice',1,'curated','auto_passed',
    '{"tag":"פסח","stem":"מה אוכלים בפסח במקום לחם?","hints":["דק ופריך","לא תפח"],"explanation":"בפסח אוכלים מצה במקום לחם.","choices":[{"id":"a","text":"מצה"},{"id":"b","text":"פיתה"},{"id":"c","text":"לחמנייה"},{"id":"d","text":"בורקס"}],"correct_choice_id":"a","coins":10}'::jsonb),

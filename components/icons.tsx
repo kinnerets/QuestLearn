@@ -49,7 +49,7 @@ export const SpeakerIcon = () => (
   </Svg>
 );
 
-// ── Achievement-badge glyphs (monochrome — the badge circle colors them). ──
+// ── Achievement-badge glyphs (monochrome - the badge circle colors them). ──
 export const FlagIcon = () => (
   <Svg><path d="M6 21V4" /><path d="M6 4.5h11l-2.3 3.3L17 11H6" /></Svg>
 );

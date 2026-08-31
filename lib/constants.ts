@@ -23,10 +23,10 @@ export const SUBJECT_LABEL: Record<string, string> = {
   leadership: 'מנהיגות',
 };
 
-/** Enrichment subjects a parent may want to gate (sensitive) — locked by default. */
+/** Enrichment subjects a parent may want to gate (sensitive) - locked by default. */
 export const SENSITIVE_SUBJECTS = new Set(['politics', 'ai']);
 
-/** Interests a child can pick — used to bias the daily mix toward what she loves. */
+/** Interests a child can pick - used to bias the daily mix toward what she loves. */
 export const INTERESTS: { id: string; label: string }[] = [
   { id: 'animals', label: 'בעלי חיים' },
   { id: 'space', label: 'חלל וכוכבים' },

@@ -36,7 +36,7 @@ export function CapiLogPanel({ childId }: { childId?: string }) {
       {flaggedCount > 0 && (
         <div className="capi-alert">
           <FlagIcon />
-          {flaggedCount === 1 ? 'שאלה אחת נראתה כמו שיעורי בית' : `${flaggedCount} שאלות נראו כמו שיעורי בית`} — מסומנות למטה
+          {flaggedCount === 1 ? 'שאלה אחת נראתה כמו שיעורי בית' : `${flaggedCount} שאלות נראו כמו שיעורי בית`} - מסומנות למטה
         </div>
       )}
       <div className="capi-log">

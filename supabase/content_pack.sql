@@ -6,7 +6,7 @@
 -- ══════════════════════════════════════════════════════════════════════
 
 -- 1. The table had a CHECK that only allowed the original subjects, so
---    'seasonal'/'economics'/… were rejected. Drop it — the app owns the list.
+--    'seasonal'/'economics'/… were rejected. Drop it - the app owns the list.
 alter table curriculum_topics drop constraint if exists curriculum_topics_subject_check;
 
 -- 2. Column used to lock sensitive subjects from the child's map.
@@ -44,7 +44,7 @@ insert into curriculum_topics (id, grade, subject, sub_topic, order_index, arabi
   ('d1000000-0000-4000-8000-000000000005','grade_3','english','צבעים ומספרים',2,null),
   ('d1000000-0000-4000-8000-000000000006','grade_3','bible','נוח והמבול',2,null),
   ('d1000000-0000-4000-8000-000000000007','grade_3','geography','מפה וכיוונים',2,null),
-  ('d1000000-0000-4000-8000-000000000008','grade_3','arabic','מספרים 1–10',2,null),
+  ('d1000000-0000-4000-8000-000000000008','grade_3','arabic','מספרים 1-10',2,null),
   ('d2000000-0000-4000-8000-000000000001','grade_5','math','אחוזים ועשרוני',2,null),
   ('d2000000-0000-4000-8000-000000000002','grade_5','geometry','זוויות ומשולשים',2,null),
   ('d2000000-0000-4000-8000-000000000003','grade_5','hebrew','שורש ומשפחת מילים',2,null),
@@ -116,14 +116,14 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('c4c4c4c4-0000-0000-0000-000000000001','multiple_choice',2,'curated','auto_passed',
    '{"tag":"בינה מלאכותית","stem":"מה זה בינה מלאכותית (AI)?","hints":["מחשב שלומד","תוכנה שיכולה ללמוד ולעזור"],"explanation":"בינה מלאכותית היא תוכנה שיכולה ללמוד מדוגמאות ולבצע משימות כמו לזהות תמונות או לענות על שאלות.","choices":[{"id":"a","text":"תוכנה שיכולה ללמוד ולבצע משימות"},{"id":"b","text":"רובוט מברזל בלבד"},{"id":"c","text":"סוג של טלפון"},{"id":"d","text":"משחק מחשב"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('c4c4c4c4-0000-0000-0000-000000000001','multiple_choice',3,'curated','auto_passed',
-   '{"tag":"בינה מלאכותית","stem":"האם כדאי להאמין לכל מה ש‑AI אומר?","hints":["גם AI טועה","כדאי לבדוק"],"explanation":"AI יכול לטעות, ולכן חשוב לבדוק מידע חשוב במקורות נוספים.","choices":[{"id":"a","text":"לא — כדאי לבדוק, כי גם AI טועה לפעמים"},{"id":"b","text":"כן, תמיד צודק"},{"id":"c","text":"רק בלילה"},{"id":"d","text":"רק אם הוא ורוד"}],"correct_choice_id":"a","coins":13}'::jsonb),
+   '{"tag":"בינה מלאכותית","stem":"האם כדאי להאמין לכל מה ש‑AI אומר?","hints":["גם AI טועה","כדאי לבדוק"],"explanation":"AI יכול לטעות, ולכן חשוב לבדוק מידע חשוב במקורות נוספים.","choices":[{"id":"a","text":"לא - כדאי לבדוק, כי גם AI טועה לפעמים"},{"id":"b","text":"כן, תמיד צודק"},{"id":"c","text":"רק בלילה"},{"id":"d","text":"רק אם הוא ורוד"}],"correct_choice_id":"a","coins":13}'::jsonb),
   ('c4c4c4c4-0000-0000-0000-000000000001','multiple_choice',3,'curated','auto_passed',
-   '{"tag":"בינה מלאכותית","stem":"מה עוזר ל‑AI ''ללמוד''?","hints":["הרבה דוגמאות","נתונים"],"explanation":"AI לומד מהרבה דוגמאות (נתונים) — כך הוא משתפר במשימה.","choices":[{"id":"a","text":"הרבה דוגמאות ונתונים"},{"id":"b","text":"שינה טובה"},{"id":"c","text":"אוכל בריא"},{"id":"d","text":"מזג אוויר חם"}],"correct_choice_id":"a","coins":13}'::jsonb),
+   '{"tag":"בינה מלאכותית","stem":"מה עוזר ל‑AI ''ללמוד''?","hints":["הרבה דוגמאות","נתונים"],"explanation":"AI לומד מהרבה דוגמאות (נתונים) - כך הוא משתפר במשימה.","choices":[{"id":"a","text":"הרבה דוגמאות ונתונים"},{"id":"b","text":"שינה טובה"},{"id":"c","text":"אוכל בריא"},{"id":"d","text":"מזג אוויר חם"}],"correct_choice_id":"a","coins":13}'::jsonb),
   -- Philosophy
   ('c5c5c5c5-0000-0000-0000-000000000001','multiple_choice',2,'curated','auto_passed',
-   '{"tag":"פילוסופיה","stem":"מה עושה שאלה ל''שאלה פילוסופית''?","hints":["אין תשובה אחת נכונה","חושבים ומתווכחים עליה"],"explanation":"שאלה פילוסופית היא שאלה גדולה שאין לה תשובה אחת ודאית — חושבים ומתווכחים עליה.","choices":[{"id":"a","text":"שאלה גדולה שאין לה תשובה אחת ודאית"},{"id":"b","text":"שאלה במתמטיקה"},{"id":"c","text":"שאלה על מזג האוויר"},{"id":"d","text":"שאלה עם תשובה אחת ברורה"}],"correct_choice_id":"a","coins":12}'::jsonb),
+   '{"tag":"פילוסופיה","stem":"מה עושה שאלה ל''שאלה פילוסופית''?","hints":["אין תשובה אחת נכונה","חושבים ומתווכחים עליה"],"explanation":"שאלה פילוסופית היא שאלה גדולה שאין לה תשובה אחת ודאית - חושבים ומתווכחים עליה.","choices":[{"id":"a","text":"שאלה גדולה שאין לה תשובה אחת ודאית"},{"id":"b","text":"שאלה במתמטיקה"},{"id":"c","text":"שאלה על מזג האוויר"},{"id":"d","text":"שאלה עם תשובה אחת ברורה"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('c5c5c5c5-0000-0000-0000-000000000001','multiple_choice',3,'curated','auto_passed',
-   '{"tag":"פילוסופיה","stem":"''עדיף להיות צודק או להיות טוב לב?'' איזו מין שאלה זו?","hints":["אפשר להתווכח","אין תשובה אחת נכונה"],"explanation":"זו שאלה פילוסופית — אין תשובה אחת נכונה, ואפשר לחשוב ולהתווכח עליה.","choices":[{"id":"a","text":"שאלה פילוסופית לחשיבה"},{"id":"b","text":"תרגיל בחשבון"},{"id":"c","text":"שאלה בגאוגרפיה"},{"id":"d","text":"שאלה בדקדוק"}],"correct_choice_id":"a","coins":13}'::jsonb),
+   '{"tag":"פילוסופיה","stem":"''עדיף להיות צודק או להיות טוב לב?'' איזו מין שאלה זו?","hints":["אפשר להתווכח","אין תשובה אחת נכונה"],"explanation":"זו שאלה פילוסופית - אין תשובה אחת נכונה, ואפשר לחשוב ולהתווכח עליה.","choices":[{"id":"a","text":"שאלה פילוסופית לחשיבה"},{"id":"b","text":"תרגיל בחשבון"},{"id":"c","text":"שאלה בגאוגרפיה"},{"id":"d","text":"שאלה בדקדוק"}],"correct_choice_id":"a","coins":13}'::jsonb),
   ('c5c5c5c5-0000-0000-0000-000000000001','multiple_choice',2,'curated','auto_passed',
    '{"tag":"פילוסופיה","stem":"מה זה ''טיעון''?","hints":["הסבר למה חושבים משהו","סיבה לדעה"],"explanation":"טיעון הוא הסבר או סיבה שנותנים כדי לתמוך בדעה.","choices":[{"id":"a","text":"סיבה או הסבר שתומכים בדעה"},{"id":"b","text":"סוג של ריב"},{"id":"c","text":"שם של משחק"},{"id":"d","text":"מספר"}],"correct_choice_id":"a","coins":12}'::jsonb);
 
@@ -141,7 +141,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('b0000001-0000-4000-8000-000000000002','multiple_choice',2,'curated','auto_passed',
    '{"tag":"סוכות","stem":"איזה פרי הוא אחד מארבעת המינים?","hints":["ריחני וצהוב","לא לימון"],"explanation":"האתרוג הוא אחד מארבעת המינים (יחד עם לולב, הדס וערבה).","choices":[{"id":"a","text":"אתרוג"},{"id":"b","text":"תפוז"},{"id":"c","text":"אגס"},{"id":"d","text":"ענב"}],"correct_choice_id":"a","coins":11}'::jsonb),
   ('b0000001-0000-4000-8000-000000000002','multiple_choice',2,'curated','auto_passed',
-   '{"tag":"סוכות","stem":"ממה עשוי ה''סכך'' שמכסה את הסוכה?","hints":["מהצומח","ענפים ועלים"],"explanation":"הסכך עשוי מצמחייה — ענפים ועלים.","choices":[{"id":"a","text":"ענפים ועלים"},{"id":"b","text":"מתכת"},{"id":"c","text":"זכוכית"},{"id":"d","text":"פלסטיק"}],"correct_choice_id":"a","coins":11}'::jsonb),
+   '{"tag":"סוכות","stem":"ממה עשוי ה''סכך'' שמכסה את הסוכה?","hints":["מהצומח","ענפים ועלים"],"explanation":"הסכך עשוי מצמחייה - ענפים ועלים.","choices":[{"id":"a","text":"ענפים ועלים"},{"id":"b","text":"מתכת"},{"id":"c","text":"זכוכית"},{"id":"d","text":"פלסטיק"}],"correct_choice_id":"a","coins":11}'::jsonb),
   -- חנוכה
   ('b0000001-0000-4000-8000-000000000003','multiple_choice',1,'curated','auto_passed',
    '{"tag":"חנוכה","stem":"כמה נרות מדליקים בלילה האחרון של חנוכה (בלי השמש)?","hints":["חנוכה נמשך 8 ימים","מספר הימים"],"explanation":"בלילה השמיני מדליקים 8 נרות (ועוד השמש).","choices":[{"id":"a","text":"שמונה"},{"id":"b","text":"שבעה"},{"id":"c","text":"שישה"},{"id":"d","text":"עשרה"}],"correct_choice_id":"a","coins":10}'::jsonb),
@@ -160,9 +160,9 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('b0000001-0000-4000-8000-000000000005','multiple_choice',1,'curated','auto_passed',
    '{"tag":"פורים","stem":"איזו מגילה קוראים בפורים?","hints":["שם של מלכה","מתחיל ב‑א"],"explanation":"בפורים קוראים את מגילת אסתר.","choices":[{"id":"a","text":"מגילת אסתר"},{"id":"b","text":"מגילת רות"},{"id":"c","text":"מגילת יונה"},{"id":"d","text":"מגילת דוד"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('b0000001-0000-4000-8000-000000000005','multiple_choice',1,'curated','auto_passed',
-   '{"tag":"פורים","stem":"איזו עוגייה משולשת אוכלים בפורים?","hints":["על שם דמות מהמגילה","צורת משולש"],"explanation":"אוכלים אוזני המן — עוגייה משולשת.","choices":[{"id":"a","text":"אוזני המן"},{"id":"b","text":"סופגנייה"},{"id":"c","text":"מצה"},{"id":"d","text":"בייגלה"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"פורים","stem":"איזו עוגייה משולשת אוכלים בפורים?","hints":["על שם דמות מהמגילה","צורת משולש"],"explanation":"אוכלים אוזני המן - עוגייה משולשת.","choices":[{"id":"a","text":"אוזני המן"},{"id":"b","text":"סופגנייה"},{"id":"c","text":"מצה"},{"id":"d","text":"בייגלה"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('b0000001-0000-4000-8000-000000000005','multiple_choice',2,'curated','auto_passed',
-   '{"tag":"פורים","stem":"מה נהוג לשלוח לחברים בפורים?","hints":["חבילה עם ממתקים ומאכלים","שתי מנות לפחות"],"explanation":"נהוג לשלוח משלוח מנות — מאכלים לחברים.","choices":[{"id":"a","text":"משלוח מנות"},{"id":"b","text":"שיעורי בית"},{"id":"c","text":"אבנים"},{"id":"d","text":"בגדים ישנים"}],"correct_choice_id":"a","coins":11}'::jsonb),
+   '{"tag":"פורים","stem":"מה נהוג לשלוח לחברים בפורים?","hints":["חבילה עם ממתקים ומאכלים","שתי מנות לפחות"],"explanation":"נהוג לשלוח משלוח מנות - מאכלים לחברים.","choices":[{"id":"a","text":"משלוח מנות"},{"id":"b","text":"שיעורי בית"},{"id":"c","text":"אבנים"},{"id":"d","text":"בגדים ישנים"}],"correct_choice_id":"a","coins":11}'::jsonb),
   -- פסח
   ('b0000001-0000-4000-8000-000000000006','multiple_choice',1,'curated','auto_passed',
    '{"tag":"פסח","stem":"מה אוכלים בפסח במקום לחם?","hints":["דק ופריך","לא תפח"],"explanation":"בפסח אוכלים מצה במקום לחם.","choices":[{"id":"a","text":"מצה"},{"id":"b","text":"פיתה"},{"id":"c","text":"לחמנייה"},{"id":"d","text":"בורקס"}],"correct_choice_id":"a","coins":10}'::jsonb),
@@ -226,21 +226,21 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('d1000000-0000-4000-8000-000000000006','multiple_choice',1,'curated','auto_passed',
    '{"tag": "נוח", "stem": "מה בנה נוח לפי הסיפור?", "hints": ["כלי שט גדול", "בשביל החיות"], "explanation": "נוח בנה תיבה.", "choices": [{"id": "a", "text": "תיבה"}, {"id": "b", "text": "מגדל"}, {"id": "c", "text": "גשר"}, {"id": "d", "text": "ארמון"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
   ('d1000000-0000-4000-8000-000000000006','multiple_choice',1,'curated','auto_passed',
-   '{"tag": "נוח", "stem": "כמה מכל מין בעלי חיים נכנסו לתיבה (זכר ונקבה)?", "hints": ["זוג", "זכר ונקבה"], "explanation": "מכל מין נכנסו שניים — זכר ונקבה.", "choices": [{"id": "a", "text": "שניים"}, {"id": "b", "text": "אחד"}, {"id": "c", "text": "עשרה"}, {"id": "d", "text": "שבעה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
+   '{"tag": "נוח", "stem": "כמה מכל מין בעלי חיים נכנסו לתיבה (זכר ונקבה)?", "hints": ["זוג", "זכר ונקבה"], "explanation": "מכל מין נכנסו שניים - זכר ונקבה.", "choices": [{"id": "a", "text": "שניים"}, {"id": "b", "text": "אחד"}, {"id": "c", "text": "עשרה"}, {"id": "d", "text": "שבעה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
   ('d1000000-0000-4000-8000-000000000006','multiple_choice',2,'curated','auto_passed',
    '{"tag": "נוח", "stem": "איזו ציפור שלח נוח לבדוק אם ירדו המים?", "hints": ["מביאה עלה זית", "ציפור שלום"], "explanation": "נוח שלח יונה, שחזרה עם עלה זית.", "choices": [{"id": "a", "text": "יונה"}, {"id": "b", "text": "נשר"}, {"id": "c", "text": "תרנגול"}, {"id": "d", "text": "ברווז"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
   ('d1000000-0000-4000-8000-000000000007','multiple_choice',1,'curated','auto_passed',
    '{"tag": "כיוונים", "stem": "מאיזה כיוון זורחת השמש?", "hints": ["שם מתחיל היום", "ההפך ממערב"], "explanation": "השמש זורחת במזרח.", "choices": [{"id": "a", "text": "מזרח"}, {"id": "b", "text": "מערב"}, {"id": "c", "text": "צפון"}, {"id": "d", "text": "דרום"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
   ('d1000000-0000-4000-8000-000000000007','multiple_choice',2,'curated','auto_passed',
-   '{"tag": "מפה", "stem": "מה מראה צבע כחול ברוב המפות?", "hints": ["שם יש מים", "ים ואגמים"], "explanation": "כחול במפה מסמן מים — ים, נהר ואגם.", "choices": [{"id": "a", "text": "מים"}, {"id": "b", "text": "הרים"}, {"id": "c", "text": "ערים"}, {"id": "d", "text": "יערות"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
+   '{"tag": "מפה", "stem": "מה מראה צבע כחול ברוב המפות?", "hints": ["שם יש מים", "ים ואגמים"], "explanation": "כחול במפה מסמן מים - ים, נהר ואגם.", "choices": [{"id": "a", "text": "מים"}, {"id": "b", "text": "הרים"}, {"id": "c", "text": "ערים"}, {"id": "d", "text": "יערות"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
   ('d1000000-0000-4000-8000-000000000007','multiple_choice',2,'curated','auto_passed',
    '{"tag": "כיוונים", "stem": "איזה כלי עוזר למצוא כיוון (צפון)?", "hints": ["מחט שמצביעה", "לא שעון"], "explanation": "מצפן מראה את הכיוונים.", "choices": [{"id": "a", "text": "מצפן"}, {"id": "b", "text": "סרגל"}, {"id": "c", "text": "משקל"}, {"id": "d", "text": "שעון חול"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
   ('d1000000-0000-4000-8000-000000000008','multiple_choice',1,'curated','auto_passed',
-   '{"tag": "מספרים", "stem": "איך אומרים ״אחד״ בערבית מדוברת?", "hints": ["המספר הראשון", "מתחיל ב־וו"], "explanation": "״אחד״ בערבית — וַאחֶד.", "choices": [{"id": "a", "text": "וַאחֶד"}, {"id": "b", "text": "תְנֵין"}, {"id": "c", "text": "תַלַאתֶה"}, {"id": "d", "text": "עַשַרַה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
+   '{"tag": "מספרים", "stem": "איך אומרים ״אחד״ בערבית מדוברת?", "hints": ["המספר הראשון", "מתחיל ב־וו"], "explanation": "״אחד״ בערבית - וַאחֶד.", "choices": [{"id": "a", "text": "וַאחֶד"}, {"id": "b", "text": "תְנֵין"}, {"id": "c", "text": "תַלַאתֶה"}, {"id": "d", "text": "עַשַרַה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
   ('d1000000-0000-4000-8000-000000000008','multiple_choice',1,'curated','auto_passed',
-   '{"tag": "מספרים", "stem": "איך אומרים ״שתיים״ בערבית מדוברת?", "hints": ["אחרי וַאחֶד", "מתחיל ב־ת"], "explanation": "״שתיים״ בערבית — תְנֵין.", "choices": [{"id": "a", "text": "תְנֵין"}, {"id": "b", "text": "וַאחֶד"}, {"id": "c", "text": "אַרְבַּעַה"}, {"id": "d", "text": "חַמְסֶה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
+   '{"tag": "מספרים", "stem": "איך אומרים ״שתיים״ בערבית מדוברת?", "hints": ["אחרי וַאחֶד", "מתחיל ב־ת"], "explanation": "״שתיים״ בערבית - תְנֵין.", "choices": [{"id": "a", "text": "תְנֵין"}, {"id": "b", "text": "וַאחֶד"}, {"id": "c", "text": "אַרְבַּעַה"}, {"id": "d", "text": "חַמְסֶה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
   ('d1000000-0000-4000-8000-000000000008','multiple_choice',2,'curated','auto_passed',
-   '{"tag": "מספרים", "stem": "איך אומרים ״שלוש״ בערבית מדוברת?", "hints": ["אחרי תְנֵין", "מתחיל ב־ת"], "explanation": "״שלוש״ בערבית — תַלַאתֶה.", "choices": [{"id": "a", "text": "תַלַאתֶה"}, {"id": "b", "text": "תְנֵין"}, {"id": "c", "text": "סַבְעַה"}, {"id": "d", "text": "עַשַרַה"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
+   '{"tag": "מספרים", "stem": "איך אומרים ״שלוש״ בערבית מדוברת?", "hints": ["אחרי תְנֵין", "מתחיל ב־ת"], "explanation": "״שלוש״ בערבית - תַלַאתֶה.", "choices": [{"id": "a", "text": "תַלַאתֶה"}, {"id": "b", "text": "תְנֵין"}, {"id": "c", "text": "סַבְעַה"}, {"id": "d", "text": "עַשַרַה"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
   ('d2000000-0000-4000-8000-000000000001','multiple_choice',2,'curated','auto_passed',
    '{"tag": "אחוזים", "stem": "כמה זה 50% מתוך 80?", "hints": ["חצי", "80 חלקי 2"], "explanation": "50% זה חצי, ולכן 40.", "choices": [{"id": "a", "text": "40"}, {"id": "b", "text": "50"}, {"id": "c", "text": "30"}, {"id": "d", "text": "8"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
   ('d2000000-0000-4000-8000-000000000001','multiple_choice',2,'curated','auto_passed',
@@ -268,7 +268,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('d2000000-0000-4000-8000-000000000005','multiple_choice',2,'curated','auto_passed',
    '{"tag": "עבר", "stem": "מה צורת העבר של \"go\"?", "hints": ["פועל חריג", "לא \"goed\""], "explanation": "העבר של \"go\" הוא \"went\".", "choices": [{"id": "a", "text": "went"}, {"id": "b", "text": "goed"}, {"id": "c", "text": "gone"}, {"id": "d", "text": "going"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
   ('d2000000-0000-4000-8000-000000000005','multiple_choice',2,'curated','auto_passed',
-   '{"tag": "הווה", "stem": "איך אומרים \"אני אוכל\" (הווה) באנגלית?", "hints": ["I + פועל", "לא עבר"], "explanation": "\"אני אוכל\" — \"I eat\".", "choices": [{"id": "a", "text": "I eat"}, {"id": "b", "text": "I ate"}, {"id": "c", "text": "I eaten"}, {"id": "d", "text": "I eating"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
+   '{"tag": "הווה", "stem": "איך אומרים \"אני אוכל\" (הווה) באנגלית?", "hints": ["I + פועל", "לא עבר"], "explanation": "\"אני אוכל\" - \"I eat\".", "choices": [{"id": "a", "text": "I eat"}, {"id": "b", "text": "I ate"}, {"id": "c", "text": "I eaten"}, {"id": "d", "text": "I eating"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
   ('d2000000-0000-4000-8000-000000000005','multiple_choice',3,'curated','auto_passed',
    '{"tag": "עבר", "stem": "מה צורת העבר של \"have\"?", "hints": ["פועל חריג", "מתחיל ב־h"], "explanation": "העבר של \"have\" הוא \"had\".", "choices": [{"id": "a", "text": "had"}, {"id": "b", "text": "haved"}, {"id": "c", "text": "haz"}, {"id": "d", "text": "having"}], "correct_choice_id": "a", "coins": 13}'::jsonb),
   ('d2000000-0000-4000-8000-000000000006','multiple_choice',2,'curated','auto_passed',
@@ -284,8 +284,8 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('d2000000-0000-4000-8000-000000000007','multiple_choice',3,'curated','auto_passed',
    '{"tag": "יבשות", "stem": "באיזו יבשת נמצאת ישראל?", "hints": ["בין אירופה לאפריקה", "היבשת הגדולה"], "explanation": "ישראל נמצאת ביבשת אסיה.", "choices": [{"id": "a", "text": "אסיה"}, {"id": "b", "text": "אירופה"}, {"id": "c", "text": "אפריקה"}, {"id": "d", "text": "אמריקה"}], "correct_choice_id": "a", "coins": 13}'::jsonb),
   ('d2000000-0000-4000-8000-000000000008','multiple_choice',2,'curated','auto_passed',
-   '{"tag": "משפחה", "stem": "איך אומרים ״אמא״ בערבית ספרותית?", "hints": ["מילה קצרה", "דומה לעברית"], "explanation": "״אמא״ בערבית — אֻם.", "choices": [{"id": "a", "text": "אֻם"}, {"id": "b", "text": "אַבּ"}, {"id": "c", "text": "אֶחְת"}, {"id": "d", "text": "אַח"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
+   '{"tag": "משפחה", "stem": "איך אומרים ״אמא״ בערבית ספרותית?", "hints": ["מילה קצרה", "דומה לעברית"], "explanation": "״אמא״ בערבית - אֻם.", "choices": [{"id": "a", "text": "אֻם"}, {"id": "b", "text": "אַבּ"}, {"id": "c", "text": "אֶחְת"}, {"id": "d", "text": "אַח"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
   ('d2000000-0000-4000-8000-000000000008','multiple_choice',2,'curated','auto_passed',
-   '{"tag": "משפחה", "stem": "איך אומרים ״אבא״ בערבית ספרותית?", "hints": ["מילה קצרה", "מתחיל ב־א"], "explanation": "״אבא״ בערבית — אַבּ.", "choices": [{"id": "a", "text": "אַבּ"}, {"id": "b", "text": "אֻם"}, {"id": "c", "text": "אַח"}, {"id": "d", "text": "בֵּית"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
+   '{"tag": "משפחה", "stem": "איך אומרים ״אבא״ בערבית ספרותית?", "hints": ["מילה קצרה", "מתחיל ב־א"], "explanation": "״אבא״ בערבית - אַבּ.", "choices": [{"id": "a", "text": "אַבּ"}, {"id": "b", "text": "אֻם"}, {"id": "c", "text": "אַח"}, {"id": "d", "text": "בֵּית"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
   ('d2000000-0000-4000-8000-000000000008','multiple_choice',3,'curated','auto_passed',
    '{"tag": "בית", "stem": "מה הפירוש של המילה ״בֵּית״ בערבית?", "hints": ["גם בעברית דומה", "גרים בו"], "explanation": "״בֵּית״ בערבית פירושו בית.", "choices": [{"id": "a", "text": "בית"}, {"id": "b", "text": "דלת"}, {"id": "c", "text": "חלון"}, {"id": "d", "text": "גינה"}], "correct_choice_id": "a", "coins": 13}'::jsonb);

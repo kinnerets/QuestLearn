@@ -94,7 +94,7 @@ export function ShopList({ rewards, coins: initialCoins, avatarItems = [] }: {
 
       <div className="capi-row capi-top">
         <Capi mood="chill" size={64} />
-        <div className="bubble">טיפ ממני: לפעמים כדאי לחסוך למשהו גדול — סבלנות תמיד משתלמת.</div>
+        <div className="bubble">טיפ ממני: לפעמים כדאי לחסוך למשהו גדול - סבלנות תמיד משתלמת.</div>
       </div>
 
       <div className="reward-list">

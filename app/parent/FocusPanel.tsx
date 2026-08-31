@@ -42,7 +42,7 @@ export function FocusPanel({ childId, childName }: { childId?: string; childName
 
   return (
     <Section title={`דגש בלמידה${childName ? ` · ${childName}` : ''}`} count={picked.size || undefined}
-      hint="בחרי נושאים שתרצי להדגיש עכשיו — הם יופיעו יותר במסע היומי שלה. אפשר לשנות מתי שרוצים.">
+      hint="בחרי נושאים שתרצי להדגיש עכשיו - הם יופיעו יותר במסע היומי שלה. אפשר לשנות מתי שרוצים.">
       <div className="focus-grid">
         {FOCUS_SUBJECTS.map((s) => {
           const on = picked.has(s);
@@ -53,7 +53,7 @@ export function FocusPanel({ childId, childName }: { childId?: string; childName
           );
         })}
       </div>
-      {savedNote && <p className="focus-saved">נשמר — המסע יתעדכן בתרגול הבא.</p>}
+      {savedNote && <p className="focus-saved">נשמר - המסע יתעדכן בתרגול הבא.</p>}
     </Section>
   );
 }

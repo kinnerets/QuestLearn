@@ -62,7 +62,7 @@ export type DbStation = DbAcademicStation | DbLeadStation;
 
 // The daily journey rotates day-to-day through each slot's candidate subjects
 // (whichever have content), so the mix changes and breadth is covered across
-// the week. Leadership is NOT here — it lives in its own reflective area
+// the week. Leadership is NOT here - it lives in its own reflective area
 // ("אי המצפן", /compass), which is not scored by accuracy.
 const DAILY_SLOTS: { kind: StationKind; subjects: Subject[] }[] = [
   { kind: 'core', subjects: ['math', 'geometry', 'hebrew', 'bible'] },
@@ -76,7 +76,7 @@ const LEADERSHIP_SUBJECT = 'leadership';
 interface TopicRow { id: string; subject: string; sub_topic: string; grade: string; order_index?: number }
 interface QRow { id: string; topic_id: string; type: string; difficulty: number; payload: Record<string, unknown> }
 
-/** Days since the year start — stable within a day, changes daily. */
+/** Days since the year start - stable within a day, changes daily. */
 function daySeed(): number {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
@@ -156,7 +156,7 @@ function buildStation(kind: StationKind, subject: string, topic: TopicRow, q: QR
   return { ...common, qtype: 'multiple_choice', choices, correctId: String(p.correct_choice_id) };
 }
 
-/** Fisher–Yates shuffle (returns a new array). */
+/** Fisher-Yates shuffle (returns a new array). */
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -185,7 +185,7 @@ function toChild(data: Record<string, unknown>): ChildProfile {
 /**
  * XP → level with a gentle increasing curve: early levels come fast (motivating),
  * later ones cost more so a "level" stays meaningful over weeks. Level L→L+1 needs
- * 100 + (L-1)·40 points. (A perfect day is ~150–185 pts → a level early on, slowing
+ * 100 + (L-1)·40 points. (A perfect day is ~150-185 pts → a level early on, slowing
  * to a level every few days later.)
  */
 export const XP_PER_LEVEL = 120; // legacy constant, no longer the level size
@@ -215,7 +215,7 @@ export async function addXp(childId: string, amount: number): Promise<void> {
   } catch { /* best effort */ }
 }
 
-/** All children in the family, oldest grade last — for the profile picker. */
+/** All children in the family, oldest grade last - for the profile picker. */
 export async function getChildren(): Promise<ChildProfile[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
@@ -232,7 +232,7 @@ export async function getChildren(): Promise<ChildProfile[] | null> {
   }
 }
 
-/** Record one Capi chat exchange for parent visibility. Best-effort — if the
+/** Record one Capi chat exchange for parent visibility. Best-effort - if the
  *  table isn't there yet, it's silently skipped. */
 export async function logCapiChat(childId: string, question: string, reply: string, flagged = false): Promise<void> {
   const sb = getSupabase();
@@ -246,7 +246,7 @@ export async function logCapiChat(childId: string, question: string, reply: stri
 
 export interface CapiChat { id: string; childName: string; question: string; reply: string; when: string; flagged: boolean }
 
-/** Recent Capi conversations (optionally for one child) — for the parent area. */
+/** Recent Capi conversations (optionally for one child) - for the parent area. */
 export async function getCapiChats(childId?: string, limit = 40): Promise<CapiChat[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
@@ -303,7 +303,7 @@ export interface TeamChallenge {
 }
 
 /**
- * Co-Op: a shared weekly goal both sisters push toward together — but made fair.
+ * Co-Op: a shared weekly goal both sisters push toward together - but made fair.
  * Each sister has an equal share (TEAM_PER_CHILD) and her contribution counts
  * only up to that share, so the team can finish only when *both* pull their
  * weight. Returns null unless there are at least two kids.
@@ -391,7 +391,7 @@ export async function getChildProfileById(id: string): Promise<ChildProfile | nu
   }
 }
 
-/** First child — fallback when no profile has been selected yet. */
+/** First child - fallback when no profile has been selected yet. */
 export async function getChildProfile(): Promise<ChildProfile | null> {
   const all = await getChildren();
   return all?.[0] ?? null;
@@ -420,7 +420,7 @@ export async function getChildReport(childId: string): Promise<ChildReport | nul
   if (!sb) return null;
   try {
     const since = new Date(Date.now() - 7 * 86_400_000).toISOString();
-    // Leadership "deposits" aren't graded — keep them out of academic accuracy.
+    // Leadership "deposits" aren't graded - keep them out of academic accuracy.
     const { data: leadTopics } = await sb
       .from('curriculum_topics').select('id').eq('subject', LEADERSHIP_SUBJECT);
     const leadIds = new Set((leadTopics ?? []).map((t) => t.id as string));
@@ -653,7 +653,7 @@ function topicPriority(sig: MasterySig | undefined, jitter: number, interestBoos
 }
 
 // Soft gating: a topic whose prerequisite (the previous sub-topic in the same
-// subject, by order_index) isn't yet mastered gets its priority *reduced* — not
+// subject, by order_index) isn't yet mastered gets its priority *reduced* - not
 // locked. So the foundation tends to come first, but an overdue review or a
 // strong interest can still surface an advanced topic. When order_index isn't
 // populated (all equal), no topic has an earlier sibling, so gating stays off.
@@ -670,7 +670,7 @@ function prereqPenalty(
     const o = Number(s.order_index ?? 0);
     if (o < myOrder && (!prereq || o > Number(prereq.order_index ?? 0))) prereq = s;
   }
-  if (!prereq) return 0; // foundational topic — nothing gates it
+  if (!prereq) return 0; // foundational topic - nothing gates it
   const pm = sigs.get(prereq.id)?.mastery ?? 0;
   if (pm >= GATE_OPEN) return 0;
   return GATE_WEIGHT * ((GATE_OPEN - pm) / GATE_OPEN); // 0..GATE_WEIGHT
@@ -755,7 +755,7 @@ export async function getDailyLesson(grade = 'grade_3', childId?: string, round 
     const boostOf = (subject: string) =>
       (focusSubjects.has(subject) ? 0.55 : 0) + (likedSubjects.has(subject) ? 0.3 : 0);
 
-    // Sub-topics per subject, ordered — drives the soft prerequisite gate.
+    // Sub-topics per subject, ordered - drives the soft prerequisite gate.
     const topicsBySubject = new Map<string, TopicRow[]>();
     for (const t of topics) {
       const arr = topicsBySubject.get(t.subject) ?? [];
@@ -800,7 +800,7 @@ export async function getDailyLesson(grade = 'grade_3', childId?: string, round 
       stations.push(buildStation(slot.kind, topic.subject, topic, q));
     });
 
-    // One daily leadership mission — part of the day's requirement but reflective
+    // One daily leadership mission - part of the day's requirement but reflective
     // (never scored on accuracy). Rotates through the worlds day to day.
     const leadTopics = topics
       .filter((t) => t.subject === LEADERSHIP_SUBJECT && (qByTopic.get(t.id)?.length ?? 0) > 0)
@@ -819,7 +819,7 @@ export async function getDailyLesson(grade = 'grade_3', childId?: string, round 
 
 export interface NextDaily { subject: string; label: string; topicId?: string; order?: number }
 
-/** The next unfinished topic in today's journey — for chaining sessions. */
+/** The next unfinished topic in today's journey - for chaining sessions. */
 export async function getNextDaily(childId: string, grade: string, exclude?: string): Promise<{ next: NextDaily | null; done: boolean }> {
   const [lesson, doneSubjects] = await Promise.all([getDailyLesson(grade, childId), getTodaySubjects(childId)]);
   if (!lesson?.length) return { next: null, done: true };
@@ -840,7 +840,7 @@ export async function getNextDaily(childId: string, grade: string, exclude?: str
   return { next: null, done: true };
 }
 
-/** Question ids this child has already answered correctly — never shown again. */
+/** Question ids this child has already answered correctly - never shown again. */
 async function solvedQuestionIds(
   sb: NonNullable<ReturnType<typeof getSupabase>>,
   childId: string,
@@ -885,7 +885,7 @@ export async function composeFocus(
     const kind = SUBJECT_KIND[subject] ?? 'core';
     const solved = childId ? await solvedQuestionIds(sb, childId) : new Set<string>();
 
-    // Leadership worlds are reflective and repeatable — never filter them as "solved".
+    // Leadership worlds are reflective and repeatable - never filter them as "solved".
     const repeatable = subject === LEADERSHIP_SUBJECT;
     // A valid leadership question has a prompt + choices carrying an icon; skip any
     // malformed (e.g. multiple-choice) rows that would break the leadership view.
@@ -906,7 +906,7 @@ export async function composeFocus(
     if (!fresh.length && !review.length) return [];
 
     // Prefer unsolved questions; if there aren't enough for a full session, pad
-    // with already-solved ones (spaced review) so a sitting is never just 1–2.
+    // with already-solved ones (spaced review) so a sitting is never just 1-2.
     const want = focusLength(grade);
     const pool = fresh.length >= want ? fresh.slice(0, want)
       : fresh.length ? [...fresh, ...review].slice(0, want)
@@ -921,7 +921,7 @@ export async function composeFocus(
 }
 
 /**
- * "מסע ההיכרות" — a short entry quiz spanning difficulties and subjects, used to
+ * "מסע ההיכרות" - a short entry quiz spanning difficulties and subjects, used to
  * place a child at the right starting level (so strong kids don't grind easy ones).
  */
 export async function getPlacementQuestions(grade = 'grade_3'): Promise<DbStation[] | null> {
@@ -949,7 +949,7 @@ export async function getPlacementQuestions(grade = 'grade_3'): Promise<DbStatio
   }
 }
 
-/** Map a placement score to a starting level (1–5). Grade 5 gets a small boost. */
+/** Map a placement score to a starting level (1-5). Grade 5 gets a small boost. */
 export function placementLevel(correct: number, total: number, grade: string): number {
   const pct = total ? correct / total : 0;
   let lvl = pct >= 0.85 ? 4 : pct >= 0.65 ? 3 : pct >= 0.4 ? 2 : 1;
@@ -957,14 +957,14 @@ export function placementLevel(correct: number, total: number, grade: string): n
   return Math.min(5, Math.max(1, lvl));
 }
 
-/** Seed a child's starting level from placement — only if they haven't started yet. */
+/** Seed a child's starting level from placement - only if they haven't started yet. */
 export async function setPlacementLevel(childId: string, level: number): Promise<boolean> {
   const sb = getSupabase();
   if (!sb) return false;
   try {
     const child = await getChildProfileById(childId);
     if (!child) return false;
-    if (child.xp > 0) return true; // already placed or practising — never overwrite
+    if (child.xp > 0) return true; // already placed or practising - never overwrite
     const xp = Math.max(10, xpForLevel(level));
     const { error } = await sb.from('users').update({ total_xp: xp }).eq('id', childId);
     return !error;
@@ -990,7 +990,7 @@ function topicSatisfied(c: { total: number; solved: number; answered: number; ac
   return c.answered >= 3 && c.accuracy >= 0.65;                // enough practice, decent accuracy
 }
 
-/** Sub-topics within a subject, with per-topic progress — for the drill-down. */
+/** Sub-topics within a subject, with per-topic progress - for the drill-down. */
 export async function getSubjectTopics(
   grade: string, subject: string, childId: string,
 ): Promise<{ label: string; topics: TopicCard[] } | null> {
@@ -998,7 +998,7 @@ export async function getSubjectTopics(
   if (!sb) return null;
   try {
     const { topics, qByTopic } = await fetchBank(sb, grade);
-    // Prerequisite order — the soft gate reads the sub-topic just before each one.
+    // Prerequisite order - the soft gate reads the sub-topic just before each one.
     const st = topics
       .filter((t) => t.subject === subject && (qByTopic.get(t.id)?.length ?? 0) > 0)
       .sort((a, b) => Number(a.order_index ?? 0) - Number(b.order_index ?? 0));
@@ -1041,7 +1041,7 @@ export async function getSubjectTopics(
   }
 }
 
-/** Subjects the child has practised today — for the home "completed" marks. */
+/** Subjects the child has practised today - for the home "completed" marks. */
 export async function getTodaySubjects(childId: string): Promise<string[]> {
   const sb = getSupabase();
   if (!sb) return [];
@@ -1133,7 +1133,7 @@ export async function getSubjectCatalog(grade: string, childId: string): Promise
   }
 }
 
-/** Daily coin ceiling — anti-gaming, so extra quests can't farm unlimited coins. */
+/** Daily coin ceiling - anti-gaming, so extra quests can't farm unlimited coins. */
 export const DAILY_COIN_CAP = 100;
 
 /**
@@ -1318,7 +1318,7 @@ export interface RedeemResult {
 /**
  * Redeem a reward: deduct coins and send a request to the parent (status
  * 'issued' = pending). The parent marks it done or refunds it. Coins are the
- * only limit — a child may redeem again as long as they can afford it.
+ * only limit - a child may redeem again as long as they can afford it.
  */
 export async function redeemReward(childId: string, rewardId: string): Promise<RedeemResult> {
   const sb = getSupabase();
@@ -1371,8 +1371,8 @@ export async function getPendingRedemptions(): Promise<Redemption[] | null> {
     const rmap = new Map((rewards ?? []).map((r) => [r.id as string, r.title as string]));
     return data.map((r) => ({
       id: r.id as string,
-      childName: kmap.get(r.child_id as string) ?? '—',
-      rewardTitle: rmap.get(r.reward_id as string) ?? '—',
+      childName: kmap.get(r.child_id as string) ?? '-',
+      rewardTitle: rmap.get(r.reward_id as string) ?? '-',
       cost: r.coins_spent as number,
       when: r.created_at as string,
     }));
@@ -1470,7 +1470,7 @@ export async function getCompassWorlds(childId: string): Promise<CompassWorld[] 
 
 /**
  * Record one leadership "deposit" (stamp / choice / allocation). Not scored on
- * accuracy, but it counts as part of the day and grants a small fixed reward —
+ * accuracy, but it counts as part of the day and grants a small fixed reward -
  * XP always, plus a few coins the first time each world is engaged that day.
  */
 export async function recordDeposit(childId: string, topicId: string, questionId: string, choice: unknown): Promise<boolean> {
@@ -1561,7 +1561,7 @@ export async function getChildStatus(childId: string, grade: string): Promise<Ch
 
 export interface TopicOverview { id: string; subject: string; subTopic: string; grade: string; count: number }
 
-/** All curriculum topics with their question counts — the parent content panel. */
+/** All curriculum topics with their question counts - the parent content panel. */
 export async function getTopicsOverview(): Promise<TopicOverview[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
@@ -1594,7 +1594,7 @@ export interface HomeTask {
 }
 
 /** Active chores + today's state per chore: waiting for approval (locked), or
- *  already approved today (still repeatable — tidy the room again). */
+ *  already approved today (still repeatable - tidy the room again). */
 export async function getHomeTasks(childId?: string): Promise<HomeTask[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
@@ -1634,7 +1634,7 @@ export async function getHomeTasks(childId?: string): Promise<HomeTask[] | null>
   }
 }
 
-/** Plain list of active chores (for the parent editor — no per-child state). */
+/** Plain list of active chores (for the parent editor - no per-child state). */
 export async function listHomeTasks(): Promise<{ id: string; title: string; coins: number }[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
@@ -1683,7 +1683,7 @@ export async function updateHomeTask(id: string, patch: { title?: string; coins?
 export interface TaskDoneResult { ok: boolean; reason?: string; coins?: number; earned?: number; pending?: boolean }
 
 /**
- * Child checks off a chore. It goes to the parent as "pending" — the coins are
+ * Child checks off a chore. It goes to the parent as "pending" - the coins are
  * credited only when a parent approves (so the parent verifies it was really
  * done). Chores are repeatable: after a chore is approved the child can do it
  * again (the same day's row simply cycles back to 'pending').
@@ -1701,7 +1701,7 @@ export async function completeHomeTask(childId: string, taskId: string): Promise
     const earned = (task.coins as number) ?? 0;
     const day = new Date().toISOString().slice(0, 10);
 
-    // Look at today's row (if any) with an explicit select — no reliance on a
+    // Look at today's row (if any) with an explicit select - no reliance on a
     // specific unique-constraint name for upsert onConflict, which was flaky.
     const { data: existing } = await sb
       .from('home_task_done').select('id,status')
@@ -1854,7 +1854,7 @@ export async function reviewQuestion(id: string, action: 'approve' | 'reject'): 
 
 /**
  * Award any newly-earned badges (persist in `badges`) and return the fresh ones
- * so the child can be congratulated in the moment — not only in "המצב שלי".
+ * so the child can be congratulated in the moment - not only in "המצב שלי".
  */
 export async function awardNewBadges(childId: string, grade: string): Promise<StatusBadge[]> {
   const sb = getSupabase();

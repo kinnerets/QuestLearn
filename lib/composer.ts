@@ -1,5 +1,5 @@
 // Spaced-repetition core (SM-2) for the Daily Quest Composer.
-// Pure functions — no DB — so they're easy to reason about and test.
+// Pure functions - no DB - so they're easy to reason about and test.
 
 export interface Sm2State {
   ease: number;      // ease factor, >= 1.3
@@ -13,7 +13,7 @@ export interface Sm2Result {
 }
 
 /**
- * Map an answer to an SM-2 quality score (0–5):
+ * Map an answer to an SM-2 quality score (0-5):
  * clean correct = 5, correct after a hint = 3, wrong = 1.
  */
 export function qualityFrom(isCorrect: boolean, hintsUsed: number): number {

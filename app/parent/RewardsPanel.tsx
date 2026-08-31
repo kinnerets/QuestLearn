@@ -87,7 +87,7 @@ export function RewardsPanel() {
             <button className="task-del" aria-label="הסרה" onClick={() => remove(r.id)}><CloseIcon /></button>
           </div>
         ))}
-        {rewards.length === 0 && <div className="report-empty">אין עדיין פרסים — הוסיפי אחד למעלה.</div>}
+        {rewards.length === 0 && <div className="report-empty">אין עדיין פרסים - הוסיפי אחד למעלה.</div>}
       </div>
     </Section>
   );

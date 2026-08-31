@@ -27,7 +27,7 @@ function KnowledgeBars({ subjects }: { subjects: SubjectCard[] }) {
               <span className="kbar-name">{s.label}</span>
               <span className="kbar-bar"><i className={tier(s.accuracy)} style={{ width: `${Math.max(s.answered ? 5 : 0, pct)}%` }} /></span>
             </span>
-            <span className="kbar-pct">{s.answered > 0 ? `${pct}%` : '—'}</span>
+            <span className="kbar-pct">{s.answered > 0 ? `${pct}%` : '-'}</span>
           </div>
         );
       })}
@@ -89,7 +89,7 @@ export default async function StatusPage() {
             <div className="status-title">מפת הכוחות שלך</div>
             {subjects.some((s) => s.answered > 0)
               ? <KnowledgeBars subjects={subjects} />
-              : <p className="status-empty">עדיין אין נתונים · אחרי כמה תרגולים כאן תופיע רמת השליטה בכל מקצוע — באחוזים.</p>}
+              : <p className="status-empty">עדיין אין נתונים · אחרי כמה תרגולים כאן תופיע רמת השליטה בכל מקצוע - באחוזים.</p>}
           </section>
         )}
 

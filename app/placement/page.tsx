@@ -73,7 +73,7 @@ export default function PlacementPage() {
           <div className="place-done">
             <Capi mood="cheer" size={96} />
             <h2>יאללה, נעים להכיר!</h2>
-            <p>לפי מסע ההיכרות נתחיל אותך מ<b>רמה {result}</b> — לא קל מדי, לא קשה מדי.</p>
+            <p>לפי מסע ההיכרות נתחיל אותך מ<b>רמה {result}</b> - לא קל מדי, לא קשה מדי.</p>
             <Link href="/" className="cta" style={{ maxWidth: 280 }}>למסע שלי</Link>
           </div>
         ) : qs && qs.length > 0 ? (
@@ -98,7 +98,7 @@ export default function PlacementPage() {
                 );
               })}
             </div>
-            <p className="place-hint">אין לחץ — זה רק כדי להתחיל מהמקום הנכון בשבילך.</p>
+            <p className="place-hint">אין לחץ - זה רק כדי להתחיל מהמקום הנכון בשבילך.</p>
           </>
         ) : qs && qs.length === 0 ? (
           <div className="place-done">

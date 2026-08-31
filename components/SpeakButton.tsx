@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { SpeakerIcon } from './icons';
 
 /**
- * Reads a question aloud in Hebrew via the browser's speech synthesis — a big
+ * Reads a question aloud in Hebrew via the browser's speech synthesis - a big
  * help for a younger reader (Mili, grade 3). Hidden when the browser has no
  * speech support. Stops itself when the text changes or the view unmounts.
  */

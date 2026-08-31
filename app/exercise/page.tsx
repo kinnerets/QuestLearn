@@ -64,7 +64,7 @@ function typedMatches(typed: string, answers?: string[]): boolean {
 }
 
 /** A short celebratory buzz on a correct answer (no-op where unsupported, e.g.
- *  iOS Safari — harmless). */
+ *  iOS Safari - harmless). */
 function buzz() {
   try { (navigator as Navigator & { vibrate?: (p: number | number[]) => boolean }).vibrate?.([18, 40, 22]); } catch { /* ignore */ }
 }
@@ -259,18 +259,18 @@ export default function ExercisePage() {
       setTries(t);
       setWrongIds((w) => [...w, choiceId]);
       if (t === 1) {
-        // Hint 1 — a gentle direction.
+        // Hint 1 - a gentle direction.
         setMood('hint');
         setMessage('כיוון: ' + st.hint);
       } else if (t === 2) {
-        // Hint 2 — narrow the field: remove one more wrong option, plus a stronger hint.
+        // Hint 2 - narrow the field: remove one more wrong option, plus a stronger hint.
         const gone = st.choices.find((c) => c.id !== st.correctId && c.id !== choiceId
           && !eliminated.includes(c.id) && !wrongIds.includes(c.id));
         if (gone) setEliminated((e) => [...e, gone.id]);
         setMood('hint');
-        setMessage(st.hint2 ? ('רמז נוסף: ' + st.hint2) : 'כמעט! הורדתי אפשרות שגויה — ננסה שוב.');
+        setMessage(st.hint2 ? ('רמז נוסף: ' + st.hint2) : 'כמעט! הורדתי אפשרות שגויה - ננסה שוב.');
       } else {
-        // Reveal — the answer with an explanation. No punishment.
+        // Reveal - the answer with an explanation. No punishment.
         setRevealed(true);
         setAnswered((n) => n + 1);
         setMood('chill');
@@ -313,7 +313,7 @@ export default function ExercisePage() {
         setCleanStreak(0);
         setLevel((l) => Math.max(1, l - 1));
         const ans = st.answers?.[0] ?? '';
-        setMessage(`${pick(GENTLE)} התשובה: ${ans}${st.explanation ? ' — ' + st.explanation : ''}`);
+        setMessage(`${pick(GENTLE)} התשובה: ${ans}${st.explanation ? ' - ' + st.explanation : ''}`);
         setPhase('done');
         logAttempt(st, false, 2);
       }
@@ -326,7 +326,7 @@ export default function ExercisePage() {
     buzz();
     setChosenId(id);
     setMood('cheer');
-    const reward = st.coins ?? 5;               // a small fixed reward — reflective, never scored
+    const reward = st.coins ?? 5;               // a small fixed reward - reflective, never scored
     setCoins((c) => c + reward);
     setEarned((e) => e + reward);
     setMessage(`${pick(HEART)} +${reward} מטבעות.`);
@@ -642,7 +642,7 @@ function NextCTA() {
   );
 }
 
-/** A new badge was just earned — celebrate it in the moment, then let her continue. */
+/** A new badge was just earned - celebrate it in the moment, then let her continue. */
 function BadgeCelebration({ badges, next }: {
   badges: { key: string; label: string; desc: string }[];
   next: NextTopic | null;

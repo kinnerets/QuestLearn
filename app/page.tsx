@@ -156,7 +156,7 @@ export default async function HomePage() {
             <span className="season-emoji"><SparkIcon /></span>
             <span className="place-banner-txt">
               <b>מיוחד לעונה: {seasonal.label}</b>
-              <small>כמה שאלות חגיגיות — בונוס</small>
+              <small>כמה שאלות חגיגיות - בונוס</small>
             </span>
             <span className="place-banner-go">›</span>
           </Link>
@@ -169,7 +169,7 @@ export default async function HomePage() {
               <span className="team-count">{Math.min(team.correct, team.target)}/{team.target}</span>
             </div>
             <div className="team-goal">
-              המשימה: כל אחת עונה נכון על {team.perChild} שאלות עד סוף השבוע — חלק שווה לכל אחת. כשתסיימו יחד, כל אחת זוכה ב־{team.reward} מטבעות!
+              המשימה: כל אחת עונה נכון על {team.perChild} שאלות עד סוף השבוע - חלק שווה לכל אחת. כשתסיימו יחד, כל אחת זוכה ב־{team.reward} מטבעות!
             </div>
             <div className="team-bar">
               <i style={{ width: `${Math.min(100, Math.round((team.correct / team.target) * 100))}%` }} />
@@ -184,7 +184,7 @@ export default async function HomePage() {
             </div>
             <div className="team-sub">
               {team.done
-                ? <b>הגעתן ליעד יחד — כל הכבוד לאחיות!</b>
+                ? <b>הגעתן ליעד יחד - כל הכבוד לאחיות!</b>
                 : <>{daysLabel(team.daysLeft)} לסיום האתגר</>}
             </div>
             {team.done && <TeamReward claimed={team.claimed} reward={team.reward} />}

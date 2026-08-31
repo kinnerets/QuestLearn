@@ -1,7 +1,7 @@
 -- Immediate content fill for English / Arabic / Science (both grades).
 -- Safe to run once; also included in seed.sql for fresh installs.
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
-  -- English grade 3 — מילים ראשונות
+  -- English grade 3 - מילים ראשונות
   ('dddddddd-0000-0000-0000-000000000001','multiple_choice',1,'curated','auto_passed',
    '{"tag":"אוצר מילים","stem":"איך אומרים בית באנגלית?","hints":["מילה עם 5 אותיות","מתחילה ב‑H"],"explanation":"בית באנגלית הוא House.","choices":[{"id":"a","text":"House"},{"id":"b","text":"Mouse"},{"id":"c","text":"Horse"},{"id":"d","text":"Hat"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000001','multiple_choice',1,'curated','auto_passed',
@@ -10,7 +10,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"בעלי חיים","stem":"איך אומרים כלב באנגלית?","hints":["חיה שנובחת","3 אותיות"],"explanation":"כלב באנגלית הוא Dog.","choices":[{"id":"a","text":"Dog"},{"id":"b","text":"Cat"},{"id":"c","text":"Cow"},{"id":"d","text":"Dig"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000001','multiple_choice',2,'curated','auto_passed',
    '{"tag":"אוצר מילים","stem":"מה זה Apple בעברית?","hints":["פרי","גדל על עץ"],"explanation":"Apple פירושו תפוח.","choices":[{"id":"a","text":"תפוח"},{"id":"b","text":"בננה"},{"id":"c","text":"תפוז"},{"id":"d","text":"ענב"}],"correct_choice_id":"a","coins":10}'::jsonb),
-  -- English grade 5 — קריאה והבנה
+  -- English grade 5 - קריאה והבנה
   ('dddddddd-0000-0000-0000-000000000002','multiple_choice',3,'curated','auto_passed',
    '{"tag":"דקדוק","stem":"What is the past tense of go?","hints":["לא הולך אלא הלך","צורה לא רגילה"],"explanation":"עבר של go הוא went (פועל חריג).","choices":[{"id":"a","text":"went"},{"id":"b","text":"goed"},{"id":"c","text":"gone"},{"id":"d","text":"going"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000002','multiple_choice',3,'curated','auto_passed',
@@ -19,7 +19,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"אוצר מילים","stem":"What is the opposite of happy?","hints":["רגש הפוך","מתחיל ב‑s"],"explanation":"ההפך של happy (שמח) הוא sad (עצוב).","choices":[{"id":"a","text":"sad"},{"id":"b","text":"glad"},{"id":"c","text":"angry"},{"id":"d","text":"tired"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000002','multiple_choice',4,'curated','auto_passed',
    '{"tag":"רבים","stem":"What is the plural of child?","hints":["רבים חריג","לא childs"],"explanation":"הרבים של child הוא children (צורה חריגה).","choices":[{"id":"a","text":"children"},{"id":"b","text":"childs"},{"id":"c","text":"childes"},{"id":"d","text":"child"}],"correct_choice_id":"a","coins":13}'::jsonb),
-  -- Arabic grade 3 — ברכות (מדוברת)
+  -- Arabic grade 3 - ברכות (מדוברת)
   ('aaaaaaaa-0000-0000-0000-000000000002','multiple_choice',1,'curated','auto_passed',
    '{"tag":"ברכות","stem":"איך אומרים תודה בערבית מדוברת?","hints":["אומרים כשמישהו עוזר","מתחיל ב‑שֻׁ"],"explanation":"תודה בערבית מדוברת: שֻׁכְּרַן.","choices":[{"id":"a","text":"שֻׁכְּרַן"},{"id":"b","text":"מַרְחַבָּא"},{"id":"c","text":"מַע אַלסַّלַאמֶה"},{"id":"d","text":"עַפְוַן"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000002','multiple_choice',1,'curated','auto_passed',
@@ -28,7 +28,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"ברכות","stem":"איך אומרים בוקר טוב בערבית מדוברת?","hints":["ברכת בוקר","המילה צַבַּאח = בוקר"],"explanation":"בוקר טוב: צַבַּאח אֶלחֵ׳יר.","choices":[{"id":"a","text":"צַבַּאח אֶלחֵ׳יר"},{"id":"b","text":"מַסַאא אֶלחֵ׳יר"},{"id":"c","text":"תֻצְבִּח עַלַא חֵ׳יר"},{"id":"d","text":"אַהְלַן"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000002','multiple_choice',2,'curated','auto_passed',
    '{"tag":"מילים","stem":"מה פירוש המילה אַיְוַה בערבית מדוברת?","hints":["תשובה קצרה","הפך של לא"],"explanation":"אַיְוַה פירושו כן.","choices":[{"id":"a","text":"כן"},{"id":"b","text":"לא"},{"id":"c","text":"אולי"},{"id":"d","text":"תודה"}],"correct_choice_id":"a","coins":10}'::jsonb),
-  -- Arabic grade 5 — קריאה ספרותית (ספרותית)
+  -- Arabic grade 5 - קריאה ספרותית (ספרותית)
   ('bbbbbbbb-0000-0000-0000-000000000002','multiple_choice',2,'curated','auto_passed',
    '{"tag":"אוצר מילים","stem":"איך אומרים מים בערבית ספרותית?","hints":["מה שותים","מתחיל ב‑מَ"],"explanation":"מים בערבית ספרותית: מַאء.","choices":[{"id":"a","text":"מַאء"},{"id":"b","text":"שַׁמְס"},{"id":"c","text":"בַּיְת"},{"id":"d","text":"נַאר"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000002','multiple_choice',2,'curated','auto_passed',
@@ -37,16 +37,16 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"אוצר מילים","stem":"מה פירוש המילה שַׁמְס בערבית?","hints":["מאירה ביום","בשמיים"],"explanation":"שַׁמְס פירושו שמש.","choices":[{"id":"a","text":"שמש"},{"id":"b","text":"ירח"},{"id":"c","text":"כוכב"},{"id":"d","text":"ענן"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000002','multiple_choice',3,'curated','auto_passed',
    '{"tag":"אוצר מילים","stem":"איך אומרים מורה בערבית ספרותית?","hints":["מלמד בכיתה","מאותו שורש כמו מַדְרַסֶה"],"explanation":"מורה בערבית ספרותית: מֻעַלִّם.","choices":[{"id":"a","text":"מֻעַלִّם"},{"id":"b","text":"טַאלִבּ"},{"id":"c","text":"טַבִּיבּ"},{"id":"d","text":"כַּאתִבּ"}],"correct_choice_id":"a","coins":12}'::jsonb),
-  -- Science grade 3 — עולם החי
+  -- Science grade 3 - עולם החי
   ('cccccccc-0000-0000-0000-000000000005','multiple_choice',1,'curated','auto_passed',
-   '{"tag":"בעלי חיים","stem":"כמה רגליים יש לחרק?","hints":["יותר מארבע","זוג לכל חלק גוף — שלושה זוגות"],"explanation":"לחרקים יש שש רגליים.","choices":[{"id":"a","text":"שש"},{"id":"b","text":"ארבע"},{"id":"c","text":"שמונה"},{"id":"d","text":"שתיים"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"בעלי חיים","stem":"כמה רגליים יש לחרק?","hints":["יותר מארבע","זוג לכל חלק גוף - שלושה זוגות"],"explanation":"לחרקים יש שש רגליים.","choices":[{"id":"a","text":"שש"},{"id":"b","text":"ארבע"},{"id":"c","text":"שמונה"},{"id":"d","text":"שתיים"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000005','multiple_choice',2,'curated','auto_passed',
    '{"tag":"בעלי חיים","stem":"באיזה איבר נושם דג במים?","hints":["לא ריאות","נמצא בצדי הראש"],"explanation":"דגים נושמים דרך הזימים.","choices":[{"id":"a","text":"זימים"},{"id":"b","text":"ריאות"},{"id":"c","text":"עור"},{"id":"d","text":"סנפיר"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000005','multiple_choice',2,'curated','auto_passed',
    '{"tag":"צמחים","stem":"מה צמח צריך כדי לגדול?","hints":["מגיע מהשמש ומהגשם","שני דברים"],"explanation":"צמח צריך אור שמש ומים (וגם אוויר) כדי לגדול.","choices":[{"id":"a","text":"אור שמש ומים"},{"id":"b","text":"חושך וקור"},{"id":"c","text":"רק אבנים"},{"id":"d","text":"רק חשמל"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000005','multiple_choice',2,'curated','auto_passed',
    '{"tag":"בעלי חיים","stem":"איזו קבוצת בעלי חיים מטילה ביצים?","hints":["לא יונקים","ציפורים ו…"],"explanation":"ציפורים (וגם זוחלים ודגים) מטילות ביצים; יונקים יולדים.","choices":[{"id":"a","text":"ציפורים"},{"id":"b","text":"כלבים"},{"id":"c","text":"חתולים"},{"id":"d","text":"סוסים"}],"correct_choice_id":"a","coins":10}'::jsonb),
-  -- Science grade 5 — אנרגיה וגוף האדם
+  -- Science grade 5 - אנרגיה וגוף האדם
   ('ffffffff-0000-0000-0000-000000000002','multiple_choice',2,'curated','auto_passed',
    '{"tag":"גוף האדם","stem":"איזה איבר שואב את הדם בגוף?","hints":["פועם בחזה","שריר חזק"],"explanation":"הלב שואב את הדם דרך כלי הדם.","choices":[{"id":"a","text":"הלב"},{"id":"b","text":"הכבד"},{"id":"c","text":"הריאות"},{"id":"d","text":"הקיבה"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('ffffffff-0000-0000-0000-000000000002','multiple_choice',3,'curated','auto_passed',

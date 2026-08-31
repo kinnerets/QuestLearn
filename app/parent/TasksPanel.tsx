@@ -61,7 +61,7 @@ export function TasksPanel() {
 
   return (
     <Section title="ניהול מטלות בית" count={tasks.length}
-      hint="מטלות שהבנות יכולות לסמן כבוצעו פעם ביום. אחרי אישור שלך — נזקפות מטבעות.">
+      hint="מטלות שהבנות יכולות לסמן כבוצעו פעם ביום. אחרי אישור שלך - נזקפות מטבעות.">
       <div className="task-add">
         <input className="task-input" value={title} placeholder="מטלה חדשה (למשל: להוציא את הכלב)"
           onChange={(e) => setTitle(e.target.value)} maxLength={80} />
@@ -96,7 +96,7 @@ export function TasksPanel() {
             <button className="task-del" aria-label="מחיקה" onClick={() => remove(t.id)}><CloseIcon /></button>
           </div>
         ))}
-        {tasks.length === 0 && <div className="report-empty">אין עדיין מטלות — הוסיפי אחת למעלה.</div>}
+        {tasks.length === 0 && <div className="report-empty">אין עדיין מטלות - הוסיפי אחת למעלה.</div>}
       </div>
     </Section>
   );

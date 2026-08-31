@@ -25,10 +25,10 @@ export const mili: Pick<User,
 
 // Today's composed path (would come from the Daily Quest Composer)
 export const todayStations: DailyStation[] = [
-  { kind: 'core',   subject: 'math',        title: 'חשבון — לוח הכפל',   subtitle: 'חובה', minutes: 2, status: 'active' },
-  { kind: 'lang',   subject: 'arabic',      title: 'ערבית — ברכות',      subtitle: 'שפות', minutes: 2, status: 'upcoming' },
-  { kind: 'future', subject: 'future_skills', title: 'שער העתיד — אופנה', subtitle: 'העשרה', minutes: 2, status: 'upcoming' },
-  { kind: 'lead',   subject: 'leadership',  title: 'בנק הלב — הפקדה',    subtitle: 'מנהיגות', minutes: 1, status: 'upcoming' },
+  { kind: 'core',   subject: 'math',        title: 'חשבון - לוח הכפל',   subtitle: 'חובה', minutes: 2, status: 'active' },
+  { kind: 'lang',   subject: 'arabic',      title: 'ערבית - ברכות',      subtitle: 'שפות', minutes: 2, status: 'upcoming' },
+  { kind: 'future', subject: 'future_skills', title: 'שער העתיד - אופנה', subtitle: 'העשרה', minutes: 2, status: 'upcoming' },
+  { kind: 'lead',   subject: 'leadership',  title: 'בנק הלב - הפקדה',    subtitle: 'מנהיגות', minutes: 1, status: 'upcoming' },
 ];
 
 export const completedToday = 0;

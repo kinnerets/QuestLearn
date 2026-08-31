@@ -35,7 +35,7 @@ export function LocksPanel() {
 
   return (
     <Section title="נושאים רגישים" count={lockedCount || undefined}
-      hint="נושאים שכדאי לשקול לפני פתיחה. כשנעול — הילדות לא רואות אותו. פתחי כשמתאים.">
+      hint="נושאים שכדאי לשקול לפני פתיחה. כשנעול - הילדות לא רואות אותו. פתחי כשמתאים.">
       {locks.map((l) => (
         <label key={l.subject} className="lock-row">
           <span className="lock-name">{l.label}</span>

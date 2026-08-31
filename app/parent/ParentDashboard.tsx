@@ -68,14 +68,14 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
         {kids.length === 0 && <div className="parent-empty">עדיין אין פרופילים במאגר.</div>}
 
         {/* ── Family-wide management (shared by both girls) ── */}
-        <div className="parent-section-label">כללי — לשתי הבנות</div>
+        <div className="parent-section-label">כללי - לשתי הבנות</div>
         <TasksPanel />
         <RewardsPanel />
         <LocksPanel />
         <FlagsPanel />
 
         {/* ── Per-child area: the tabs switch only this part ── */}
-        <div className="parent-section-label per-kid">אישי — לכל בת</div>
+        <div className="parent-section-label per-kid">אישי - לכל בת</div>
 
         {kids.length > 1 && (
           <div className="kid-tabs">
@@ -119,7 +119,7 @@ function ReportCard({ kid }: { kid: Kid }) {
         <div className="report-id">
           <div className="parent-kid-name">{kid.name}</div>
           <div className="parent-kid-sub">
-            {GRADE_LABEL[kid.grade ?? ''] ?? '—'} · יעד ~{kid.goalMinutes} דק׳
+            {GRADE_LABEL[kid.grade ?? ''] ?? '-'} · יעד ~{kid.goalMinutes} דק׳
           </div>
         </div>
         <div className="report-coins">
@@ -129,7 +129,7 @@ function ReportCard({ kid }: { kid: Kid }) {
       </div>
 
       {!hasData && (
-        <div className="report-empty">אין עדיין נתונים השבוע — הדוח יתמלא אחרי כמה תרגולים.</div>
+        <div className="report-empty">אין עדיין נתונים השבוע - הדוח יתמלא אחרי כמה תרגולים.</div>
       )}
 
       {hasData && r && (

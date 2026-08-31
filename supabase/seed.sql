@@ -1,4 +1,4 @@
--- QuestLearn — seed data (dev). Run after 0001_init.sql.
+-- QuestLearn - seed data (dev). Run after 0001_init.sql.
 -- Idempotent-ish: clears the demo family first, then re-inserts.
 -- Safe to re-run.
 
@@ -87,16 +87,16 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"ברכות","stem":"איך אומרים \"שלום / היי\" בערבית מדוברת?","hint":"זו הברכה הראשונה שאומרים כשפוגשים מישהו. מתחילה ב-\"מ\".","choices":[{"id":"a","text":"מַרְחַבָּא"},{"id":"b","text":"שׁוּכְּרַן"},{"id":"c","text":"יַאללָה"},{"id":"d","text":"בַּסְטָה"}],"correct_choice_id":"a","coins":10}'::jsonb),
   -- Lia (grade 5)
   ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
-   '{"tag":"שברים","stem":"איזה שבר גדול יותר: 1/2 או 1/3 ?","hint":"תחשבי על פיצה: אם חותכים אותה ל-2 חתיכות או ל-3 חתיכות — באיזו חלוקה כל חתיכה גדולה יותר?","choices":[{"id":"a","text":"1/2"},{"id":"b","text":"1/3","misconception":"bigger_denominator_bigger_fraction"},{"id":"c","text":"הם שווים"},{"id":"d","text":"אי אפשר לדעת"}],"correct_choice_id":"a","coins":12}'::jsonb),
+   '{"tag":"שברים","stem":"איזה שבר גדול יותר: 1/2 או 1/3 ?","hint":"תחשבי על פיצה: אם חותכים אותה ל-2 חתיכות או ל-3 חתיכות - באיזו חלוקה כל חתיכה גדולה יותר?","choices":[{"id":"a","text":"1/2"},{"id":"b","text":"1/3","misconception":"bigger_denominator_bigger_fraction"},{"id":"c","text":"הם שווים"},{"id":"d","text":"אי אפשר לדעת"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
-   '{"tag":"אוצר מילים","stem":"איך אומרים \"סֵפֶר\" בערבית ספרותית?","hint":"המילה הזו מוכרת גם מהמילה \"מַכְּתַבָּה\" (סִפרייה) — אותו שורש.","choices":[{"id":"a","text":"כִּתַאבּ"},{"id":"b","text":"קַלַם","misconception":"confuse_pen_book"},{"id":"c","text":"בַּאבּ"},{"id":"d","text":"בֵּית"}],"correct_choice_id":"a","coins":12}'::jsonb),
+   '{"tag":"אוצר מילים","stem":"איך אומרים \"סֵפֶר\" בערבית ספרותית?","hint":"המילה הזו מוכרת גם מהמילה \"מַכְּתַבָּה\" (סִפרייה) - אותו שורש.","choices":[{"id":"a","text":"כִּתַאבּ"},{"id":"b","text":"קַלַם","misconception":"confuse_pen_book"},{"id":"c","text":"בַּאבּ"},{"id":"d","text":"בֵּית"}],"correct_choice_id":"a","coins":12}'::jsonb),
   -- Shared enrichment (both girls)
   ('aaaaaaaa-0000-0000-0000-000000000003', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"המצאות","stem":"מה הצעד הראשון של כל ממציאה חכמה?","hint":"לפני שממציאים פתרון צריך לדעת מה שווה לפתור. ממה אנשים מתעצבנים?","choices":[{"id":"a","text":"למצוא בעיה שמפריעה"},{"id":"b","text":"לצייר לוגו יפה"},{"id":"c","text":"לבחור שם מגניב"},{"id":"d","text":"לפתוח חנות"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000004', 'choice_scenario', 1, 'curated', 'auto_passed',
-   '{"prompt":"מה תעשי היום בשביל מישהו אחר?","note":"אין כאן תשובה נכונה — כל בחירה היא הפקדה טובה ללב.","choices":[{"id":"a","label":"לפרגן לחברה על משהו","icon":"star"},{"id":"b","label":"לעזור במשהו בבית","icon":"home"},{"id":"c","label":"להקשיב לחברה בלי להפריע","icon":"ear"}]}'::jsonb);
+   '{"prompt":"מה תעשי היום בשביל מישהו אחר?","note":"אין כאן תשובה נכונה - כל בחירה היא הפקדה טובה ללב.","choices":[{"id":"a","label":"לפרגן לחברה על משהו","icon":"star"},{"id":"b","label":"לעזור במשהו בבית","icon":"home"},{"id":"c","label":"להקשיב לחברה בלי להפריע","icon":"ear"}]}'::jsonb);
 
--- Extra questions per topic — variety for "עוד מסע" and spaced review.
+-- Extra questions per topic - variety for "עוד מסע" and spaced review.
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
   -- Mili math (grade 3)
   ('aaaaaaaa-0000-0000-0000-000000000001', 'multiple_choice', 1, 'curated', 'auto_passed',
@@ -107,18 +107,18 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('aaaaaaaa-0000-0000-0000-000000000002', 'multiple_choice', 1, 'curated', 'auto_passed',
    '{"tag":"ברכות","stem":"איך אומרים \"תודה\" בערבית מדוברת?","hint":"מילת נימוס נפוצה מאוד, מתחילה ב-\"שׁ\".","choices":[{"id":"a","text":"שׁוּכְּרַן"},{"id":"b","text":"מַרְחַבָּא"},{"id":"c","text":"מַעַ סַלַאמֶה"},{"id":"d","text":"עַפְוַן"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
-   '{"tag":"ברכות","stem":"איך אומרים \"להתראות\" בערבית מדוברת?","hint":"אומרים את זה כשנפרדים — שתי מילים, מסתיים ב-\"סַלַאמֶה\".","choices":[{"id":"a","text":"מַעַ סַלַאמֶה"},{"id":"b","text":"שׁוּכְּרַן"},{"id":"c","text":"מַרְחַבָּא"},{"id":"d","text":"תְפַצַّ׳ל"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"ברכות","stem":"איך אומרים \"להתראות\" בערבית מדוברת?","hint":"אומרים את זה כשנפרדים - שתי מילים, מסתיים ב-\"סַלַאמֶה\".","choices":[{"id":"a","text":"מַעַ סַלַאמֶה"},{"id":"b","text":"שׁוּכְּרַן"},{"id":"c","text":"מַרְחַבָּא"},{"id":"d","text":"תְפַצַّ׳ל"}],"correct_choice_id":"a","coins":10}'::jsonb),
   -- Shared future skills
   ('aaaaaaaa-0000-0000-0000-000000000003', 'multiple_choice', 2, 'curated', 'auto_passed',
-   '{"tag":"המצאות","stem":"אחרי שמצאת בעיה — מה הצעד הבא של ממציאה?","hint":"לא מתאהבים ברעיון הראשון. מה עושים כדי לא לפספס רעיון טוב יותר?","choices":[{"id":"a","text":"לחשוב על כמה רעיונות שונים"},{"id":"b","text":"לבחור מיד את הרעיון הראשון"},{"id":"c","text":"לוותר אם זה קשה"},{"id":"d","text":"לחכות שמישהו אחר יפתור"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"המצאות","stem":"אחרי שמצאת בעיה - מה הצעד הבא של ממציאה?","hint":"לא מתאהבים ברעיון הראשון. מה עושים כדי לא לפספס רעיון טוב יותר?","choices":[{"id":"a","text":"לחשוב על כמה רעיונות שונים"},{"id":"b","text":"לבחור מיד את הרעיון הראשון"},{"id":"c","text":"לוותר אם זה קשה"},{"id":"d","text":"לחכות שמישהו אחר יפתור"}],"correct_choice_id":"a","coins":10}'::jsonb),
   -- Lia math (grade 5)
   ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
-   '{"tag":"שברים","stem":"כמה זה 1/4 + 1/4 ?","hint":"שני רבעים יחד — כמה זה מתוך שלם? אפשר לצמצם.","choices":[{"id":"a","text":"1/2"},{"id":"b","text":"1/8","misconception":"add_denominators"},{"id":"c","text":"1/4"},{"id":"d","text":"2/8"}],"correct_choice_id":"a","coins":12}'::jsonb),
+   '{"tag":"שברים","stem":"כמה זה 1/4 + 1/4 ?","hint":"שני רבעים יחד - כמה זה מתוך שלם? אפשר לצמצם.","choices":[{"id":"a","text":"1/2"},{"id":"b","text":"1/8","misconception":"add_denominators"},{"id":"c","text":"1/4"},{"id":"d","text":"2/8"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
    '{"tag":"שברים","stem":"איזה שבר שווה ל-1/2 ?","hint":"מחפשים שבר שאם מצמצמים אותו מקבלים חצי.","choices":[{"id":"a","text":"2/4"},{"id":"b","text":"1/3"},{"id":"c","text":"2/3"},{"id":"d","text":"3/4"}],"correct_choice_id":"a","coins":12}'::jsonb),
   -- Lia arabic literary (grade 5)
   ('bbbbbbbb-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
-   '{"tag":"אוצר מילים","stem":"איך אומרים \"מים\" בערבית ספרותית?","hint":"מילה קצרה שמסתיימת בהברה פתוחה — \"...אא\".","choices":[{"id":"a","text":"מַאא׳"},{"id":"b","text":"שַׁמְס","misconception":"confuse_water_sun"},{"id":"c","text":"נַאר"},{"id":"d","text":"הַוַאא׳"}],"correct_choice_id":"a","coins":12}'::jsonb),
+   '{"tag":"אוצר מילים","stem":"איך אומרים \"מים\" בערבית ספרותית?","hint":"מילה קצרה שמסתיימת בהברה פתוחה - \"...אא\".","choices":[{"id":"a","text":"מַאא׳"},{"id":"b","text":"שַׁמְס","misconception":"confuse_water_sun"},{"id":"c","text":"נַאר"},{"id":"d","text":"הַוַאא׳"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'multiple_choice', 3, 'curated', 'auto_passed',
    '{"tag":"אוצר מילים","stem":"מה הפירוש של המילה \"מַדְרַסֶה\"?","hint":"אותו שורש כמו \"דַרְס\" (שיעור). לאן הולכים ללמוד?","choices":[{"id":"a","text":"בית ספר"},{"id":"b","text":"בית חולים"},{"id":"c","text":"ספרייה"},{"id":"d","text":"גן חיות"}],"correct_choice_id":"a","coins":12}'::jsonb);
 
@@ -126,12 +126,12 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
   -- Geometry (grade 3)
   ('cccccccc-0000-0000-0000-000000000001', 'multiple_choice', 1, 'curated', 'auto_passed',
-   '{"tag":"צורות","stem":"לכמה צלעות יש משולש?","hint":"הרמז נמצא בשם עצמו — \"מְשׁוּלָּשׁ\", כמו שלוש.","choices":[{"id":"a","text":"3"},{"id":"b","text":"4"},{"id":"c","text":"5"},{"id":"d","text":"2"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"צורות","stem":"לכמה צלעות יש משולש?","hint":"הרמז נמצא בשם עצמו - \"מְשׁוּלָּשׁ\", כמו שלוש.","choices":[{"id":"a","text":"3"},{"id":"b","text":"4"},{"id":"c","text":"5"},{"id":"d","text":"2"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"צורות","stem":"לאיזו צורה יש 4 צלעות באותו אורך בדיוק?","hint":"כל הצלעות שוות וכל הזוויות ישרות.","choices":[{"id":"a","text":"ריבוע"},{"id":"b","text":"מלבן","misconception":"rectangle_is_square"},{"id":"c","text":"משולש"},{"id":"d","text":"עיגול"}],"correct_choice_id":"a","coins":10}'::jsonb),
   -- Hebrew vocabulary (grade 3)
   ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 1, 'curated', 'auto_passed',
-   '{"tag":"מילים נרדפות","stem":"איזו מילה דומה במשמעות ל\"שָׂמֵחַ\"?","hint":"מחפשים מילה שאומרת בערך אותו דבר — הרגשה טובה.","choices":[{"id":"a","text":"עַלִּיז"},{"id":"b","text":"עָצוּב"},{"id":"c","text":"כּוֹעֵס"},{"id":"d","text":"עָיֵף"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"מילים נרדפות","stem":"איזו מילה דומה במשמעות ל\"שָׂמֵחַ\"?","hint":"מחפשים מילה שאומרת בערך אותו דבר - הרגשה טובה.","choices":[{"id":"a","text":"עַלִּיז"},{"id":"b","text":"עָצוּב"},{"id":"c","text":"כּוֹעֵס"},{"id":"d","text":"עָיֵף"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 1, 'curated', 'auto_passed',
    '{"tag":"הפכים","stem":"מה ההפך מהמילה \"גָּדוֹל\"?","hint":"מה אומרים על משהו זעיר?","choices":[{"id":"a","text":"קָטָן"},{"id":"b","text":"רָחָב"},{"id":"c","text":"גָּבוֹהַּ"},{"id":"d","text":"כָּבֵד"}],"correct_choice_id":"a","coins":10}'::jsonb),
   -- Geometry (grade 5)
@@ -143,12 +143,12 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 3, 'curated', 'auto_passed',
    '{"tag":"עובדה מול דעה","stem":"איזה משפט מבטא דעה, ולא עובדה?","hint":"עובדה אפשר לבדוק ולאמת; דעה מבטאת רגש או שיפוט אישי.","choices":[{"id":"a","text":"הספר הזה הוא הכי מרגש שנכתב אי פעם"},{"id":"b","text":"הספר יצא לאור בשנת 2019"},{"id":"c","text":"בספר יש 210 עמודים"},{"id":"d","text":"הספר תורגם לשבע שפות"}],"correct_choice_id":"a","coins":14}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 3, 'curated', 'auto_passed',
-   '{"tag":"משמעות בהקשר","stem":"במשפט \"הילד קרא את הספר בנשימה עצורה\", למה הכוונה בביטוי \"בנשימה עצורה\"?","hint":"זה ביטוי — לא באמת מפסיקים לנשום. חושבים על התחושה.","choices":[{"id":"a","text":"במתח ובריכוז גדול"},{"id":"b","text":"תוך כדי ריצה","misconception":"literal_reading"},{"id":"c","text":"בשקט מוחלט"},{"id":"d","text":"במהירות רבה"}],"correct_choice_id":"a","coins":14}'::jsonb),
+   '{"tag":"משמעות בהקשר","stem":"במשפט \"הילד קרא את הספר בנשימה עצורה\", למה הכוונה בביטוי \"בנשימה עצורה\"?","hint":"זה ביטוי - לא באמת מפסיקים לנשום. חושבים על התחושה.","choices":[{"id":"a","text":"במתח ובריכוז גדול"},{"id":"b","text":"תוך כדי ריצה","misconception":"literal_reading"},{"id":"c","text":"בשקט מוחלט"},{"id":"d","text":"במהירות רבה"}],"correct_choice_id":"a","coins":14}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 4, 'curated', 'auto_passed',
    '{"tag":"טיעון","stem":"\"כדאי ללכת ברגל לבית הספר כי זה בריא, חוסך זיהום אוויר, וגם נעים לפגוש חברים בדרך.\" מהי הטענה המרכזית?","hint":"הטענה היא המסקנה; שאר הדברים הם הנימוקים שתומכים בה.","choices":[{"id":"a","text":"כדאי ללכת ברגל לבית הספר"},{"id":"b","text":"הליכה היא בריאה"},{"id":"c","text":"נעים לפגוש חברים"},{"id":"d","text":"הליכה חוסכת זיהום אוויר"}],"correct_choice_id":"a","coins":14}'::jsonb),
   -- Science (shared enrichment)
   ('cccccccc-0000-0000-0000-000000000005', 'multiple_choice', 1, 'curated', 'auto_passed',
-   '{"tag":"צמחים","stem":"מה נותן לצמח אנרגיה כדי לגדול?","hint":"בלי זה בבוקר לא היינו רואים כלום — וגם הצמח לא היה גדל.","choices":[{"id":"a","text":"אור השמש"},{"id":"b","text":"חושך"},{"id":"c","text":"רעש"},{"id":"d","text":"פלסטיק"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"צמחים","stem":"מה נותן לצמח אנרגיה כדי לגדול?","hint":"בלי זה בבוקר לא היינו רואים כלום - וגם הצמח לא היה גדל.","choices":[{"id":"a","text":"אור השמש"},{"id":"b","text":"חושך"},{"id":"c","text":"רעש"},{"id":"d","text":"פלסטיק"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000005', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"בעלי חיים","stem":"איזו חיה היא יונק, למרות שהיא חיה בים?","hint":"היא נושמת אוויר, מניקה את גוריה, וקופצת מעל הגלים.","choices":[{"id":"a","text":"דולפין"},{"id":"b","text":"כריש","misconception":"shark_is_mammal"},{"id":"c","text":"צפרדע"},{"id":"d","text":"נחש"}],"correct_choice_id":"a","coins":10}'::jsonb);
 
@@ -163,12 +163,12 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('dddddddd-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"הבנה","stem":"מה הפירוש של המשפט \"I am happy\"?","hint":"happy = שמח.","choices":[{"id":"a","text":"אני שמח/ה"},{"id":"b","text":"אני עייף/ה"},{"id":"c","text":"אני רעב/ה"},{"id":"d","text":"אני עצוב/ה"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
-   '{"tag":"דקדוק","stem":"מה צורת הרבים של המילה \"child\" באנגלית?","hint":"זו מילה יוצאת דופן — לא מוסיפים סתם s.","choices":[{"id":"a","text":"children"},{"id":"b","text":"childs","misconception":"regular_plural_overgeneralization"},{"id":"c","text":"childes"},{"id":"d","text":"child"}],"correct_choice_id":"a","coins":12}'::jsonb),
+   '{"tag":"דקדוק","stem":"מה צורת הרבים של המילה \"child\" באנגלית?","hint":"זו מילה יוצאת דופן - לא מוסיפים סתם s.","choices":[{"id":"a","text":"children"},{"id":"b","text":"childs","misconception":"regular_plural_overgeneralization"},{"id":"c","text":"childes"},{"id":"d","text":"child"}],"correct_choice_id":"a","coins":12}'::jsonb),
   -- Bible (grade 3, cultural)
   ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 1, 'curated', 'auto_passed',
    '{"tag":"בראשית","stem":"מי בנה את התיבה לפי הסיפור?","hint":"אותו אדם אסף זוגות של כל בעלי החיים.","choices":[{"id":"a","text":"נח"},{"id":"b","text":"אברהם"},{"id":"c","text":"משה"},{"id":"d","text":"דוד"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 1, 'curated', 'auto_passed',
-   '{"tag":"בראשית","stem":"בכמה ימים נברא העולם לפי הסיפור?","hint":"ביום השביעי נחו — אז כמה ימי בריאה היו?","choices":[{"id":"a","text":"שבעה"},{"id":"b","text":"שלושה"},{"id":"c","text":"עשרה"},{"id":"d","text":"אחד"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"בראשית","stem":"בכמה ימים נברא העולם לפי הסיפור?","hint":"ביום השביעי נחו - אז כמה ימי בריאה היו?","choices":[{"id":"a","text":"שבעה"},{"id":"b","text":"שלושה"},{"id":"c","text":"עשרה"},{"id":"d","text":"אחד"}],"correct_choice_id":"a","coins":10}'::jsonb),
   -- Bible (grade 5)
   ('dddddddd-0000-0000-0000-000000000004', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"דמויות","stem":"איזה מלך בנה את בית המקדש הראשון בירושלים?","hint":"בנו של דוד המלך, נודע בחוכמתו.","choices":[{"id":"a","text":"שלמה"},{"id":"b","text":"דוד","misconception":"david_built_temple"},{"id":"c","text":"שאול"},{"id":"d","text":"חזקיהו"}],"correct_choice_id":"a","coins":12}'::jsonb),
@@ -180,34 +180,34 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('dddddddd-0000-0000-0000-000000000005', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"ארץ ישראל","stem":"איזה מקום בישראל הוא הנקודה הנמוכה ביותר ביבשה בעולם?","hint":"ים מלוח מאוד שאפשר לצוף בו בקלות.","choices":[{"id":"a","text":"ים המלח"},{"id":"b","text":"הכנרת"},{"id":"c","text":"הים התיכון"},{"id":"d","text":"ים סוף"}],"correct_choice_id":"a","coins":12}'::jsonb);
 
--- Grade-5 enrichment — deeper than the grade-3 versions (age-adapted).
+-- Grade-5 enrichment - deeper than the grade-3 versions (age-adapted).
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
   -- Future skills (grade 5): entrepreneurship, MVP
   ('ffffffff-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
-   '{"tag":"יזמות","stem":"מה זה MVP (מוצר ראשוני מינימלי)?","hint":"הגרסה הכי פשוטה שאפשר להוציא כדי לבדוק אם הרעיון עובד — לפני שמשקיעים הרבה.","choices":[{"id":"a","text":"גרסה ראשונית ופשוטה שבודקים איתה אם הרעיון עובד"},{"id":"b","text":"המוצר המושלם והסופי"},{"id":"c","text":"הפרסומת של המוצר"},{"id":"d","text":"השם של החברה"}],"correct_choice_id":"a","coins":14}'::jsonb),
+   '{"tag":"יזמות","stem":"מה זה MVP (מוצר ראשוני מינימלי)?","hint":"הגרסה הכי פשוטה שאפשר להוציא כדי לבדוק אם הרעיון עובד - לפני שמשקיעים הרבה.","choices":[{"id":"a","text":"גרסה ראשונית ופשוטה שבודקים איתה אם הרעיון עובד"},{"id":"b","text":"המוצר המושלם והסופי"},{"id":"c","text":"הפרסומת של המוצר"},{"id":"d","text":"השם של החברה"}],"correct_choice_id":"a","coins":14}'::jsonb),
   ('ffffffff-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
    '{"tag":"יזמות","stem":"למה כדאי לעשות סקר שוק לפני שמפתחים מוצר?","hint":"עדיף לגלות מה אנשים באמת צריכים לפני שמשקיעים זמן וכסף.","choices":[{"id":"a","text":"כדי לבדוק אם יש אנשים שבאמת רוצים את המוצר"},{"id":"b","text":"כדי לבחור צבע ללוגו"},{"id":"c","text":"כדי לחסוך בחשמל"},{"id":"d","text":"כי זה מה שכולם עושים"}],"correct_choice_id":"a","coins":14}'::jsonb),
   -- Science (grade 5): energy + human body
   ('ffffffff-0000-0000-0000-000000000002', 'multiple_choice', 3, 'curated', 'auto_passed',
    '{"tag":"אנרגיה","stem":"איזו המרת אנרגיה מתרחשת בפנס שעובד על סוללה?","hint":"בסוללה אצורה אנרגיה כימית; הפנס בסוף נותן אור.","choices":[{"id":"a","text":"מאנרגיה כימית לאנרגיית אור"},{"id":"b","text":"מאנרגיית אור לאנרגיה כימית"},{"id":"c","text":"מאנרגיית קול לחום"},{"id":"d","text":"מאנרגיית תנועה לקול"}],"correct_choice_id":"a","coins":14}'::jsonb),
   ('ffffffff-0000-0000-0000-000000000002', 'multiple_choice', 3, 'curated', 'auto_passed',
-   '{"tag":"גוף האדם","stem":"מה תפקיד הריאות בגוף?","hint":"קשור לנשימה — מה נכנס ומה יוצא מהגוף.","choices":[{"id":"a","text":"להכניס חמצן לגוף ולהוציא פחמן דו-חמצני"},{"id":"b","text":"לעכל את האוכל"},{"id":"c","text":"לשאוב את הדם"},{"id":"d","text":"לסנן פסולת מהדם"}],"correct_choice_id":"a","coins":14}'::jsonb),
+   '{"tag":"גוף האדם","stem":"מה תפקיד הריאות בגוף?","hint":"קשור לנשימה - מה נכנס ומה יוצא מהגוף.","choices":[{"id":"a","text":"להכניס חמצן לגוף ולהוציא פחמן דו-חמצני"},{"id":"b","text":"לעכל את האוכל"},{"id":"c","text":"לשאוב את הדם"},{"id":"d","text":"לסנן פסולת מהדם"}],"correct_choice_id":"a","coins":14}'::jsonb),
   -- Geography (grade 5): climate + continents
   ('ffffffff-0000-0000-0000-000000000003', 'multiple_choice', 3, 'curated', 'auto_passed',
    '{"tag":"יבשות","stem":"כמה יבשות יש בכדור הארץ?","hint":"אסיה, אפריקה, אירופה, אמריקה הצפונית והדרומית, אוסטרליה ואנטארקטיקה.","choices":[{"id":"a","text":"שבע"},{"id":"b","text":"חמש"},{"id":"c","text":"שש"},{"id":"d","text":"תשע"}],"correct_choice_id":"a","coins":14}'::jsonb),
   ('ffffffff-0000-0000-0000-000000000003', 'multiple_choice', 4, 'curated', 'auto_passed',
-   '{"tag":"אקלים","stem":"מהו אקלים ים-תיכוני, כמו בישראל?","hint":"תחשבי על מזג האוויר לאורך השנה — מתי גשום ומתי חם ויבש.","choices":[{"id":"a","text":"חורף גשום וקריר, קיץ חם ויבש"},{"id":"b","text":"גשום וקר כל השנה"},{"id":"c","text":"חם וגשום כל השנה"},{"id":"d","text":"שלג רוב השנה"}],"correct_choice_id":"a","coins":16}'::jsonb);
+   '{"tag":"אקלים","stem":"מהו אקלים ים-תיכוני, כמו בישראל?","hint":"תחשבי על מזג האוויר לאורך השנה - מתי גשום ומתי חם ויבש.","choices":[{"id":"a","text":"חורף גשום וקריר, קיץ חם ויבש"},{"id":"b","text":"גשום וקר כל השנה"},{"id":"c","text":"חם וגשום כל השנה"},{"id":"d","text":"שלג רוב השנה"}],"correct_choice_id":"a","coins":16}'::jsonb);
 
 -- Leadership worlds ("אי המצפן"): reflective micro-missions, no right/wrong.
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
   ('eeeeeeee-0000-0000-0000-000000000001', 'reflection_log', 1, 'curated', 'auto_passed',
-   '{"world":1,"kind":"reflection","prompt":"איזו פעולה קטנה עשית היום שמקרבת אותך למי שאת רוצה להיות?","note":"אין כאן תשובה נכונה — כל חותמת מקדמת אותך.","options":[{"id":"hobby","label":"התמדתי בתחביב שאני אוהבת","icon":"star"},{"id":"friend","label":"הייתי חברה טובה","icon":"heart"},{"id":"brave","label":"ניסיתי משהו חדש שהפחיד אותי","icon":"spark"},{"id":"grow","label":"למדתי משהו בעצמי","icon":"book"}]}'::jsonb),
+   '{"world":1,"kind":"reflection","prompt":"איזו פעולה קטנה עשית היום שמקרבת אותך למי שאת רוצה להיות?","note":"אין כאן תשובה נכונה - כל חותמת מקדמת אותך.","options":[{"id":"hobby","label":"התמדתי בתחביב שאני אוהבת","icon":"star"},{"id":"friend","label":"הייתי חברה טובה","icon":"heart"},{"id":"brave","label":"ניסיתי משהו חדש שהפחיד אותי","icon":"spark"},{"id":"grow","label":"למדתי משהו בעצמי","icon":"book"}]}'::jsonb),
   ('eeeeeeee-0000-0000-0000-000000000002', 'budget_allocation', 1, 'curated', 'auto_passed',
-   '{"world":2,"kind":"budget","prompt":"יש לך 5 מטבעות זמן להיום. איך תחלקי אותן?","coins":5,"note":"אי אפשר הכל — לבחור משהו זה גם להגיד ''כן'' לעצמך.","options":[{"id":"club","label":"חוג","icon":"star"},{"id":"screen","label":"מסך","icon":"spark"},{"id":"rest","label":"מנוחה","icon":"heart"},{"id":"friend","label":"זמן עם חברה","icon":"home"}]}'::jsonb),
+   '{"world":2,"kind":"budget","prompt":"יש לך 5 מטבעות זמן להיום. איך תחלקי אותן?","coins":5,"note":"אי אפשר הכל - לבחור משהו זה גם להגיד ''כן'' לעצמך.","options":[{"id":"club","label":"חוג","icon":"star"},{"id":"screen","label":"מסך","icon":"spark"},{"id":"rest","label":"מנוחה","icon":"heart"},{"id":"friend","label":"זמן עם חברה","icon":"home"}]}'::jsonb),
   ('eeeeeeee-0000-0000-0000-000000000003', 'choice_scenario', 1, 'curated', 'auto_passed',
-   '{"world":3,"kind":"scenario","prompt":"חברה מבקשת שתכיני בשבילה שיעורי בית, ואת עמוסה. איך תגידי ''לא'' בצורה יפה?","note":"סירוב מנומס הוא כוח, לא מרד.","choices":[{"id":"a","label":"אני לא יכולה היום — בא לך שנעשה יחד בפעם אחרת?","icon":"star"},{"id":"b","label":"אני עמוסה עכשיו, אבל אשמח לעזור לך להבין משהו קטן","icon":"home"},{"id":"c","label":"היום אני צריכה את הזמן שלי, סבבה?","icon":"ear"}]}'::jsonb);
+   '{"world":3,"kind":"scenario","prompt":"חברה מבקשת שתכיני בשבילה שיעורי בית, ואת עמוסה. איך תגידי ''לא'' בצורה יפה?","note":"סירוב מנומס הוא כוח, לא מרד.","choices":[{"id":"a","label":"אני לא יכולה היום - בא לך שנעשה יחד בפעם אחרת?","icon":"star"},{"id":"b","label":"אני עמוסה עכשיו, אבל אשמח לעזור לך להבין משהו קטן","icon":"home"},{"id":"c","label":"היום אני צריכה את הזמן שלי, סבבה?","icon":"ear"}]}'::jsonb);
 
--- Reward store (shared family catalog) — varied prices, one screen-time option
+-- Reward store (shared family catalog) - varied prices, one screen-time option
 insert into reward_store (family_id, title, category, cost_coins) values
   ('11111111-1111-1111-1111-111111111111', 'לבחור את המוזיקה ברכב', 'privilege', 20),
   ('11111111-1111-1111-1111-111111111111', 'לבחור את סרט המשפחה', 'privilege', 40),
@@ -239,7 +239,7 @@ on conflict (id) do update set
 
 -- ─────────── Bigger core banks: real session length without waiting on AI ───────────
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
-  -- Math grade 3 — לוח הכפל
+  -- Math grade 3 - לוח הכפל
   ('aaaaaaaa-0000-0000-0000-000000000001', 'multiple_choice', 1, 'curated', 'auto_passed',
    '{"tag":"כפל","stem":"כמה זה 6 × 6 ?","hint":"שש קפיצות של 6.","hints":["ספרי 6, 12, 18…","עוד שלוש קפיצות אחרי 18: 24, 30, 36"],"explanation":"6 כפול 6 שווה 36.","choices":[{"id":"a","text":"36"},{"id":"b","text":"30","misconception":"off_by_one_multiple"},{"id":"c","text":"42"},{"id":"d","text":"12"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
@@ -248,16 +248,16 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"כפל","stem":"בכיתה יש 4 שורות ובכל שורה 6 כיסאות. כמה כיסאות בסך הכל?","hint":"4 קבוצות של 6.","hints":["זה 4 × 6","6, 12, 18, 24"],"explanation":"4 שורות כפול 6 כיסאות = 24.","choices":[{"id":"a","text":"24"},{"id":"b","text":"10"},{"id":"c","text":"46"},{"id":"d","text":"20"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
    '{"tag":"כפל","stem":"כמה זה 9 × 6 ?","hint":"9 זה כמו 10 פחות 1.","hints":["10 × 6 = 60","60 פחות 6 = 54"],"explanation":"9 כפול 6 שווה 54.","choices":[{"id":"a","text":"54"},{"id":"b","text":"56","misconception":"off_by_one_multiple"},{"id":"c","text":"63"},{"id":"d","text":"48"}],"correct_choice_id":"a","coins":10}'::jsonb),
-  -- Math grade 5 — שברים
+  -- Math grade 5 - שברים
   ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 2, 'curated', 'auto_passed',
-   '{"tag":"שברים","stem":"איזה שבר שווה ל‑2/4 ?","hint":"נסי לצמצם — לחלק מונה ומכנה באותו מספר.","hints":["חלקי את 2 ואת 4 ב‑2","2÷2=1, 4÷2=2"],"explanation":"2/4 מצטמצם ל‑1/2.","choices":[{"id":"a","text":"1/2"},{"id":"b","text":"1/4"},{"id":"c","text":"2/3"},{"id":"d","text":"1/3"}],"correct_choice_id":"a","coins":12}'::jsonb),
+   '{"tag":"שברים","stem":"איזה שבר שווה ל‑2/4 ?","hint":"נסי לצמצם - לחלק מונה ומכנה באותו מספר.","hints":["חלקי את 2 ואת 4 ב‑2","2÷2=1, 4÷2=2"],"explanation":"2/4 מצטמצם ל‑1/2.","choices":[{"id":"a","text":"1/2"},{"id":"b","text":"1/4"},{"id":"c","text":"2/3"},{"id":"d","text":"1/3"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
-   '{"tag":"שברים","stem":"כמה זה 1/4 + 2/4 ?","hint":"אותו מכנה — מחברים רק את המונים.","hints":["1+2 = 3","המכנה נשאר 4"],"explanation":"מחברים מונים כשהמכנה זהה: 1/4+2/4 = 3/4.","choices":[{"id":"a","text":"3/4"},{"id":"b","text":"3/8","misconception":"add_denominators"},{"id":"c","text":"1/2"},{"id":"d","text":"2/4"}],"correct_choice_id":"a","coins":12}'::jsonb),
+   '{"tag":"שברים","stem":"כמה זה 1/4 + 2/4 ?","hint":"אותו מכנה - מחברים רק את המונים.","hints":["1+2 = 3","המכנה נשאר 4"],"explanation":"מחברים מונים כשהמכנה זהה: 1/4+2/4 = 3/4.","choices":[{"id":"a","text":"3/4"},{"id":"b","text":"3/8","misconception":"add_denominators"},{"id":"c","text":"1/2"},{"id":"d","text":"2/4"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 3, 'curated', 'auto_passed',
    '{"tag":"שברים","stem":"מה זה 3/5 מתוך 20 ?","hint":"קודם מוצאים חמישית אחת מ‑20.","hints":["20 ÷ 5 = 4 (זה 1/5)","3 חמישיות = 3 × 4"],"explanation":"1/5 מ‑20 הוא 4, ולכן 3/5 הם 12.","choices":[{"id":"a","text":"12"},{"id":"b","text":"15"},{"id":"c","text":"8"},{"id":"d","text":"60"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000001', 'multiple_choice', 4, 'curated', 'auto_passed',
    '{"tag":"שברים","stem":"איזה שבר גדול יותר: 3/4 או 2/3 ?","hint":"אפשר להביא למכנה משותף 12.","hints":["3/4 = 9/12","2/3 = 8/12"],"explanation":"3/4 שווה 9/12 והוא גדול מ‑8/12 (שהם 2/3).","choices":[{"id":"a","text":"3/4"},{"id":"b","text":"2/3","misconception":"bigger_denominator_bigger_fraction"},{"id":"c","text":"הם שווים"},{"id":"d","text":"אי אפשר לדעת"}],"correct_choice_id":"a","coins":13}'::jsonb),
-  -- Hebrew grade 3 — אוצר מילים
+  -- Hebrew grade 3 - אוצר מילים
   ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 1, 'curated', 'auto_passed',
    '{"tag":"ניגודים","stem":"מה ההפך של המילה \"גָּדוֹל\" ?","hint":"תחשבי על משהו זעיר.","hints":["הפך של גדול קשור לגודל","נמלה היא… ?"],"explanation":"ההפך של גדול הוא קטן.","choices":[{"id":"a","text":"קָטָן"},{"id":"b","text":"רָחָב"},{"id":"c","text":"כָּבֵד"},{"id":"d","text":"גָּבוֹהַּ"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
@@ -265,17 +265,17 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"יחיד ורבים","stem":"מה צורת הרבים של \"יֶלֶד\" ?","hint":"יותר מאחד.","hints":["מוסיפים סיומת רבים","ילד אחד, שני…"],"explanation":"הרבים של ילד הוא ילדים.","choices":[{"id":"a","text":"יְלָדִים"},{"id":"b","text":"יַלְדָּה"},{"id":"c","text":"יַלְדּוּת"},{"id":"d","text":"יְלָדוֹת"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000002', 'multiple_choice', 3, 'curated', 'auto_passed',
-   '{"tag":"הקשר","stem":"בְּמשפט \"הילד רָץ מהר כי אֵיחר לבית הספר\" — למה הוא רץ?","hint":"חפשי את הסיבה אחרי המילה \"כי\".","hints":["המילה כי מציגה סיבה","מה קרה עם הזמן?"],"explanation":"המילה כי מציגה את הסיבה: הוא איחר.","choices":[{"id":"a","text":"כי הוא איחר"},{"id":"b","text":"כי הוא רעב"},{"id":"c","text":"כי חם בחוץ"},{"id":"d","text":"כי הוא שמח"}],"correct_choice_id":"a","coins":11}'::jsonb),
-  -- Hebrew grade 5 — הבנה וטיעון
+   '{"tag":"הקשר","stem":"בְּמשפט \"הילד רָץ מהר כי אֵיחר לבית הספר\" - למה הוא רץ?","hint":"חפשי את הסיבה אחרי המילה \"כי\".","hints":["המילה כי מציגה סיבה","מה קרה עם הזמן?"],"explanation":"המילה כי מציגה את הסיבה: הוא איחר.","choices":[{"id":"a","text":"כי הוא איחר"},{"id":"b","text":"כי הוא רעב"},{"id":"c","text":"כי חם בחוץ"},{"id":"d","text":"כי הוא שמח"}],"correct_choice_id":"a","coins":11}'::jsonb),
+  -- Hebrew grade 5 - הבנה וטיעון
   ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 3, 'curated', 'auto_passed',
-   '{"tag":"עובדה ודעה","stem":"איזה משפט הוא דעה (ולא עובדה)?","hint":"דעה אפשר להתווכח עליה; עובדה אפשר לבדוק.","hints":["חפשי משפט שתלוי בטעם אישי","מילים כמו הכי/יפה מרמזות על דעה"],"explanation":"\"הגלידה הכי טעימה\" היא דעה — היא תלויה בטעם אישי.","choices":[{"id":"a","text":"גלידת השוקולד היא הכי טעימה שיש"},{"id":"b","text":"מים קופאים ב‑0 מעלות"},{"id":"c","text":"בשבוע יש שבעה ימים"},{"id":"d","text":"ישראל נמצאת באסיה"}],"correct_choice_id":"a","coins":12}'::jsonb),
+   '{"tag":"עובדה ודעה","stem":"איזה משפט הוא דעה (ולא עובדה)?","hint":"דעה אפשר להתווכח עליה; עובדה אפשר לבדוק.","hints":["חפשי משפט שתלוי בטעם אישי","מילים כמו הכי/יפה מרמזות על דעה"],"explanation":"\"הגלידה הכי טעימה\" היא דעה - היא תלויה בטעם אישי.","choices":[{"id":"a","text":"גלידת השוקולד היא הכי טעימה שיש"},{"id":"b","text":"מים קופאים ב‑0 מעלות"},{"id":"c","text":"בשבוע יש שבעה ימים"},{"id":"d","text":"ישראל נמצאת באסיה"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 3, 'curated', 'auto_passed',
    '{"tag":"טיעון","stem":"\"כדאי ללכת לישון מוקדם, כי מי שישן טוב מרוכז יותר בבוקר.\" מה הנימוק בטענה?","hint":"הנימוק מסביר למה כדאי.","hints":["חפשי את החלק אחרי המילה כי","מה היתרון שמצוין?"],"explanation":"הנימוק הוא שמי שישן טוב מרוכז יותר בבוקר.","choices":[{"id":"a","text":"מי שישן טוב מרוכז יותר בבוקר"},{"id":"b","text":"כדאי ללכת לישון מוקדם"},{"id":"c","text":"הבוקר מגיע מהר"},{"id":"d","text":"שינה זה משעמם"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 4, 'curated', 'auto_passed',
    '{"tag":"משמעות בהקשר","stem":"\"אחרי המרוץ הארוך, רגליו היו כְּבֵדוֹת כעופרת.\" למה הכוונה?","hint":"זו לשון ציורית, לא משקל ממש.","hints":["רגליים לא נעשות מעופרת באמת","איך מרגישות רגליים אחרי מאמץ?"],"explanation":"הכוונה שהיה לו קשה מאוד להזיז את הרגליים מרוב עייפות.","choices":[{"id":"a","text":"היה לו קשה מאוד להזיז את הרגליים"},{"id":"b","text":"הרגליים שלו עשויות ממתכת"},{"id":"c","text":"הוא שקל הרבה"},{"id":"d","text":"הוא רץ מהר מאוד"}],"correct_choice_id":"a","coins":13}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000004', 'multiple_choice', 4, 'curated', 'auto_passed',
    '{"tag":"הסקת מסקנות","stem":"\"בבוקר הרחוב היה רטוב והמטריות היו פתוחות.\" מה אפשר להסיק?","hint":"אילו סימנים מצוינים?","hints":["מה גורם לרחוב רטוב?","למה פותחים מטריות?"],"explanation":"מהסימנים אפשר להסיק שירד גשם.","choices":[{"id":"a","text":"ירד גשם"},{"id":"b","text":"הייתה שריפה"},{"id":"c","text":"היה חג"},{"id":"d","text":"נפל שלג"}],"correct_choice_id":"a","coins":13}'::jsonb),
-  -- Bible grade 3 — סיפורי בראשית
+  -- Bible grade 3 - סיפורי בראשית
   ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 1, 'curated', 'auto_passed',
    '{"tag":"בריאה","stem":"בכמה ימים נברא העולם לפי סיפור הבריאה?","hint":"ששה ימי מעשה ויום מנוחה.","hints":["ביום השביעי נחו","6 + 1"],"explanation":"העולם נברא בששה ימים וביום השביעי שבת.","choices":[{"id":"a","text":"שבעה"},{"id":"b","text":"שלושה"},{"id":"c","text":"עשרה"},{"id":"d","text":"חמישה"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 1, 'curated', 'auto_passed',
@@ -284,7 +284,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"אבות","stem":"מי הם שלושת האבות של עם ישראל?","hint":"סבא, אבא ונכד.","hints":["הראשון הוא אברהם","אברהם, יצחק ו…"],"explanation":"האבות הם אברהם, יצחק ויעקב.","choices":[{"id":"a","text":"אברהם, יצחק ויעקב"},{"id":"b","text":"משה, אהרן ומרים"},{"id":"c","text":"נח, שם וחם"},{"id":"d","text":"דוד, שלמה ושאול"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000003', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"גן עדן","stem":"מאיזה עץ נאסר על אדם וחוה לאכול בגן עדן?","hint":"עץ עם שם שקשור לדעת.","hints":["לא עץ החיים","עץ הַ…"],"explanation":"נאסר עליהם לאכול מעץ הדעת טוב ורע.","choices":[{"id":"a","text":"עץ הדעת טוב ורע"},{"id":"b","text":"עץ הזית"},{"id":"c","text":"עץ התאנה"},{"id":"d","text":"עץ הרימון"}],"correct_choice_id":"a","coins":10}'::jsonb),
-  -- Bible grade 5 — דמויות בתנ״ך
+  -- Bible grade 5 - דמויות בתנ״ך
   ('dddddddd-0000-0000-0000-000000000004', 'multiple_choice', 2, 'curated', 'auto_passed',
    '{"tag":"יוסף","stem":"מי פתר את חלומות פרעה במצרים?","hint":"הוא הגיע למצרים אחרי שאחיו מכרו אותו.","hints":["בעל כתונת הפסים","יעקב היה אביו"],"explanation":"יוסף פתר את חלומות פרעה ועלה לגדולה במצרים.","choices":[{"id":"a","text":"יוסף"},{"id":"b","text":"משה"},{"id":"c","text":"אהרן"},{"id":"d","text":"יהודה"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000004', 'multiple_choice', 2, 'curated', 'auto_passed',
@@ -296,7 +296,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
 
 -- English / Arabic / Science expansion (mirrors fill_lang_science.sql)
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
-  -- English grade 3 — מילים ראשונות
+  -- English grade 3 - מילים ראשונות
   ('dddddddd-0000-0000-0000-000000000001','multiple_choice',1,'curated','auto_passed',
    '{"tag":"אוצר מילים","stem":"איך אומרים בית באנגלית?","hints":["מילה עם 5 אותיות","מתחילה ב‑H"],"explanation":"בית באנגלית הוא House.","choices":[{"id":"a","text":"House"},{"id":"b","text":"Mouse"},{"id":"c","text":"Horse"},{"id":"d","text":"Hat"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000001','multiple_choice',1,'curated','auto_passed',
@@ -305,7 +305,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"בעלי חיים","stem":"איך אומרים כלב באנגלית?","hints":["חיה שנובחת","3 אותיות"],"explanation":"כלב באנגלית הוא Dog.","choices":[{"id":"a","text":"Dog"},{"id":"b","text":"Cat"},{"id":"c","text":"Cow"},{"id":"d","text":"Dig"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000001','multiple_choice',2,'curated','auto_passed',
    '{"tag":"אוצר מילים","stem":"מה זה Apple בעברית?","hints":["פרי","גדל על עץ"],"explanation":"Apple פירושו תפוח.","choices":[{"id":"a","text":"תפוח"},{"id":"b","text":"בננה"},{"id":"c","text":"תפוז"},{"id":"d","text":"ענב"}],"correct_choice_id":"a","coins":10}'::jsonb),
-  -- English grade 5 — קריאה והבנה
+  -- English grade 5 - קריאה והבנה
   ('dddddddd-0000-0000-0000-000000000002','multiple_choice',3,'curated','auto_passed',
    '{"tag":"דקדוק","stem":"What is the past tense of go?","hints":["לא הולך אלא הלך","צורה לא רגילה"],"explanation":"עבר של go הוא went (פועל חריג).","choices":[{"id":"a","text":"went"},{"id":"b","text":"goed"},{"id":"c","text":"gone"},{"id":"d","text":"going"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000002','multiple_choice',3,'curated','auto_passed',
@@ -314,7 +314,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"אוצר מילים","stem":"What is the opposite of happy?","hints":["רגש הפוך","מתחיל ב‑s"],"explanation":"ההפך של happy (שמח) הוא sad (עצוב).","choices":[{"id":"a","text":"sad"},{"id":"b","text":"glad"},{"id":"c","text":"angry"},{"id":"d","text":"tired"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000002','multiple_choice',4,'curated','auto_passed',
    '{"tag":"רבים","stem":"What is the plural of child?","hints":["רבים חריג","לא childs"],"explanation":"הרבים של child הוא children (צורה חריגה).","choices":[{"id":"a","text":"children"},{"id":"b","text":"childs"},{"id":"c","text":"childes"},{"id":"d","text":"child"}],"correct_choice_id":"a","coins":13}'::jsonb),
-  -- Arabic grade 3 — ברכות (מדוברת)
+  -- Arabic grade 3 - ברכות (מדוברת)
   ('aaaaaaaa-0000-0000-0000-000000000002','multiple_choice',1,'curated','auto_passed',
    '{"tag":"ברכות","stem":"איך אומרים תודה בערבית מדוברת?","hints":["אומרים כשמישהו עוזר","מתחיל ב‑שֻׁ"],"explanation":"תודה בערבית מדוברת: שֻׁכְּרַן.","choices":[{"id":"a","text":"שֻׁכְּרַן"},{"id":"b","text":"מַרְחַבָּא"},{"id":"c","text":"מַע אַלסַّלַאמֶה"},{"id":"d","text":"עַפְוַן"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000002','multiple_choice',1,'curated','auto_passed',
@@ -323,7 +323,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"ברכות","stem":"איך אומרים בוקר טוב בערבית מדוברת?","hints":["ברכת בוקר","המילה צַבַּאח = בוקר"],"explanation":"בוקר טוב: צַבַּאח אֶלחֵ׳יר.","choices":[{"id":"a","text":"צַבַּאח אֶלחֵ׳יר"},{"id":"b","text":"מַסַאא אֶלחֵ׳יר"},{"id":"c","text":"תֻצְבִּח עַלַא חֵ׳יר"},{"id":"d","text":"אַהְלַן"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000002','multiple_choice',2,'curated','auto_passed',
    '{"tag":"מילים","stem":"מה פירוש המילה אַיְוַה בערבית מדוברת?","hints":["תשובה קצרה","הפך של לא"],"explanation":"אַיְוַה פירושו כן.","choices":[{"id":"a","text":"כן"},{"id":"b","text":"לא"},{"id":"c","text":"אולי"},{"id":"d","text":"תודה"}],"correct_choice_id":"a","coins":10}'::jsonb),
-  -- Arabic grade 5 — קריאה ספרותית (ספרותית)
+  -- Arabic grade 5 - קריאה ספרותית (ספרותית)
   ('bbbbbbbb-0000-0000-0000-000000000002','multiple_choice',2,'curated','auto_passed',
    '{"tag":"אוצר מילים","stem":"איך אומרים מים בערבית ספרותית?","hints":["מה שותים","מתחיל ב‑מَ"],"explanation":"מים בערבית ספרותית: מַאء.","choices":[{"id":"a","text":"מַאء"},{"id":"b","text":"שַׁמְס"},{"id":"c","text":"בַּיְת"},{"id":"d","text":"נַאר"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000002','multiple_choice',2,'curated','auto_passed',
@@ -332,16 +332,16 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"אוצר מילים","stem":"מה פירוש המילה שַׁמְס בערבית?","hints":["מאירה ביום","בשמיים"],"explanation":"שַׁמְס פירושו שמש.","choices":[{"id":"a","text":"שמש"},{"id":"b","text":"ירח"},{"id":"c","text":"כוכב"},{"id":"d","text":"ענן"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000002','multiple_choice',3,'curated','auto_passed',
    '{"tag":"אוצר מילים","stem":"איך אומרים מורה בערבית ספרותית?","hints":["מלמד בכיתה","מאותו שורש כמו מַדְרַסֶה"],"explanation":"מורה בערבית ספרותית: מֻעַלִّם.","choices":[{"id":"a","text":"מֻעַלִّם"},{"id":"b","text":"טַאלִבּ"},{"id":"c","text":"טַבִּיבּ"},{"id":"d","text":"כַּאתִבּ"}],"correct_choice_id":"a","coins":12}'::jsonb),
-  -- Science grade 3 — עולם החי
+  -- Science grade 3 - עולם החי
   ('cccccccc-0000-0000-0000-000000000005','multiple_choice',1,'curated','auto_passed',
-   '{"tag":"בעלי חיים","stem":"כמה רגליים יש לחרק?","hints":["יותר מארבע","זוג לכל חלק גוף — שלושה זוגות"],"explanation":"לחרקים יש שש רגליים.","choices":[{"id":"a","text":"שש"},{"id":"b","text":"ארבע"},{"id":"c","text":"שמונה"},{"id":"d","text":"שתיים"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"בעלי חיים","stem":"כמה רגליים יש לחרק?","hints":["יותר מארבע","זוג לכל חלק גוף - שלושה זוגות"],"explanation":"לחרקים יש שש רגליים.","choices":[{"id":"a","text":"שש"},{"id":"b","text":"ארבע"},{"id":"c","text":"שמונה"},{"id":"d","text":"שתיים"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000005','multiple_choice',2,'curated','auto_passed',
    '{"tag":"בעלי חיים","stem":"באיזה איבר נושם דג במים?","hints":["לא ריאות","נמצא בצדי הראש"],"explanation":"דגים נושמים דרך הזימים.","choices":[{"id":"a","text":"זימים"},{"id":"b","text":"ריאות"},{"id":"c","text":"עור"},{"id":"d","text":"סנפיר"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000005','multiple_choice',2,'curated','auto_passed',
    '{"tag":"צמחים","stem":"מה צמח צריך כדי לגדול?","hints":["מגיע מהשמש ומהגשם","שני דברים"],"explanation":"צמח צריך אור שמש ומים (וגם אוויר) כדי לגדול.","choices":[{"id":"a","text":"אור שמש ומים"},{"id":"b","text":"חושך וקור"},{"id":"c","text":"רק אבנים"},{"id":"d","text":"רק חשמל"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000005','multiple_choice',2,'curated','auto_passed',
    '{"tag":"בעלי חיים","stem":"איזו קבוצת בעלי חיים מטילה ביצים?","hints":["לא יונקים","ציפורים ו…"],"explanation":"ציפורים (וגם זוחלים ודגים) מטילות ביצים; יונקים יולדים.","choices":[{"id":"a","text":"ציפורים"},{"id":"b","text":"כלבים"},{"id":"c","text":"חתולים"},{"id":"d","text":"סוסים"}],"correct_choice_id":"a","coins":10}'::jsonb),
-  -- Science grade 5 — אנרגיה וגוף האדם
+  -- Science grade 5 - אנרגיה וגוף האדם
   ('ffffffff-0000-0000-0000-000000000002','multiple_choice',2,'curated','auto_passed',
    '{"tag":"גוף האדם","stem":"איזה איבר שואב את הדם בגוף?","hints":["פועם בחזה","שריר חזק"],"explanation":"הלב שואב את הדם דרך כלי הדם.","choices":[{"id":"a","text":"הלב"},{"id":"b","text":"הכבד"},{"id":"c","text":"הריאות"},{"id":"d","text":"הקיבה"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('ffffffff-0000-0000-0000-000000000002','multiple_choice',3,'curated','auto_passed',
@@ -353,42 +353,42 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
 
 -- Geometry / Geography / Future-skills expansion (mirrors fill_more.sql)
 insert into questions_bank (topic_id, type, difficulty, source, verification_status, payload) values
-  -- Geometry g3 — צורות
+  -- Geometry g3 - צורות
   ('cccccccc-0000-0000-0000-000000000001','multiple_choice',1,'curated','auto_passed',
    '{"tag":"צורות","stem":"לאיזו צורה יש 3 צלעות?","hints":["פחות מריבוע","כמו פירמידה מהצד"],"explanation":"למשולש יש 3 צלעות.","choices":[{"id":"a","text":"משולש"},{"id":"b","text":"ריבוע"},{"id":"c","text":"עיגול"},{"id":"d","text":"מחומש"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000001','multiple_choice',1,'curated','auto_passed',
    '{"tag":"צורות","stem":"איזו צורה עגולה ואין לה פינות בכלל?","hints":["כמו גלגל","אין קודקודים"],"explanation":"למעגל אין פינות.","choices":[{"id":"a","text":"מעגל"},{"id":"b","text":"ריבוע"},{"id":"c","text":"משולש"},{"id":"d","text":"מלבן"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000001','multiple_choice',2,'curated','auto_passed',
    '{"tag":"צורות","stem":"כמה פינות (קודקודים) יש למשולש?","hints":["כמו מספר הצלעות","3"],"explanation":"למשולש יש 3 קודקודים.","choices":[{"id":"a","text":"שלוש"},{"id":"b","text":"ארבע"},{"id":"c","text":"שתיים"},{"id":"d","text":"חמש"}],"correct_choice_id":"a","coins":10}'::jsonb),
-  -- Geometry g5 — שטח והיקף
+  -- Geometry g5 - שטח והיקף
   ('cccccccc-0000-0000-0000-000000000003','multiple_choice',2,'curated','auto_passed',
    '{"tag":"שטח","stem":"מה שטח ריבוע שאורך צלעו 4 ס״מ?","hints":["שטח ריבוע = צלע כפול צלע","4×4"],"explanation":"שטח ריבוע = צלע×צלע = 4×4 = 16.","choices":[{"id":"a","text":"16 סמ״ר"},{"id":"b","text":"8 סמ״ר"},{"id":"c","text":"12 סמ״ר"},{"id":"d","text":"20 סמ״ר"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000003','multiple_choice',3,'curated','auto_passed',
    '{"tag":"היקף","stem":"מה היקף מלבן שאורכו 5 ורוחבו 3?","hints":["היקף = לחבר את כל הצלעות","5+3+5+3"],"explanation":"היקף = 2×(5+3) = 16.","choices":[{"id":"a","text":"16"},{"id":"b","text":"15"},{"id":"c","text":"8"},{"id":"d","text":"11"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000003','multiple_choice',3,'curated','auto_passed',
    '{"tag":"שטח","stem":"מה שטח מלבן שאורכו 6 ורוחבו 3?","hints":["שטח מלבן = אורך כפול רוחב","6×3"],"explanation":"שטח מלבן = 6×3 = 18.","choices":[{"id":"a","text":"18"},{"id":"b","text":"9"},{"id":"c","text":"12"},{"id":"d","text":"24"}],"correct_choice_id":"a","coins":12}'::jsonb),
-  -- Geography g3 — ארץ ישראל
+  -- Geography g3 - ארץ ישראל
   ('dddddddd-0000-0000-0000-000000000005','multiple_choice',1,'curated','auto_passed',
    '{"tag":"ערים","stem":"מהי בירת ישראל?","hints":["בה נמצא הכנסת","עיר הקודש"],"explanation":"בירת ישראל היא ירושלים.","choices":[{"id":"a","text":"ירושלים"},{"id":"b","text":"תל אביב"},{"id":"c","text":"חיפה"},{"id":"d","text":"אילת"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000005','multiple_choice',2,'curated','auto_passed',
    '{"tag":"מים","stem":"איזה ים נמצא במערב ישראל?","hints":["לאורך חופי תל אביב וחיפה","הכי גדול"],"explanation":"במערב ישראל נמצא הים התיכון.","choices":[{"id":"a","text":"הים התיכון"},{"id":"b","text":"ים המלח"},{"id":"c","text":"ים סוף"},{"id":"d","text":"הכנרת"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000005','multiple_choice',2,'curated','auto_passed',
    '{"tag":"מים","stem":"הכנרת היא מקור מים חשוב. מה היא?","hints":["ממנה שותים מים מתוקים","לא ים מלוח"],"explanation":"הכנרת היא אגם מים מתוקים.","choices":[{"id":"a","text":"אגם מים מתוקים"},{"id":"b","text":"ים מלוח"},{"id":"c","text":"מדבר"},{"id":"d","text":"נהר"}],"correct_choice_id":"a","coins":10}'::jsonb),
-  -- Geography g5 — אקלים ויבשות
+  -- Geography g5 - אקלים ויבשות
   ('ffffffff-0000-0000-0000-000000000003','multiple_choice',2,'curated','auto_passed',
    '{"tag":"יבשות","stem":"באיזו יבשת נמצאת ישראל?","hints":["לא אירופה ולא אפריקה","היבשת הגדולה ביותר"],"explanation":"ישראל נמצאת ביבשת אסיה.","choices":[{"id":"a","text":"אסיה"},{"id":"b","text":"אירופה"},{"id":"c","text":"אפריקה"},{"id":"d","text":"אוסטרליה"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('ffffffff-0000-0000-0000-000000000003','multiple_choice',3,'curated','auto_passed',
    '{"tag":"אקלים","stem":"מהו המקום הנמוך ביותר ביבשה בעולם?","hints":["בישראל","מים מלוחים מאוד"],"explanation":"ים המלח הוא המקום הנמוך ביותר ביבשה.","choices":[{"id":"a","text":"ים המלח"},{"id":"b","text":"הכנרת"},{"id":"c","text":"האוקיינוס השקט"},{"id":"d","text":"מדבר סהרה"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('ffffffff-0000-0000-0000-000000000003','multiple_choice',3,'curated','auto_passed',
    '{"tag":"יבשות","stem":"איזו יבשת קפואה נמצאת בקוטב הדרומי?","hints":["הכי קרה","כמעט אין בה תושבים"],"explanation":"אנטארקטיקה נמצאת בקוטב הדרומי והיא קפואה.","choices":[{"id":"a","text":"אנטארקטיקה"},{"id":"b","text":"אפריקה"},{"id":"c","text":"אירופה"},{"id":"d","text":"אמריקה הדרומית"}],"correct_choice_id":"a","coins":12}'::jsonb),
-  -- Future skills g3 — יזמות: המצאות
+  -- Future skills g3 - יזמות: המצאות
   ('aaaaaaaa-0000-0000-0000-000000000003','multiple_choice',2,'curated','auto_passed',
    '{"tag":"יזמות","stem":"מה עושים כשרעיון לא עובד בפעם הראשונה?","hints":["לא מוותרים מיד","משנים ומשפרים"],"explanation":"מנסים שוב, לומדים מהטעות ומשפרים את הרעיון.","choices":[{"id":"a","text":"מנסים שוב ומשפרים"},{"id":"b","text":"מוותרים לגמרי"},{"id":"c","text":"מסתירים את הרעיון"},{"id":"d","text":"מאשימים מישהו אחר"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000003','multiple_choice',2,'curated','auto_passed',
    '{"tag":"יזמות","stem":"מה עוזר להסביר רעיון חדש לפני שבונים אותו?","hints":["ציור של הרעיון","לא צריך מילים בלבד"],"explanation":"שרטוט או סקיצה עוזרים להראות איך הרעיון ייראה.","choices":[{"id":"a","text":"לצייר שרטוט של הרעיון"},{"id":"b","text":"לשמור אותו בסוד"},{"id":"c","text":"לא לספר לאף אחד"},{"id":"d","text":"לחכות שנה"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000003','multiple_choice',3,'curated','auto_passed',
    '{"tag":"עבודת צוות","stem":"מה חשוב בעבודת צוות על המצאה?","hints":["גם להקשיב וגם לעזור","לא רק לדבר"],"explanation":"בעבודת צוות חשוב להקשיב לאחרים ולעזור.","choices":[{"id":"a","text":"להקשיב ולעזור אחד לשני"},{"id":"b","text":"שכל אחד יעבוד לבד"},{"id":"c","text":"להתווכח כל הזמן"},{"id":"d","text":"שאחד יחליט הכל"}],"correct_choice_id":"a","coins":11}'::jsonb),
-  -- Future skills g5 — יזמות: מ‑MVP לשוק
+  -- Future skills g5 - יזמות: מ‑MVP לשוק
   ('ffffffff-0000-0000-0000-000000000001','multiple_choice',3,'curated','auto_passed',
    '{"tag":"יזמות","stem":"מה זה קהל יעד?","hints":["מי אמור להשתמש במוצר","לא כולם בעולם"],"explanation":"קהל יעד הוא האנשים שהמוצר מיועד להם.","choices":[{"id":"a","text":"האנשים שהמוצר מיועד להם"},{"id":"b","text":"רק המשפחה של היזם"},{"id":"c","text":"כל אנשי העולם בדיוק"},{"id":"d","text":"המתחרים"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('ffffffff-0000-0000-0000-000000000001','multiple_choice',3,'curated','auto_passed',
@@ -433,14 +433,14 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('c4c4c4c4-0000-0000-0000-000000000001','multiple_choice',2,'curated','auto_passed',
    '{"tag":"בינה מלאכותית","stem":"מה זה בינה מלאכותית (AI)?","hints":["מחשב שלומד","תוכנה שיכולה ללמוד ולעזור"],"explanation":"בינה מלאכותית היא תוכנה שיכולה ללמוד מדוגמאות ולבצע משימות כמו לזהות תמונות או לענות על שאלות.","choices":[{"id":"a","text":"תוכנה שיכולה ללמוד ולבצע משימות"},{"id":"b","text":"רובוט מברזל בלבד"},{"id":"c","text":"סוג של טלפון"},{"id":"d","text":"משחק מחשב"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('c4c4c4c4-0000-0000-0000-000000000001','multiple_choice',3,'curated','auto_passed',
-   '{"tag":"בינה מלאכותית","stem":"האם כדאי להאמין לכל מה ש‑AI אומר?","hints":["גם AI טועה","כדאי לבדוק"],"explanation":"AI יכול לטעות, ולכן חשוב לבדוק מידע חשוב במקורות נוספים.","choices":[{"id":"a","text":"לא — כדאי לבדוק, כי גם AI טועה לפעמים"},{"id":"b","text":"כן, תמיד צודק"},{"id":"c","text":"רק בלילה"},{"id":"d","text":"רק אם הוא ורוד"}],"correct_choice_id":"a","coins":13}'::jsonb),
+   '{"tag":"בינה מלאכותית","stem":"האם כדאי להאמין לכל מה ש‑AI אומר?","hints":["גם AI טועה","כדאי לבדוק"],"explanation":"AI יכול לטעות, ולכן חשוב לבדוק מידע חשוב במקורות נוספים.","choices":[{"id":"a","text":"לא - כדאי לבדוק, כי גם AI טועה לפעמים"},{"id":"b","text":"כן, תמיד צודק"},{"id":"c","text":"רק בלילה"},{"id":"d","text":"רק אם הוא ורוד"}],"correct_choice_id":"a","coins":13}'::jsonb),
   ('c4c4c4c4-0000-0000-0000-000000000001','multiple_choice',3,'curated','auto_passed',
-   '{"tag":"בינה מלאכותית","stem":"מה עוזר ל‑AI ''ללמוד''?","hints":["הרבה דוגמאות","נתונים"],"explanation":"AI לומד מהרבה דוגמאות (נתונים) — כך הוא משתפר במשימה.","choices":[{"id":"a","text":"הרבה דוגמאות ונתונים"},{"id":"b","text":"שינה טובה"},{"id":"c","text":"אוכל בריא"},{"id":"d","text":"מזג אוויר חם"}],"correct_choice_id":"a","coins":13}'::jsonb),
+   '{"tag":"בינה מלאכותית","stem":"מה עוזר ל‑AI ''ללמוד''?","hints":["הרבה דוגמאות","נתונים"],"explanation":"AI לומד מהרבה דוגמאות (נתונים) - כך הוא משתפר במשימה.","choices":[{"id":"a","text":"הרבה דוגמאות ונתונים"},{"id":"b","text":"שינה טובה"},{"id":"c","text":"אוכל בריא"},{"id":"d","text":"מזג אוויר חם"}],"correct_choice_id":"a","coins":13}'::jsonb),
   -- Philosophy
   ('c5c5c5c5-0000-0000-0000-000000000001','multiple_choice',2,'curated','auto_passed',
-   '{"tag":"פילוסופיה","stem":"מה עושה שאלה ל''שאלה פילוסופית''?","hints":["אין תשובה אחת נכונה","חושבים ומתווכחים עליה"],"explanation":"שאלה פילוסופית היא שאלה גדולה שאין לה תשובה אחת ודאית — חושבים ומתווכחים עליה.","choices":[{"id":"a","text":"שאלה גדולה שאין לה תשובה אחת ודאית"},{"id":"b","text":"שאלה במתמטיקה"},{"id":"c","text":"שאלה על מזג האוויר"},{"id":"d","text":"שאלה עם תשובה אחת ברורה"}],"correct_choice_id":"a","coins":12}'::jsonb),
+   '{"tag":"פילוסופיה","stem":"מה עושה שאלה ל''שאלה פילוסופית''?","hints":["אין תשובה אחת נכונה","חושבים ומתווכחים עליה"],"explanation":"שאלה פילוסופית היא שאלה גדולה שאין לה תשובה אחת ודאית - חושבים ומתווכחים עליה.","choices":[{"id":"a","text":"שאלה גדולה שאין לה תשובה אחת ודאית"},{"id":"b","text":"שאלה במתמטיקה"},{"id":"c","text":"שאלה על מזג האוויר"},{"id":"d","text":"שאלה עם תשובה אחת ברורה"}],"correct_choice_id":"a","coins":12}'::jsonb),
   ('c5c5c5c5-0000-0000-0000-000000000001','multiple_choice',3,'curated','auto_passed',
-   '{"tag":"פילוסופיה","stem":"''עדיף להיות צודק או להיות טוב לב?'' איזו מין שאלה זו?","hints":["אפשר להתווכח","אין תשובה אחת נכונה"],"explanation":"זו שאלה פילוסופית — אין תשובה אחת נכונה, ואפשר לחשוב ולהתווכח עליה.","choices":[{"id":"a","text":"שאלה פילוסופית לחשיבה"},{"id":"b","text":"תרגיל בחשבון"},{"id":"c","text":"שאלה בגאוגרפיה"},{"id":"d","text":"שאלה בדקדוק"}],"correct_choice_id":"a","coins":13}'::jsonb),
+   '{"tag":"פילוסופיה","stem":"''עדיף להיות צודק או להיות טוב לב?'' איזו מין שאלה זו?","hints":["אפשר להתווכח","אין תשובה אחת נכונה"],"explanation":"זו שאלה פילוסופית - אין תשובה אחת נכונה, ואפשר לחשוב ולהתווכח עליה.","choices":[{"id":"a","text":"שאלה פילוסופית לחשיבה"},{"id":"b","text":"תרגיל בחשבון"},{"id":"c","text":"שאלה בגאוגרפיה"},{"id":"d","text":"שאלה בדקדוק"}],"correct_choice_id":"a","coins":13}'::jsonb),
   ('c5c5c5c5-0000-0000-0000-000000000001','multiple_choice',2,'curated','auto_passed',
    '{"tag":"פילוסופיה","stem":"מה זה ''טיעון''?","hints":["הסבר למה חושבים משהו","סיבה לדעה"],"explanation":"טיעון הוא הסבר או סיבה שנותנים כדי לתמוך בדעה.","choices":[{"id":"a","text":"סיבה או הסבר שתומכים בדעה"},{"id":"b","text":"סוג של ריב"},{"id":"c","text":"שם של משחק"},{"id":"d","text":"מספר"}],"correct_choice_id":"a","coins":12}'::jsonb);
 
@@ -471,7 +471,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('b0000001-0000-4000-8000-000000000002','multiple_choice',2,'curated','auto_passed',
    '{"tag":"סוכות","stem":"איזה פרי הוא אחד מארבעת המינים?","hints":["ריחני וצהוב","לא לימון"],"explanation":"האתרוג הוא אחד מארבעת המינים (יחד עם לולב, הדס וערבה).","choices":[{"id":"a","text":"אתרוג"},{"id":"b","text":"תפוז"},{"id":"c","text":"אגס"},{"id":"d","text":"ענב"}],"correct_choice_id":"a","coins":11}'::jsonb),
   ('b0000001-0000-4000-8000-000000000002','multiple_choice',2,'curated','auto_passed',
-   '{"tag":"סוכות","stem":"ממה עשוי ה''סכך'' שמכסה את הסוכה?","hints":["מהצומח","ענפים ועלים"],"explanation":"הסכך עשוי מצמחייה — ענפים ועלים.","choices":[{"id":"a","text":"ענפים ועלים"},{"id":"b","text":"מתכת"},{"id":"c","text":"זכוכית"},{"id":"d","text":"פלסטיק"}],"correct_choice_id":"a","coins":11}'::jsonb),
+   '{"tag":"סוכות","stem":"ממה עשוי ה''סכך'' שמכסה את הסוכה?","hints":["מהצומח","ענפים ועלים"],"explanation":"הסכך עשוי מצמחייה - ענפים ועלים.","choices":[{"id":"a","text":"ענפים ועלים"},{"id":"b","text":"מתכת"},{"id":"c","text":"זכוכית"},{"id":"d","text":"פלסטיק"}],"correct_choice_id":"a","coins":11}'::jsonb),
   -- חנוכה
   ('b0000001-0000-4000-8000-000000000003','multiple_choice',1,'curated','auto_passed',
    '{"tag":"חנוכה","stem":"כמה נרות מדליקים בלילה האחרון של חנוכה (בלי השמש)?","hints":["חנוכה נמשך 8 ימים","מספר הימים"],"explanation":"בלילה השמיני מדליקים 8 נרות (ועוד השמש).","choices":[{"id":"a","text":"שמונה"},{"id":"b","text":"שבעה"},{"id":"c","text":"שישה"},{"id":"d","text":"עשרה"}],"correct_choice_id":"a","coins":10}'::jsonb),
@@ -490,9 +490,9 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('b0000001-0000-4000-8000-000000000005','multiple_choice',1,'curated','auto_passed',
    '{"tag":"פורים","stem":"איזו מגילה קוראים בפורים?","hints":["שם של מלכה","מתחיל ב‑א"],"explanation":"בפורים קוראים את מגילת אסתר.","choices":[{"id":"a","text":"מגילת אסתר"},{"id":"b","text":"מגילת רות"},{"id":"c","text":"מגילת יונה"},{"id":"d","text":"מגילת דוד"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('b0000001-0000-4000-8000-000000000005','multiple_choice',1,'curated','auto_passed',
-   '{"tag":"פורים","stem":"איזו עוגייה משולשת אוכלים בפורים?","hints":["על שם דמות מהמגילה","צורת משולש"],"explanation":"אוכלים אוזני המן — עוגייה משולשת.","choices":[{"id":"a","text":"אוזני המן"},{"id":"b","text":"סופגנייה"},{"id":"c","text":"מצה"},{"id":"d","text":"בייגלה"}],"correct_choice_id":"a","coins":10}'::jsonb),
+   '{"tag":"פורים","stem":"איזו עוגייה משולשת אוכלים בפורים?","hints":["על שם דמות מהמגילה","צורת משולש"],"explanation":"אוכלים אוזני המן - עוגייה משולשת.","choices":[{"id":"a","text":"אוזני המן"},{"id":"b","text":"סופגנייה"},{"id":"c","text":"מצה"},{"id":"d","text":"בייגלה"}],"correct_choice_id":"a","coins":10}'::jsonb),
   ('b0000001-0000-4000-8000-000000000005','multiple_choice',2,'curated','auto_passed',
-   '{"tag":"פורים","stem":"מה נהוג לשלוח לחברים בפורים?","hints":["חבילה עם ממתקים ומאכלים","שתי מנות לפחות"],"explanation":"נהוג לשלוח משלוח מנות — מאכלים לחברים.","choices":[{"id":"a","text":"משלוח מנות"},{"id":"b","text":"שיעורי בית"},{"id":"c","text":"אבנים"},{"id":"d","text":"בגדים ישנים"}],"correct_choice_id":"a","coins":11}'::jsonb),
+   '{"tag":"פורים","stem":"מה נהוג לשלוח לחברים בפורים?","hints":["חבילה עם ממתקים ומאכלים","שתי מנות לפחות"],"explanation":"נהוג לשלוח משלוח מנות - מאכלים לחברים.","choices":[{"id":"a","text":"משלוח מנות"},{"id":"b","text":"שיעורי בית"},{"id":"c","text":"אבנים"},{"id":"d","text":"בגדים ישנים"}],"correct_choice_id":"a","coins":11}'::jsonb),
   -- פסח
   ('b0000001-0000-4000-8000-000000000006','multiple_choice',1,'curated','auto_passed',
    '{"tag":"פסח","stem":"מה אוכלים בפסח במקום לחם?","hints":["דק ופריך","לא תפח"],"explanation":"בפסח אוכלים מצה במקום לחם.","choices":[{"id":"a","text":"מצה"},{"id":"b","text":"פיתה"},{"id":"c","text":"לחמנייה"},{"id":"d","text":"בורקס"}],"correct_choice_id":"a","coins":10}'::jsonb),
@@ -523,7 +523,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
    '{"tag":"קיץ","stem":"למה חשוב לשתות הרבה מים בקיץ?","hints":["חם ומזיעים","הגוף מאבד נוזלים"],"explanation":"בקיץ מזיעים ומאבדים נוזלים, ולכן חשוב לשתות הרבה מים.","choices":[{"id":"a","text":"כי מזיעים ומאבדים נוזלים"},{"id":"b","text":"כי המים מתוקים"},{"id":"c","text":"כדי לגדול מהר"},{"id":"d","text":"אין סיבה"}],"correct_choice_id":"a","coins":11}'::jsonb);
 
 
--- Depth sub-topics (extra sub-topic per core subject) — added for variety.
+-- Depth sub-topics (extra sub-topic per core subject) - added for variety.
 insert into curriculum_topics (id, grade, subject, sub_topic, order_index, arabic_variant) values
   ('d1000000-0000-4000-8000-000000000001','grade_3','math','חיבור וחיסור',2,null),
   ('d1000000-0000-4000-8000-000000000002','grade_3','geometry','מדידות ואורך',2,null),
@@ -532,7 +532,7 @@ insert into curriculum_topics (id, grade, subject, sub_topic, order_index, arabi
   ('d1000000-0000-4000-8000-000000000005','grade_3','english','צבעים ומספרים',2,null),
   ('d1000000-0000-4000-8000-000000000006','grade_3','bible','נוח והמבול',2,null),
   ('d1000000-0000-4000-8000-000000000007','grade_3','geography','מפה וכיוונים',2,null),
-  ('d1000000-0000-4000-8000-000000000008','grade_3','arabic','מספרים 1–10',2,null),
+  ('d1000000-0000-4000-8000-000000000008','grade_3','arabic','מספרים 1-10',2,null),
   ('d2000000-0000-4000-8000-000000000001','grade_5','math','אחוזים ועשרוני',2,null),
   ('d2000000-0000-4000-8000-000000000002','grade_5','geometry','זוויות ומשולשים',2,null),
   ('d2000000-0000-4000-8000-000000000003','grade_5','hebrew','שורש ומשפחת מילים',2,null),
@@ -577,21 +577,21 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('d1000000-0000-4000-8000-000000000006','multiple_choice',1,'curated','auto_passed',
    '{"tag": "נוח", "stem": "מה בנה נוח לפי הסיפור?", "hints": ["כלי שט גדול", "בשביל החיות"], "explanation": "נוח בנה תיבה.", "choices": [{"id": "a", "text": "תיבה"}, {"id": "b", "text": "מגדל"}, {"id": "c", "text": "גשר"}, {"id": "d", "text": "ארמון"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
   ('d1000000-0000-4000-8000-000000000006','multiple_choice',1,'curated','auto_passed',
-   '{"tag": "נוח", "stem": "כמה מכל מין בעלי חיים נכנסו לתיבה (זכר ונקבה)?", "hints": ["זוג", "זכר ונקבה"], "explanation": "מכל מין נכנסו שניים — זכר ונקבה.", "choices": [{"id": "a", "text": "שניים"}, {"id": "b", "text": "אחד"}, {"id": "c", "text": "עשרה"}, {"id": "d", "text": "שבעה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
+   '{"tag": "נוח", "stem": "כמה מכל מין בעלי חיים נכנסו לתיבה (זכר ונקבה)?", "hints": ["זוג", "זכר ונקבה"], "explanation": "מכל מין נכנסו שניים - זכר ונקבה.", "choices": [{"id": "a", "text": "שניים"}, {"id": "b", "text": "אחד"}, {"id": "c", "text": "עשרה"}, {"id": "d", "text": "שבעה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
   ('d1000000-0000-4000-8000-000000000006','multiple_choice',2,'curated','auto_passed',
    '{"tag": "נוח", "stem": "איזו ציפור שלח נוח לבדוק אם ירדו המים?", "hints": ["מביאה עלה זית", "ציפור שלום"], "explanation": "נוח שלח יונה, שחזרה עם עלה זית.", "choices": [{"id": "a", "text": "יונה"}, {"id": "b", "text": "נשר"}, {"id": "c", "text": "תרנגול"}, {"id": "d", "text": "ברווז"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
   ('d1000000-0000-4000-8000-000000000007','multiple_choice',1,'curated','auto_passed',
    '{"tag": "כיוונים", "stem": "מאיזה כיוון זורחת השמש?", "hints": ["שם מתחיל היום", "ההפך ממערב"], "explanation": "השמש זורחת במזרח.", "choices": [{"id": "a", "text": "מזרח"}, {"id": "b", "text": "מערב"}, {"id": "c", "text": "צפון"}, {"id": "d", "text": "דרום"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
   ('d1000000-0000-4000-8000-000000000007','multiple_choice',2,'curated','auto_passed',
-   '{"tag": "מפה", "stem": "מה מראה צבע כחול ברוב המפות?", "hints": ["שם יש מים", "ים ואגמים"], "explanation": "כחול במפה מסמן מים — ים, נהר ואגם.", "choices": [{"id": "a", "text": "מים"}, {"id": "b", "text": "הרים"}, {"id": "c", "text": "ערים"}, {"id": "d", "text": "יערות"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
+   '{"tag": "מפה", "stem": "מה מראה צבע כחול ברוב המפות?", "hints": ["שם יש מים", "ים ואגמים"], "explanation": "כחול במפה מסמן מים - ים, נהר ואגם.", "choices": [{"id": "a", "text": "מים"}, {"id": "b", "text": "הרים"}, {"id": "c", "text": "ערים"}, {"id": "d", "text": "יערות"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
   ('d1000000-0000-4000-8000-000000000007','multiple_choice',2,'curated','auto_passed',
    '{"tag": "כיוונים", "stem": "איזה כלי עוזר למצוא כיוון (צפון)?", "hints": ["מחט שמצביעה", "לא שעון"], "explanation": "מצפן מראה את הכיוונים.", "choices": [{"id": "a", "text": "מצפן"}, {"id": "b", "text": "סרגל"}, {"id": "c", "text": "משקל"}, {"id": "d", "text": "שעון חול"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
   ('d1000000-0000-4000-8000-000000000008','multiple_choice',1,'curated','auto_passed',
-   '{"tag": "מספרים", "stem": "איך אומרים ״אחד״ בערבית מדוברת?", "hints": ["המספר הראשון", "מתחיל ב־וו"], "explanation": "״אחד״ בערבית — וַאחֶד.", "choices": [{"id": "a", "text": "וַאחֶד"}, {"id": "b", "text": "תְנֵין"}, {"id": "c", "text": "תַלַאתֶה"}, {"id": "d", "text": "עַשַרַה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
+   '{"tag": "מספרים", "stem": "איך אומרים ״אחד״ בערבית מדוברת?", "hints": ["המספר הראשון", "מתחיל ב־וו"], "explanation": "״אחד״ בערבית - וַאחֶד.", "choices": [{"id": "a", "text": "וַאחֶד"}, {"id": "b", "text": "תְנֵין"}, {"id": "c", "text": "תַלַאתֶה"}, {"id": "d", "text": "עַשַרַה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
   ('d1000000-0000-4000-8000-000000000008','multiple_choice',1,'curated','auto_passed',
-   '{"tag": "מספרים", "stem": "איך אומרים ״שתיים״ בערבית מדוברת?", "hints": ["אחרי וַאחֶד", "מתחיל ב־ת"], "explanation": "״שתיים״ בערבית — תְנֵין.", "choices": [{"id": "a", "text": "תְנֵין"}, {"id": "b", "text": "וַאחֶד"}, {"id": "c", "text": "אַרְבַּעַה"}, {"id": "d", "text": "חַמְסֶה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
+   '{"tag": "מספרים", "stem": "איך אומרים ״שתיים״ בערבית מדוברת?", "hints": ["אחרי וַאחֶד", "מתחיל ב־ת"], "explanation": "״שתיים״ בערבית - תְנֵין.", "choices": [{"id": "a", "text": "תְנֵין"}, {"id": "b", "text": "וַאחֶד"}, {"id": "c", "text": "אַרְבַּעַה"}, {"id": "d", "text": "חַמְסֶה"}], "correct_choice_id": "a", "coins": 10}'::jsonb),
   ('d1000000-0000-4000-8000-000000000008','multiple_choice',2,'curated','auto_passed',
-   '{"tag": "מספרים", "stem": "איך אומרים ״שלוש״ בערבית מדוברת?", "hints": ["אחרי תְנֵין", "מתחיל ב־ת"], "explanation": "״שלוש״ בערבית — תַלַאתֶה.", "choices": [{"id": "a", "text": "תַלַאתֶה"}, {"id": "b", "text": "תְנֵין"}, {"id": "c", "text": "סַבְעַה"}, {"id": "d", "text": "עַשַרַה"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
+   '{"tag": "מספרים", "stem": "איך אומרים ״שלוש״ בערבית מדוברת?", "hints": ["אחרי תְנֵין", "מתחיל ב־ת"], "explanation": "״שלוש״ בערבית - תַלַאתֶה.", "choices": [{"id": "a", "text": "תַלַאתֶה"}, {"id": "b", "text": "תְנֵין"}, {"id": "c", "text": "סַבְעַה"}, {"id": "d", "text": "עַשַרַה"}], "correct_choice_id": "a", "coins": 11}'::jsonb),
   ('d2000000-0000-4000-8000-000000000001','multiple_choice',2,'curated','auto_passed',
    '{"tag": "אחוזים", "stem": "כמה זה 50% מתוך 80?", "hints": ["חצי", "80 חלקי 2"], "explanation": "50% זה חצי, ולכן 40.", "choices": [{"id": "a", "text": "40"}, {"id": "b", "text": "50"}, {"id": "c", "text": "30"}, {"id": "d", "text": "8"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
   ('d2000000-0000-4000-8000-000000000001','multiple_choice',2,'curated','auto_passed',
@@ -619,7 +619,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('d2000000-0000-4000-8000-000000000005','multiple_choice',2,'curated','auto_passed',
    '{"tag": "עבר", "stem": "מה צורת העבר של \"go\"?", "hints": ["פועל חריג", "לא \"goed\""], "explanation": "העבר של \"go\" הוא \"went\".", "choices": [{"id": "a", "text": "went"}, {"id": "b", "text": "goed"}, {"id": "c", "text": "gone"}, {"id": "d", "text": "going"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
   ('d2000000-0000-4000-8000-000000000005','multiple_choice',2,'curated','auto_passed',
-   '{"tag": "הווה", "stem": "איך אומרים \"אני אוכל\" (הווה) באנגלית?", "hints": ["I + פועל", "לא עבר"], "explanation": "\"אני אוכל\" — \"I eat\".", "choices": [{"id": "a", "text": "I eat"}, {"id": "b", "text": "I ate"}, {"id": "c", "text": "I eaten"}, {"id": "d", "text": "I eating"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
+   '{"tag": "הווה", "stem": "איך אומרים \"אני אוכל\" (הווה) באנגלית?", "hints": ["I + פועל", "לא עבר"], "explanation": "\"אני אוכל\" - \"I eat\".", "choices": [{"id": "a", "text": "I eat"}, {"id": "b", "text": "I ate"}, {"id": "c", "text": "I eaten"}, {"id": "d", "text": "I eating"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
   ('d2000000-0000-4000-8000-000000000005','multiple_choice',3,'curated','auto_passed',
    '{"tag": "עבר", "stem": "מה צורת העבר של \"have\"?", "hints": ["פועל חריג", "מתחיל ב־h"], "explanation": "העבר של \"have\" הוא \"had\".", "choices": [{"id": "a", "text": "had"}, {"id": "b", "text": "haved"}, {"id": "c", "text": "haz"}, {"id": "d", "text": "having"}], "correct_choice_id": "a", "coins": 13}'::jsonb),
   ('d2000000-0000-4000-8000-000000000006','multiple_choice',2,'curated','auto_passed',
@@ -635,9 +635,9 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('d2000000-0000-4000-8000-000000000007','multiple_choice',3,'curated','auto_passed',
    '{"tag": "יבשות", "stem": "באיזו יבשת נמצאת ישראל?", "hints": ["בין אירופה לאפריקה", "היבשת הגדולה"], "explanation": "ישראל נמצאת ביבשת אסיה.", "choices": [{"id": "a", "text": "אסיה"}, {"id": "b", "text": "אירופה"}, {"id": "c", "text": "אפריקה"}, {"id": "d", "text": "אמריקה"}], "correct_choice_id": "a", "coins": 13}'::jsonb),
   ('d2000000-0000-4000-8000-000000000008','multiple_choice',2,'curated','auto_passed',
-   '{"tag": "משפחה", "stem": "איך אומרים ״אמא״ בערבית ספרותית?", "hints": ["מילה קצרה", "דומה לעברית"], "explanation": "״אמא״ בערבית — אֻם.", "choices": [{"id": "a", "text": "אֻם"}, {"id": "b", "text": "אַבּ"}, {"id": "c", "text": "אֶחְת"}, {"id": "d", "text": "אַח"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
+   '{"tag": "משפחה", "stem": "איך אומרים ״אמא״ בערבית ספרותית?", "hints": ["מילה קצרה", "דומה לעברית"], "explanation": "״אמא״ בערבית - אֻם.", "choices": [{"id": "a", "text": "אֻם"}, {"id": "b", "text": "אַבּ"}, {"id": "c", "text": "אֶחְת"}, {"id": "d", "text": "אַח"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
   ('d2000000-0000-4000-8000-000000000008','multiple_choice',2,'curated','auto_passed',
-   '{"tag": "משפחה", "stem": "איך אומרים ״אבא״ בערבית ספרותית?", "hints": ["מילה קצרה", "מתחיל ב־א"], "explanation": "״אבא״ בערבית — אַבּ.", "choices": [{"id": "a", "text": "אַבּ"}, {"id": "b", "text": "אֻם"}, {"id": "c", "text": "אַח"}, {"id": "d", "text": "בֵּית"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
+   '{"tag": "משפחה", "stem": "איך אומרים ״אבא״ בערבית ספרותית?", "hints": ["מילה קצרה", "מתחיל ב־א"], "explanation": "״אבא״ בערבית - אַבּ.", "choices": [{"id": "a", "text": "אַבּ"}, {"id": "b", "text": "אֻם"}, {"id": "c", "text": "אַח"}, {"id": "d", "text": "בֵּית"}], "correct_choice_id": "a", "coins": 12}'::jsonb),
   ('d2000000-0000-4000-8000-000000000008','multiple_choice',3,'curated','auto_passed',
    '{"tag": "בית", "stem": "מה הפירוש של המילה ״בֵּית״ בערבית?", "hints": ["גם בעברית דומה", "גרים בו"], "explanation": "״בֵּית״ בערבית פירושו בית.", "choices": [{"id": "a", "text": "בית"}, {"id": "b", "text": "דלת"}, {"id": "c", "text": "חלון"}, {"id": "d", "text": "גינה"}], "correct_choice_id": "a", "coins": 13}'::jsonb);
 
@@ -665,7 +665,7 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('aaaaaaaa-0000-0000-0000-000000000001','type_in',1,'curated','auto_passed',
    '{"tag": "כפל", "stem": "כמה זה 8 × 3?", "answers": ["24"], "hints": ["ספרי בקפיצות של 8", "8, 16, 24"], "explanation": "8×3=24."}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000001','true_false',1,'curated','auto_passed',
-   '{"tag": "כפל", "stem": "6 × 7 שווה 42.", "answer": true, "hints": ["ספרי בקפיצות של 7", "שש קפיצות"], "explanation": "נכון — 6×7=42."}'::jsonb),
+   '{"tag": "כפל", "stem": "6 × 7 שווה 42.", "answer": true, "hints": ["ספרי בקפיצות של 7", "שש קפיצות"], "explanation": "נכון - 6×7=42."}'::jsonb),
   ('aaaaaaaa-0000-0000-0000-000000000001','type_in',2,'curated','auto_passed',
    '{"tag": "כפל", "stem": "כמה זה 9 × 4?", "answers": ["36"], "hints": ["9, 18, 27…", "ארבע קפיצות של 9"], "explanation": "9×4=36."}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000001','type_in',1,'curated','auto_passed',
@@ -673,32 +673,32 @@ insert into questions_bank (topic_id, type, difficulty, source, verification_sta
   ('cccccccc-0000-0000-0000-000000000001','true_false',1,'curated','auto_passed',
    '{"tag": "צורות", "stem": "לריבוע יש ארבע צלעות באותו אורך.", "answer": true, "hints": ["ריבוע…", "כל הצלעות שוות"], "explanation": "נכון."}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000002','true_false',1,'curated','auto_passed',
-   '{"tag": "נרדפות", "stem": "המילים \"שמח\" ו\"עצוב\" הן מילים נרדפות.", "answer": false, "hints": ["אותה משמעות?", "הפוכות"], "explanation": "לא — הן הפכים, לא נרדפות."}'::jsonb),
+   '{"tag": "נרדפות", "stem": "המילים \"שמח\" ו\"עצוב\" הן מילים נרדפות.", "answer": false, "hints": ["אותה משמעות?", "הפוכות"], "explanation": "לא - הן הפכים, לא נרדפות."}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000002','type_in',1,'curated','auto_passed',
    '{"tag": "הפכים", "stem": "מה ההפך מהמילה \"גדול\"?", "answers": ["קטן"], "hints": ["משהו זעיר", "ההפך מגדול"], "explanation": "ההפך מגדול הוא קטן."}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000005','true_false',1,'curated','auto_passed',
-   '{"tag": "בעלי חיים", "stem": "דג נושם דרך ריאות כמו בני אדם.", "answer": false, "hints": ["איפה חי הדג?", "זימים"], "explanation": "לא — דג נושם דרך זימים."}'::jsonb),
+   '{"tag": "בעלי חיים", "stem": "דג נושם דרך ריאות כמו בני אדם.", "answer": false, "hints": ["איפה חי הדג?", "זימים"], "explanation": "לא - דג נושם דרך זימים."}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000005','type_in',2,'curated','auto_passed',
    '{"tag": "בעלי חיים", "stem": "כמה רגליים יש לחרק?", "answers": ["6", "שש"], "hints": ["לא ארבע", "מספר זוגי"], "explanation": "לחרק 6 רגליים."}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000001','type_in',1,'curated','auto_passed',
    '{"tag": "אנגלית", "stem": "איך אומרים \"כלב\" באנגלית?", "answers": ["dog"], "hints": ["חיה נובחת", "מתחיל ב-d"], "explanation": "\"כלב\" = dog."}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000001','true_false',1,'curated','auto_passed',
-   '{"tag": "אנגלית", "stem": "המילה \"cat\" באנגלית פירושה חתול.", "answer": true, "hints": ["חיה שאומרת מיאו", "נכון?"], "explanation": "נכון — cat = חתול."}'::jsonb),
+   '{"tag": "אנגלית", "stem": "המילה \"cat\" באנגלית פירושה חתול.", "answer": true, "hints": ["חיה שאומרת מיאו", "נכון?"], "explanation": "נכון - cat = חתול."}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000003','true_false',1,'curated','auto_passed',
-   '{"tag": "בראשית", "stem": "נוח בנה תיבה לפי הסיפור.", "answer": true, "hints": ["כלי שט גדול", "בשביל החיות"], "explanation": "נכון — נוח בנה תיבה."}'::jsonb),
+   '{"tag": "בראשית", "stem": "נוח בנה תיבה לפי הסיפור.", "answer": true, "hints": ["כלי שט גדול", "בשביל החיות"], "explanation": "נכון - נוח בנה תיבה."}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000005','true_false',1,'curated','auto_passed',
    '{"tag": "ארץ ישראל", "stem": "ירושלים היא בירת ישראל.", "answer": true, "hints": ["עיר הבירה", "נכון?"], "explanation": "נכון."}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000001','type_in',2,'curated','auto_passed',
    '{"tag": "שברים", "stem": "כמה זה 1/2 + 1/2? (כמספר שלם)", "answers": ["1", "אחד"], "hints": ["שני חצאים", "שלם"], "explanation": "חצי ועוד חצי = 1."}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000001','true_false',2,'curated','auto_passed',
-   '{"tag": "שברים", "stem": "השבר 1/3 גדול יותר מ-1/2.", "answer": false, "hints": ["חשבי על פיצה", "יותר חתיכות = קטנות"], "explanation": "לא — 1/2 גדול מ-1/3."}'::jsonb),
+   '{"tag": "שברים", "stem": "השבר 1/3 גדול יותר מ-1/2.", "answer": false, "hints": ["חשבי על פיצה", "יותר חתיכות = קטנות"], "explanation": "לא - 1/2 גדול מ-1/3."}'::jsonb),
   ('bbbbbbbb-0000-0000-0000-000000000001','type_in',3,'curated','auto_passed',
    '{"tag": "אחוזים", "stem": "כמה זה 25% מתוך 100?", "answers": ["25"], "hints": ["רבע", "100 חלקי 4"], "explanation": "25% מ-100 זה 25."}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000003','type_in',2,'curated','auto_passed',
    '{"tag": "שטח", "stem": "מה השטח של ריבוע שצלעו 5 ס״מ? (מספר בלבד)", "answers": ["25"], "hints": ["צלע כפול צלע", "5×5"], "explanation": "שטח = 5×5 = 25."}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000003','true_false',2,'curated','auto_passed',
-   '{"tag": "זוויות", "stem": "בזווית ישרה יש 90 מעלות.", "answer": true, "hints": ["פינת ריבוע", "רבע סיבוב"], "explanation": "נכון — זווית ישרה = 90°."}'::jsonb),
+   '{"tag": "זוויות", "stem": "בזווית ישרה יש 90 מעלות.", "answer": true, "hints": ["פינת ריבוע", "רבע סיבוב"], "explanation": "נכון - זווית ישרה = 90°."}'::jsonb),
   ('cccccccc-0000-0000-0000-000000000004','true_false',2,'curated','auto_passed',
-   '{"tag": "עובדה ודעה", "stem": "המשפט \"גלידה היא הקינוח הכי טעים\" הוא עובדה.", "answer": false, "hints": ["אפשר להתווכח?", "טעם אישי"], "explanation": "לא — זו דעה, לא עובדה."}'::jsonb),
+   '{"tag": "עובדה ודעה", "stem": "המשפט \"גלידה היא הקינוח הכי טעים\" הוא עובדה.", "answer": false, "hints": ["אפשר להתווכח?", "טעם אישי"], "explanation": "לא - זו דעה, לא עובדה."}'::jsonb),
   ('dddddddd-0000-0000-0000-000000000002','type_in',2,'curated','auto_passed',
    '{"tag": "אנגלית", "stem": "מה צורת הרבים של \"child\"?", "answers": ["children"], "hints": ["לא childs", "צורה חריגה"], "explanation": "הרבים של child הוא children."}'::jsonb);

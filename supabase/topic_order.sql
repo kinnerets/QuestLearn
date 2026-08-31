@@ -3,7 +3,7 @@
 --
 -- Why you might need this: the seed content is already ordered (1, 2, …), so
 -- gating works out of the box. But order_index defaults to 0, so any sub-topic
--- added later WITHOUT an explicit order_index sits at 0 and ties with others —
+-- added later WITHOUT an explicit order_index sits at 0 and ties with others -
 -- and the gate can't tell which comes first. This renumbers everyone in place,
 -- keeping the existing order and only breaking ties deterministically.
 --

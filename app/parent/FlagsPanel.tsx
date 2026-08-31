@@ -39,7 +39,7 @@ export function FlagsPanel() {
 
   return (
     <Section title="שאלות לבדיקה" count={items.length}
-      hint="שאלות שה‑AI סימן כדורשות עין שנייה — כבר מוסתרות מהילדות, אז הבדיקה לא דחופה. אישור → הן יראו אותן; דחייה → נמחקות.">
+      hint="שאלות שה‑AI סימן כדורשות עין שנייה - כבר מוסתרות מהילדות, אז הבדיקה לא דחופה. אישור → הן יראו אותן; דחייה → נמחקות.">
       {items.map((q) => (
         <div key={q.id} className="flag-card">
           <div className="flag-meta">{SUBJECT_LABEL[q.subject] ?? q.subject} · {GRADE_SHORT[q.grade] ?? q.grade}</div>

@@ -5,7 +5,7 @@ import { SUBJECT_LABEL } from './constants';
 // Cheap + fast model for question generation.
 const MODEL = 'claude-haiku-4-5';
 
-// Buffer thresholds — generate when a topic runs low, up to a healthy bank.
+// Buffer thresholds - generate when a topic runs low, up to a healthy bank.
 const LOW_WATER = 8;   // if a child has fewer than this many unsolved questions…
 const GENERATE = 6;    // …ask for this many new ones per call. Small batches finish
                        // well inside the serverless time budget, so a click never hangs;
@@ -138,23 +138,23 @@ export async function generateForTopic(topicId: string, count = GENERATE): Promi
 נסח כל שאלה בעברית פשוטה ("איך אומרים X בערבית?" / "מה פירוש המילה Y?"). ארבע התשובות חייבות להיות מילים בערבית בתעתיק עברי מנוקד (לא תרגום לעברית!), והתשובה הנכונה היא המילה הערבית הנכונה. אל תיצור שאלה שהתשובה הנכונה בה היא מילה בעברית. ודא שהתעתיק והמשמעות נכונים ותקינים.`
     : '';
 
-  const gradeAge = topic.grade === 'grade_5' ? 'בני 10–11, כיתה ה׳ — רמה מאתגרת שמתאימה באמת לגיל, לא חומר של כיתות ב׳–ג׳'
-    : topic.grade === 'grade_3' ? 'בני 8–9, כיתה ג׳'
-    : 'העשרה, בני 8–11';
+  const gradeAge = topic.grade === 'grade_5' ? 'בני 10-11, כיתה ה׳ - רמה מאתגרת שמתאימה באמת לגיל, לא חומר של כיתות ב׳-ג׳'
+    : topic.grade === 'grade_3' ? 'בני 8-9, כיתה ג׳'
+    : 'העשרה, בני 8-11';
   const system = `אתה יוצר שאלות לימוד לילדים בעברית לאפליקציה חינוכית.
-קהל היעד: ${gradeAge}. חשוב מאוד: התאם את רמת הקושי לגיל האמיתי — שאלות לכיתה ה׳ צריכות להיות מאתגרות ובעומק המתאים (למשל בעברית: הבחנה בין עובדה לדעה, משמעות בהקשר, מבנה טיעון; בחשבון: שברים, אחוזים, בעיות מילוליות רב-שלביות), לא ידע בסיסי מדי.
+קהל היעד: ${gradeAge}. חשוב מאוד: התאם את רמת הקושי לגיל האמיתי - שאלות לכיתה ה׳ צריכות להיות מאתגרות ובעומק המתאים (למשל בעברית: הבחנה בין עובדה לדעה, משמעות בהקשר, מבנה טיעון; בחשבון: שברים, אחוזים, בעיות מילוליות רב-שלביות), לא ידע בסיסי מדי.
 כל שאלה: רב-ברירה עם 4 תשובות (מזהים a,b,c,d), בדיוק תשובה נכונה אחת.
-difficulty: דרג את קושי השאלה 1–5 ביחס לגיל.
-hints: מערך של בדיוק 2 רמזים מדורגים — רמז 1 כיוון עדין, רמז 2 חזק וממוקד יותר. אל תחשוף את התשובה ברמזים.
+difficulty: דרג את קושי השאלה 1-5 ביחס לגיל.
+hints: מערך של בדיוק 2 רמזים מדורגים - רמז 1 כיוון עדין, רמז 2 חזק וממוקד יותר. אל תחשוף את התשובה ברמזים.
 explanation: משפט קצר שמסביר למה התשובה נכונה.
 לפחות מסיח שגוי אחד עם שדה misconception קצר באנגלית.
 עברית תקנית וידידותית. בלי אימוגי. גיוון גבוה בין השאלות.
-חשוב: השאלה חייבת להיות ניתנת למענה מידע כללי שנלמד בגיל הזה — בלי להניח שקראו טקסט מסוים או פרק ספציפי. הישאר בליבת הנושא הנלמד בבית הספר; הימנע מפרטים נדירים, אזוטריים או מבלבלים (למשל בתנ״ך — רק סיפורים ודמויות מוכרים ומרכזיים, בלי לערבב אירועים או דמויות מסיפורים שונים).`;
+חשוב: השאלה חייבת להיות ניתנת למענה מידע כללי שנלמד בגיל הזה - בלי להניח שקראו טקסט מסוים או פרק ספציפי. הישאר בליבת הנושא הנלמד בבית הספר; הימנע מפרטים נדירים, אזוטריים או מבלבלים (למשל בתנ״ך - רק סיפורים ודמויות מוכרים ומרכזיים, בלי לערבב אירועים או דמויות מסיפורים שונים).`;
 
   const avoid = [...existingStems].slice(0, 40);
-  const userMsg = `נושא: ${subjectLabel} — ${topic.sub_topic} (${gradeLabel}).${arabicNote}
+  const userMsg = `נושא: ${subjectLabel} - ${topic.sub_topic} (${gradeLabel}).${arabicNote}
 צור ${count} שאלות חדשות ומגוונות ברמה מתאימה.
-אל תחזור על השאלות הקיימות (גם לא בניסוח שונה): ${avoid.length ? avoid.map((s) => `"${s}"`).join('; ') : '—'}`;
+אל תחזור על השאלות הקיימות (גם לא בניסוח שונה): ${avoid.length ? avoid.map((s) => `"${s}"`).join('; ') : '-'}`;
 
   let questions: unknown;
   try {
@@ -232,13 +232,13 @@ explanation: משפט קצר שמסביר למה התשובה נכונה.
 /**
  * Keep a subject's bank ahead of a child's consumption: for each topic where the
  * child has fewer than LOW_WATER unsolved questions, generate a fresh batch.
- * Self-limiting — stops generating once the buffer is healthy.
+ * Self-limiting - stops generating once the buffer is healthy.
  */
 export async function ensureBufferForSubject(childId: string, grade: string, subject: string): Promise<number> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return 0;
   // Leadership is reflective, hand-authored content (prompt + choices with icons),
-  // not multiple-choice — never auto-generate into it.
+  // not multiple-choice - never auto-generate into it.
   if (subject === 'leadership') return 0;
   const sb = getSupabase();
   if (!sb) return 0;
@@ -303,7 +303,7 @@ export async function ensureGlobalBuffer(maxTopics = 4): Promise<GlobalRefillRes
       count.set(id, (count.get(id) ?? 0) + 1);
     }
 
-    // Leadership worlds are reflective (1 micro-mission each) — never top them up.
+    // Leadership worlds are reflective (1 micro-mission each) - never top them up.
     const thin = topics
       .filter((t) => t.subject !== 'leadership')
       .map((t) => ({ id: t.id as string, n: count.get(t.id as string) ?? 0 }))
@@ -323,13 +323,13 @@ export async function ensureGlobalBuffer(maxTopics = 4): Promise<GlobalRefillRes
 
 export interface TopicGenResult { topic: string; grade: string; inserted: number; reason?: string }
 
-/** Parent-triggered generation for one topic — returns a visible result. */
+/** Parent-triggered generation for one topic - returns a visible result. */
 export async function generateTopicReport(topicId: string): Promise<TopicGenResult> {
   const sb = getSupabase();
-  let name = '—', grade = '';
+  let name = '-', grade = '';
   if (sb) {
     const { data } = await sb.from('curriculum_topics').select('sub_topic,grade').eq('id', topicId).maybeSingle();
-    name = (data?.sub_topic as string) ?? '—';
+    name = (data?.sub_topic as string) ?? '-';
     grade = (data?.grade as string) ?? '';
   }
   const r = await generateForTopic(topicId, GENERATE);

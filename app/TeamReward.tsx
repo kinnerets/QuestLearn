@@ -13,7 +13,7 @@ export function TeamReward({ claimed, reward }: { claimed: boolean; reward: numb
   if (done) {
     return (
       <div className="team-reward-got">
-        <CoinIcon /> הפרס נאסף — {reward} מטבעות לכל אחת
+        <CoinIcon /> הפרס נאסף - {reward} מטבעות לכל אחת
       </div>
     );
   }
@@ -27,7 +27,7 @@ export function TeamReward({ claimed, reward }: { claimed: boolean; reward: numb
 
   return (
     <button className="team-reward-btn" onClick={claim} disabled={busy}>
-      <CoinIcon /> אספו את הפרס — {reward} מטבעות לכל אחת
+      <CoinIcon /> אספו את הפרס - {reward} מטבעות לכל אחת
     </button>
   );
 }

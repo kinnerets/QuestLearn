@@ -1,7 +1,7 @@
 export type CapiMood = 'chill' | 'hint' | 'cheer';
 
 /**
- * קפי — the Chill & Smart capybara guide, redrawn in a soft claymation / Pixar
+ * קפי - the Chill & Smart capybara guide, redrawn in a soft claymation / Pixar
  * key: rounded huggable proportions, warm radial shading, big kind eyes with a
  * catch-light, a gentle smile and a little flower for charm. Three moods.
  */
@@ -35,7 +35,7 @@ export function Capi({ mood = 'chill', size = 74, still = false }: { mood?: Capi
       <circle cx="28" cy="37" r="4.5" fill="#8A6238" opacity="0.55" />
       <circle cx="92" cy="37" r="4.5" fill="#8A6238" opacity="0.55" />
 
-      {/* head — rounded, soft-shaded */}
+      {/* head - rounded, soft-shaded */}
       <ellipse cx="60" cy="56" rx="37" ry="34" fill="url(#capiBody)" />
       {/* gentle ambient occlusion under the chin */}
       <ellipse cx="60" cy="74" rx="26" ry="12" fill="#8A6238" opacity="0.16" />
@@ -61,7 +61,7 @@ export function Capi({ mood = 'chill', size = 74, still = false }: { mood?: Capi
       {/* muzzle */}
       <ellipse cx="60" cy="66" rx="22" ry="16" fill="url(#capiMuzzle)" />
 
-      {/* brows / eyes by mood — big, kind, with catch-lights */}
+      {/* brows / eyes by mood - big, kind, with catch-lights */}
       {mood === 'cheer' ? (
         <>
           <path d="M40 48 q7 -8 14 0" fill="none" stroke="#2A1D1A" strokeWidth="3.4" strokeLinecap="round" />

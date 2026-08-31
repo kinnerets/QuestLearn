@@ -69,7 +69,7 @@ a { color: inherit; text-decoration: none; }
 .seg-btn.on { background: var(--magenta); color: #fff; box-shadow: 0 3px 8px -3px var(--magenta); }
 .setting-hint { color: var(--muted); font-weight: 600; font-size: .76rem; margin: 12px 0 0; line-height: 1.4; }
 
-/* app shell — constrained mobile column */
+/* app shell - constrained mobile column */
 .app-shell {
   max-width: 480px;
   height: 100dvh;
@@ -405,7 +405,7 @@ a { color: inherit; text-decoration: none; }
   color: #fff; opacity: .92;
 }
 .hero-switch .i { width: 13px; height: 13px; }
-/* Profile chip — small avatar + name in the hero corner; taps to switch child */
+/* Profile chip - small avatar + name in the hero corner; taps to switch child */
 .profile-chip {
   align-self: flex-end; z-index: 3; margin-bottom: 12px;
   display: inline-flex; align-items: center; gap: 5px;
@@ -413,7 +413,7 @@ a { color: inherit; text-decoration: none; }
 }
 .profile-chip .i { width: 17px; height: 17px; opacity: .95; }
 
-/* Floating Capi — opens the chat from any relaxed screen */
+/* Floating Capi - opens the chat from any relaxed screen */
 .capi-fab {
   position: fixed; z-index: 50;
   inset-inline-start: 14px; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
@@ -990,14 +990,14 @@ a { color: inherit; text-decoration: none; }
 /* Coin & streak values pop when the screen mounts. */
 .stat-card .val, .shop-coins span, .ex-coins b { animation: pop .5s cubic-bezier(.2,1.5,.4,1) both; }
 
-/* Correct-answer celebration: confetti already exists — make the star burst bigger. */
+/* Correct-answer celebration: confetti already exists - make the star burst bigger. */
 .cele-emoji, .celebration svg { animation: cheer 1.1s cubic-bezier(.2,1.4,.4,1) both; }
 @keyframes cheer { 0% { transform: scale(.3) rotate(-12deg); opacity: 0; }
   60% { transform: scale(1.15) rotate(4deg); } 100% { transform: scale(1) rotate(0); opacity: 1; } }
 
 .status-empty { color: var(--muted); font-weight: 600; font-size: .9rem; line-height: 1.5; margin: 4px 2px; }
 
-/* Active mission CTA breathes with a soft glow — noticeable but smooth. */
+/* Active mission CTA breathes with a soft glow - noticeable but smooth. */
 .mission-cta.pulse { animation: ctaGlow 1.8s ease-in-out infinite; will-change: transform, box-shadow; }
 @keyframes ctaGlow {
   0%, 100% { transform: scale(1);    box-shadow: 0 4px 10px -4px rgba(255,42,133,.5); }
@@ -1066,12 +1066,12 @@ a { color: inherit; text-decoration: none; }
 .task-coins { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-display); font-weight: 800; color: var(--gold-ink); font-size: .9rem; }
 .task-coins .i { width: 16px; height: 16px; }
 .task-coins.pop { animation: pop .6s cubic-bezier(.2,1.5,.4,1) both; }
-/* Sent to a parent for approval — done, but not struck through yet. */
+/* Sent to a parent for approval - done, but not struck through yet. */
 .task-row.pending { background: #FFF7E6; border-color: #FFD79A; }
 .task-row.pending .task-title { text-decoration: none; color: var(--ink); }
 .task-row.pending .task-check.on { background: #E09A2B; border-color: #E09A2B; }
 .task-pending { font-family: var(--font-display); font-weight: 800; font-size: .78rem; color: #B4761A; white-space: nowrap; }
-/* Approved today — done, but still repeatable (tidy the room again). */
+/* Approved today - done, but still repeatable (tidy the room again). */
 .task-row.approved { background: rgba(47,191,143,.08); border-color: var(--mint); }
 .task-row.approved .task-title { text-decoration: none; color: var(--ink); }
 .task-again { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 800; font-size: .78rem; color: var(--mint-ink, #1C7A57); white-space: nowrap; }

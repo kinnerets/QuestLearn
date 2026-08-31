@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react';
 import { ChevronIcon } from '@/components/icons';
 
 /** A collapsible parent-area section: a tappable header (with an optional count)
- *  that expands to reveal its body. Keeps the dashboard tidy — management lives
+ *  that expands to reveal its body. Keeps the dashboard tidy - management lives
  *  behind a tap, not stacked inline. */
 export function Section({
   title, count, hint, defaultOpen = false, children,

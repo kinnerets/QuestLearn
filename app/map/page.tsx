@@ -51,7 +51,7 @@ export default async function MapPage() {
           <span className="interests-cta-ico"><SparkIcon /></span>
           <span className="interests-cta-txt">
             <b>מה מעניין אותך?</b>
-            <small>עדכני את תחומי העניין — נתאים לך יותר תרגולים בכיוון</small>
+            <small>עדכני את תחומי העניין - נתאים לך יותר תרגולים בכיוון</small>
           </span>
           <span className="place-banner-go">›</span>
         </Link>
