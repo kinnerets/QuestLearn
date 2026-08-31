@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
-import { ensureGlobalBuffer } from '@/lib/generator';
+import { ensureGlobalBuffer, thinTopicCount } from '@/lib/generator';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300; // several sequential generations
+export const maxDuration = 300; // several sequential generations per invocation
 
 /**
- * Nightly background top-up (Vercel Cron). Keeps every topic's bank healthy so
- * parents never manage content. Protected by CRON_SECRET when set; Vercel's own
- * cron requests carry an Authorization: Bearer <CRON_SECRET> header automatically.
+ * Background top-up (Vercel Cron) that fills the question bank on its own — no
+ * parent action ever. Each invocation fills a batch of the thinnest topics, then
+ * if any topics still need filling it chains a fresh invocation of itself, so one
+ * nightly trigger cascades until the whole catalogue is healthy and then stops.
+ * Protected by CRON_SECRET when set; Vercel's cron requests carry it automatically.
  */
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
@@ -17,8 +19,25 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: false, reason: 'unauthorized' }, { status: 401 });
     }
   }
-  // Fill up to 10 of the thinnest topics per night (each ~generate+verify). Keeps
-  // the growing catalogue filling within a few nights while staying in the budget.
+
+  // Fill as many topics as fit in the time budget this invocation.
   const result = await ensureGlobalBuffer(10);
-  return NextResponse.json({ ok: true, ...result });
+  const remaining = await thinTopicCount();
+
+  // Self-chain: if we made progress and topics still need filling, kick the next
+  // batch in a fresh invocation. Guarded by inserted>0 so it stops once healthy.
+  if (remaining > 0 && result.inserted > 0) {
+    try {
+      const origin = new URL(req.url).origin;
+      const headers: Record<string, string> = secret ? { authorization: `Bearer ${secret}` } : {};
+      // Dispatch the next run without waiting for it to finish (cap the wait so
+      // this invocation returns promptly while the request is on its way).
+      await Promise.race([
+        fetch(`${origin}/api/cron/refill`, { headers }).catch(() => {}),
+        new Promise((r) => setTimeout(r, 800)),
+      ]);
+    } catch { /* best-effort chaining */ }
+  }
+
+  return NextResponse.json({ ok: true, ...result, remaining });
 }
