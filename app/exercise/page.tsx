@@ -90,6 +90,7 @@ export default function ExercisePage() {
   const [finished, setFinished] = useState(false);
   const [correct, setCorrect] = useState(0);
   const [answered, setAnswered] = useState(0);
+  const [results, setResults] = useState<{ stem: string; ok: boolean }[]>([]);
 
   // Adaptive difficulty: pick the next question near the current level.
   const [currentIdx, setCurrentIdx] = useState(-1);
@@ -249,6 +250,7 @@ export default function ExercisePage() {
       setMood('cheer');
       setMessage(`${pick(PRAISE)} +${st.coins} מטבעות.`);
       setPhase('done');
+      setResults((r) => [...r, { stem: st.stem, ok: true }]);
       logAttempt(st, true, tries);
       // Adaptive: a clean first-try correct builds a streak → step difficulty up.
       if (tries === 0) {
@@ -279,6 +281,7 @@ export default function ExercisePage() {
         const mis = st.choices.find((c) => c.id === choiceId)?.misconception;
         setMessage(pick(GENTLE) + (st.explanation ? ' ' + st.explanation : ''));
         setPhase('done');
+        setResults((r) => [...r, { stem: st.stem, ok: false }]);
         logAttempt(st, false, 2, mis);
       }
     }
@@ -296,6 +299,7 @@ export default function ExercisePage() {
       setMessage(`${pick(PRAISE)} +${st.coins} מטבעות.`);
       setPhase('done');
       setRevealed(true);
+      setResults((r) => [...r, { stem: st.stem, ok: true }]);
       logAttempt(st, true, tries);
       if (tries === 0) {
         setCleanStreak((s) => { const ns = s + 1; if (ns >= 2) { setLevel((l) => Math.min(5, l + 1)); return 0; } return ns; });
@@ -315,6 +319,7 @@ export default function ExercisePage() {
         const ans = st.answers?.[0] ?? '';
         setMessage(`${pick(GENTLE)} התשובה: ${ans}${st.explanation ? ' - ' + st.explanation : ''}`);
         setPhase('done');
+        setResults((r) => [...r, { stem: st.stem, ok: false }]);
         logAttempt(st, false, 2);
       }
     }
@@ -348,7 +353,7 @@ export default function ExercisePage() {
     if (newBadges.length) return <BadgeCelebration badges={newBadges} next={nextInfo.next} />;
     // A next daily topic is handled by direct navigation in next(); reaching here
     // means the journey is done → celebrate.
-    return <Celebration earned={earned} correct={correct} answered={answered} xp={correct * 10} />;
+    return <Celebration earned={earned} correct={correct} answered={answered} results={results} xp={correct * 10} />;
   }
   if (!station) return <Loader />;
 
@@ -589,7 +594,7 @@ function ScoreRing({ pct }: { pct: number }) {
   );
 }
 
-function Celebration({ earned, correct, answered }: { earned: number; correct: number; answered: number; xp?: number }) {
+function Celebration({ earned, correct, answered, results = [] }: { earned: number; correct: number; answered: number; xp?: number; results?: { stem: string; ok: boolean }[] }) {
   const pct = answered ? Math.round((correct / answered) * 100) : 100;
   return (
     <main className="app-shell">
@@ -603,6 +608,17 @@ function Celebration({ earned, correct, answered }: { earned: number; correct: n
             <ScoreRing pct={pct} />
             <p className="cele-score">ענית נכון על {correct} מתוך {answered}</p>
           </>
+        )}
+        {results.length > 0 && (
+          <div className="cele-summary">
+            <div className="cele-summary-title">סיכום התרגול</div>
+            {results.map((r, i) => (
+              <div key={i} className={`cele-sum-row${r.ok ? ' ok' : ' no'}`}>
+                <span className="cele-sum-ico">{r.ok ? <CheckIcon /> : <CloseIcon />}</span>
+                <span className="cele-sum-stem">{r.stem}</span>
+              </div>
+            ))}
+          </div>
         )}
         <div className="rewardrow">
           <div className="rw"><b><CoinIcon /> +{earned}</b><span>מטבעות</span></div>

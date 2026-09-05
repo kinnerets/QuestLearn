@@ -34,7 +34,15 @@ export function SpeakButton({ text, className = '' }: { text: string; className?
 
   function hebrewVoice() {
     try {
-      return window.speechSynthesis.getVoices().find((v) => (v.lang || '').toLowerCase().startsWith('he'));
+      const voices = window.speechSynthesis.getVoices();
+      let chosen = '';
+      try { chosen = localStorage.getItem('ql_voice') || ''; } catch { /* ignore */ }
+      // Prefer the parent's chosen voice, if it's still available.
+      if (chosen) {
+        const match = voices.find((v) => v.voiceURI === chosen);
+        if (match) return match;
+      }
+      return voices.find((v) => (v.lang || '').toLowerCase().startsWith('he'));
     } catch { return undefined; }
   }
 

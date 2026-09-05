@@ -10,6 +10,7 @@ interface Subj { subject: string; label: string; kind: string; accuracy: number;
 export function SubtopicFocusPanel({ childId, childName }: { childId?: string; childName?: string }) {
   const [data, setData] = useState<Subj[]>([]);
   const [focus, setFocus] = useState<Set<string>>(new Set());
+  const [wrong, setWrong] = useState<Record<string, string[]>>({});
   const [open, setOpen] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -21,6 +22,7 @@ export function SubtopicFocusPanel({ childId, childName }: { childId?: string; c
       .then((j) => {
         if (Array.isArray(j?.breakdown)) setData(j.breakdown);
         if (Array.isArray(j?.focusTopics)) setFocus(new Set(j.focusTopics));
+        if (j?.recentWrong && typeof j.recentWrong === 'object') setWrong(j.recentWrong);
       })
       .catch(() => {})
       .finally(() => setLoaded(true));
@@ -56,13 +58,22 @@ export function SubtopicFocusPanel({ childId, childName }: { childId?: string; c
                 <div className="pfocus-list">
                   {s.sub.map((t) => {
                     const on = focus.has(t.id);
+                    const misses = wrong[t.id] ?? [];
                     return (
-                      <div key={t.id} className="pfocus-row">
-                        <span className="pfocus-tname">{t.subTopic}</span>
-                        <span className="pfocus-tstat">{t.answered > 0 ? `${Math.round(t.accuracy * 100)}%` : 'טרם תורגל'}</span>
-                        <button className={`pfocus-btn${on ? ' on' : ''}`} onClick={() => toggle(t.id)}>
-                          {on ? 'מחוזק' : 'חיזוק'}
-                        </button>
+                      <div key={t.id} className="pfocus-item">
+                        <div className="pfocus-row">
+                          <span className="pfocus-tname">{t.subTopic}</span>
+                          <span className="pfocus-tstat">{t.answered > 0 ? `${Math.round(t.accuracy * 100)}%` : 'טרם תורגל'}</span>
+                          <button className={`pfocus-btn${on ? ' on' : ''}`} onClick={() => toggle(t.id)}>
+                            {on ? 'מחוזק' : 'חיזוק'}
+                          </button>
+                        </div>
+                        {misses.length > 0 && (
+                          <div className="pfocus-wrong">
+                            <span className="pfocus-wrong-tag">טעויות מהשבוע</span>
+                            {misses.map((m, i) => <div key={i} className="pfocus-wrong-q">{m}</div>)}
+                          </div>
+                        )}
                       </div>
                     );
                   })}

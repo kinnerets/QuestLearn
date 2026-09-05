@@ -25,9 +25,13 @@ function applyScale(s: Scale) {
   document.documentElement.style.fontSize = s === '100%' ? '' : s;
 }
 
+interface Voice { uri: string; label: string }
+
 export function DisplaySettings() {
   const [theme, setTheme] = useState<Theme>('system');
   const [scale, setScale] = useState<Scale>('100%');
+  const [voices, setVoices] = useState<Voice[]>([]);
+  const [voice, setVoice] = useState('');
 
   // Load saved choices once, on the client.
   useEffect(() => {
@@ -36,8 +40,39 @@ export function DisplaySettings() {
       if (t === 'light' || t === 'dark' || t === 'system') setTheme(t);
       const s = localStorage.getItem('ql_textscale') as Scale | null;
       if (s === '100%' || s === '112%' || s === '125%') setScale(s);
+      setVoice(localStorage.getItem('ql_voice') || '');
     } catch { /* storage may be blocked */ }
   }, []);
+
+  // Load Hebrew voices (the list can arrive asynchronously).
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    const read = () => {
+      try {
+        const he = window.speechSynthesis.getVoices()
+          .filter((v) => (v.lang || '').toLowerCase().startsWith('he'))
+          .map((v) => ({ uri: v.voiceURI, label: v.name || v.voiceURI }));
+        setVoices(he);
+      } catch { /* ignore */ }
+    };
+    read();
+    window.speechSynthesis.onvoiceschanged = read;
+    return () => { try { window.speechSynthesis.onvoiceschanged = null; } catch { /* ignore */ } };
+  }, []);
+
+  function chooseVoice(uri: string) {
+    setVoice(uri);
+    try { uri ? localStorage.setItem('ql_voice', uri) : localStorage.removeItem('ql_voice'); } catch { /* ignore */ }
+    // Small preview so the choice is audible.
+    try {
+      const synth = window.speechSynthesis; synth.cancel();
+      const u = new SpeechSynthesisUtterance('שלום, זה הקול שלי');
+      u.lang = 'he-IL';
+      const v = synth.getVoices().find((x) => x.voiceURI === uri);
+      if (v) u.voice = v;
+      synth.speak(u);
+    } catch { /* ignore */ }
+  }
 
   function chooseTheme(t: Theme) {
     setTheme(t);
@@ -74,7 +109,17 @@ export function DisplaySettings() {
         </div>
       </div>
 
-      <p className="setting-hint">ההגדרות נשמרות במכשיר הזה ותקפות לכל האפליקציה.</p>
+      {voices.length > 0 && (
+        <div className="setting-row">
+          <div className="setting-label">קול ההקראה</div>
+          <select className="voice-select" value={voice} onChange={(e) => chooseVoice(e.target.value)}>
+            <option value="">ברירת מחדל של המכשיר</option>
+            {voices.map((v) => <option key={v.uri} value={v.uri}>{v.label}</option>)}
+          </select>
+        </div>
+      )}
+
+      <p className="setting-hint">ההגדרות נשמרות במכשיר הזה ותקפות לכל האפליקציה.{voices.length === 0 ? ' (אפשר להוסיף קולות עבריים בהגדרות המכשיר.)' : ''}</p>
     </section>
   );
 }
