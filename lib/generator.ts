@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { getSupabase } from './supabaseClient';
 import { SUBJECT_LABEL } from './constants';
+import { curriculumGroundTruth } from './curriculum';
 
 // Cheap + fast model for question generation.
 const MODEL = 'claude-haiku-4-5';
@@ -88,7 +89,7 @@ interface VerifyItem { stem: string; choices: { id: string; text: string }[]; co
  * flag reason for questions that should be held for parent review. On any error
  * it returns an empty map (fail-open: don't block generation).
  */
-async function verifyQuestions(apiKey: string, items: VerifyItem[], context: string, rules: string): Promise<Map<number, string>> {
+async function verifyQuestions(apiKey: string, items: VerifyItem[], context: string, rules: string, groundTruth = ''): Promise<Map<number, string>> {
   const flagged = new Map<number, string>();
   if (!items.length) return flagged;
   try {
@@ -107,7 +108,9 @@ async function verifyQuestions(apiKey: string, items: VerifyItem[], context: str
 - הפרה של הכללים הקשיחים לגיל שלהלן (למשל מספרים מחוץ לטווח, גדלים לא סבירים, נושא מעבר לרמת הכיתה).
 - (בערבית) התשובה הנכונה אינה מילה בערבית.
 הכללים הקשיחים לגיל:
-${rules}
+${rules}${groundTruth ? `
+מקור תכנית הלימודים (Ground Truth) - השאלה חייבת להיות עקבית איתו; אם היא סותרת עובדה או חורגת מהתחום, פסול:
+${groundTruth}` : ''}
 בכל ספק - פסול (ok=false). אחרת ok=true. תן reason קצר וברור בעברית לכל פסילה.`,
       tools: [VERIFY_TOOL],
       tool_choice: { type: 'tool', name: 'emit_verdicts' },
@@ -188,7 +191,9 @@ explanation: משפט קצר שמסביר למה התשובה נכונה.
 עברית תקנית וידידותית. בלי אימוגי. גיוון גבוה בין השאלות.
 חשוב: השאלה חייבת להיות ניתנת למענה מידע כללי שנלמד בגיל הזה - בלי להניח שקראו טקסט מסוים או פרק ספציפי. הישאר בליבת הנושא הנלמד בבית הספר; הימנע מפרטים נדירים, אזוטריים או מבלבלים (למשל בתנ״ך - רק סיפורים ודמויות מוכרים ומרכזיים, בלי לערבב אירועים או דמויות מסיפורים שונים).
 ${gradeRules(topic.grade)}
-גיוון (חשוב): שנה בין השאלות את המספרים, הערכים וההקשרים - אל תשאל את אותו תרגיל שוב בניסוח אחר (למשל לא לחזור על "25% מתוך 100" עם מילים שונות). כל שאלה צריכה חישוב או תוכן שונה ממש.
+${curriculumGroundTruth(topic.subject, topic.grade) ? `מקור תכנית הלימודים (הישאר בתוך הגבולות והעובדות האלה בלבד):
+${curriculumGroundTruth(topic.subject, topic.grade)}
+` : ''}גיוון (חשוב): שנה בין השאלות את המספרים, הערכים וההקשרים - אל תשאל את אותו תרגיל שוב בניסוח אחר (למשל לא לחזור על "25% מתוך 100" עם מילים שונות). כל שאלה צריכה חישוב או תוכן שונה ממש.
 עברית ונוסח (חשוב מאוד):
 - עברית תקנית, טבעית וברורה. משפט שאלה שלם ומדויק, בלי שגיאות ובלי ניסוח מגושם או מבלבל.
 - אל תחשוף את התשובה בתוך השאלה. במיוחד בשאלות אוצר מילים (אנגלית/ערבית): אל תזכיר את המילה הנכונה בגוף השאלה. נסח נקי, למשל "איזו מילה באנגלית מתארת משהו גדול מאוד?" (ולא להזכיר את enormous/huge בשאלה).
@@ -258,7 +263,7 @@ ${gradeRules(topic.grade)}
     const p = r.payload as { stem: string; choices: { id: string; text: string }[]; correct_choice_id: string };
     return { stem: p.stem, choices: p.choices, correct: p.correct_choice_id };
   });
-  const flagged = await verifyQuestions(apiKey, items, `${subjectLabel} · ${gradeLabel}`, gradeRules(topic.grade));
+  const flagged = await verifyQuestions(apiKey, items, `${subjectLabel} · ${gradeLabel}`, gradeRules(topic.grade), curriculumGroundTruth(topic.subject, topic.grade));
   rows.forEach((r, i) => {
     if (flagged.has(i)) {
       r.verification_status = 'auto_flagged';
@@ -381,6 +386,7 @@ export async function revalidateExisting(maxTopics = 4): Promise<{ checked: numb
         items.map((i) => ({ stem: i.stem, choices: i.choices, correct: i.correct })),
         `${SUBJECT_LABEL[t.subject as string] ?? t.subject} · ${t.grade}`,
         gradeRules(t.grade as string),
+        curriculumGroundTruth(t.subject as string, t.grade as string),
       );
       for (const [idx, reason] of flagged) {
         const q = items[idx];
