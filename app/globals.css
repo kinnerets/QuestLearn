@@ -749,7 +749,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Completed subject on home ── */
 .mission.done { opacity: .85; }
-.mission.done .mission-title { text-decoration: line-through; text-decoration-color: var(--line); }
+.mission.done .mission-title { color: var(--muted); }
 .mission-done { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--mint); color: #fff; }
 .mission-done .i { width: 18px; height: 18px; }
 

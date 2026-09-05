@@ -83,11 +83,19 @@ function daySeed(): number {
   return Math.floor((now.getTime() - start.getTime()) / 86_400_000);
 }
 
+// Short-lived in-memory cache of the (heavy) content bank, keyed by grade. It's
+// read on almost every screen and changes rarely, so a few seconds of caching
+// removes most of the per-tap delay. New generated content shows within the TTL.
+const _bankCache = new Map<string, { at: number; data: { topics: TopicRow[]; qByTopic: Map<string, QRow[]> } }>();
+const BANK_TTL_MS = 45_000;
+
 /** Fetch every topic + question available to a grade (grade-specific + shared). */
 async function fetchBank(
   sb: NonNullable<ReturnType<typeof getSupabase>>,
   grade: string,
 ): Promise<{ topics: TopicRow[]; qByTopic: Map<string, QRow[]> }> {
+  const cached = _bankCache.get(grade);
+  if (cached && Date.now() - cached.at < BANK_TTL_MS) return cached.data;
   const { data: topics } = await sb
     .from('curriculum_topics')
     .select('id,subject,sub_topic,grade,order_index')
@@ -108,7 +116,9 @@ async function fetchBank(
       qByTopic.set(q.topic_id, arr);
     }
   }
-  return { topics: list, qByTopic };
+  const data = { topics: list, qByTopic };
+  _bankCache.set(grade, { at: Date.now(), data });
+  return data;
 }
 
 function buildStation(kind: StationKind, subject: string, topic: TopicRow, q: QRow): DbStation {
