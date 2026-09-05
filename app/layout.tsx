@@ -28,6 +28,9 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  // Resize the layout when the on-screen keyboard opens, so chat/type-in inputs
+  // stay visible and messages don't get pushed out of view.
+  interactiveWidget: 'resizes-content',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

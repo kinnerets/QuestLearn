@@ -341,6 +341,61 @@ export async function thinTopicCount(): Promise<number> {
   }
 }
 
+/**
+ * Re-check questions already live in the bank against the hardened grade rules,
+ * and hide (auto_flag) any that fail - so the app cleans up its own past output.
+ * Samples a bounded number of topics per run so cost stays predictable; over
+ * several nightly runs it covers the whole bank. Multiple-choice + true/false.
+ */
+export async function revalidateExisting(maxTopics = 4): Promise<{ checked: number; flagged: number }> {
+  const out = { checked: 0, flagged: 0 };
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const sb = getSupabase();
+  if (!apiKey || !sb) return out;
+  try {
+    const { data: topics } = await sb.from('curriculum_topics').select('id,subject,grade');
+    if (!topics?.length) return out;
+    const sample = [...topics].sort(() => Math.random() - 0.5).slice(0, maxTopics);
+    for (const t of sample) {
+      const { data: qs } = await sb.from('questions_bank')
+        .select('id,type,payload').eq('topic_id', t.id as string)
+        .eq('verification_status', 'auto_passed').limit(12);
+      const payloadById = new Map((qs ?? []).map((q) => [q.id as string, q.payload as Record<string, unknown>]));
+      const items = (qs ?? [])
+        .filter((q) => q.type === 'multiple_choice' || q.type === 'true_false')
+        .map((q) => {
+          const p = q.payload as { stem?: string; choices?: { id: string; text: string }[]; correct_choice_id?: string; answer?: unknown };
+          const choices = q.type === 'true_false'
+            ? [{ id: 't', text: 'נכון' }, { id: 'f', text: 'לא נכון' }]
+            : (p.choices ?? []);
+          const correct = q.type === 'true_false'
+            ? (p.answer === true || p.answer === 'true' || p.correct_choice_id === 't' ? 't' : 'f')
+            : String(p.correct_choice_id ?? '');
+          return { id: q.id as string, stem: String(p.stem ?? ''), choices, correct };
+        })
+        .filter((i) => i.stem && i.choices.length);
+      if (!items.length) continue;
+      out.checked += items.length;
+      const flagged = await verifyQuestions(
+        apiKey,
+        items.map((i) => ({ stem: i.stem, choices: i.choices, correct: i.correct })),
+        `${SUBJECT_LABEL[t.subject as string] ?? t.subject} · ${t.grade}`,
+        gradeRules(t.grade as string),
+      );
+      for (const [idx, reason] of flagged) {
+        const q = items[idx];
+        if (!q) continue;
+        const payload = { ...(payloadById.get(q.id) ?? {}), flag_reason: reason };
+        await sb.from('questions_bank').update({ verification_status: 'auto_flagged', payload }).eq('id', q.id);
+        out.flagged += 1;
+      }
+    }
+    return out;
+  } catch {
+    return out;
+  }
+}
+
 export interface GlobalRefillResult { scanned: number; filledTopics: number; inserted: number }
 
 /**

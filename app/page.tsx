@@ -108,7 +108,7 @@ export default async function HomePage() {
           <div className="bubble">
             {doneCount >= stations.length
               ? <>כל הכבוד {name}, סיימת את כל הנושאים להיום!</>
-              : <>אהלן {name}. נתחיל ב<b>{firstActive.title}</b>?</>}
+              : <>אהלן {name}. נתחיל ב<b>{firstActive.subtitle}</b>?</>}
           </div>
         </div>
 

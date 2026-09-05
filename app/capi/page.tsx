@@ -75,6 +75,7 @@ export default function CapiChatPage() {
           className="chat-input" value={input} disabled={busy}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') send(input); }}
+          onFocus={() => setTimeout(() => endRef.current?.scrollIntoView({ block: 'end' }), 300)}
           placeholder="כתבי לקפי…" autoComplete="off"
         />
         <button className="chat-send" onClick={() => send(input)} disabled={busy || !input.trim()} aria-label="שליחה">
