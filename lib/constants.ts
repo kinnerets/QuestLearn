@@ -19,6 +19,14 @@ export const SUBJECT_LABEL: Record<string, string> = {
   politics: 'פוליטיקה',
   ai: 'בינה מלאכותית',
   philosophy: 'פילוסופיה',
+  metacognition: 'חשיבה על חשיבה',
+  geopolitics: 'גאופוליטיקה',
+  cognitive_bias: 'הטיות חשיבה',
+  epigenetics: 'אפיגנטיקה',
+  procrastination: 'מדע הדחיינות',
+  decision_making: 'קבלת החלטות',
+  neuroplasticity: 'גמישות מוחית',
+  financial_literacy: 'חינוך פיננסי',
   seasonal: 'עונתי',
   leadership: 'מנהיגות',
 };
@@ -67,6 +75,8 @@ export const SUBJECT_KIND: Record<string, 'core' | 'lang' | 'future' | 'lead'> =
   arabic: 'lang', english: 'lang',
   future_skills: 'future', geography: 'future',
   economics: 'future', fashion: 'future', politics: 'future', ai: 'future', philosophy: 'future',
+  metacognition: 'future', geopolitics: 'future', cognitive_bias: 'future', epigenetics: 'future',
+  procrastination: 'future', decision_making: 'future', neuroplasticity: 'future', financial_literacy: 'future',
   seasonal: 'future',
   leadership: 'lead',
 };

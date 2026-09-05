@@ -12,6 +12,7 @@ import { CapiLogPanel } from './CapiLogPanel';
 import { AssessmentsPanel } from './AssessmentsPanel';
 import { RewardsPanel } from './RewardsPanel';
 import { FlagsPanel } from './FlagsPanel';
+import { ApprovedPanel } from './ApprovedPanel';
 import { RedemptionsPanel } from './RedemptionsPanel';
 import { LocksPanel } from './LocksPanel';
 import type { AvatarConfig } from '@/lib/types';
@@ -75,6 +76,7 @@ export function ParentDashboard({ kids }: { kids: Kid[] }) {
         <RewardsPanel />
         <LocksPanel />
         <FlagsPanel />
+        <ApprovedPanel />
 
         {/* ── Per-child area: the tabs switch only this part ── */}
         <div className="parent-section-label per-kid">אישי - לכל בת</div>

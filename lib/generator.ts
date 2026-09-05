@@ -88,7 +88,7 @@ interface VerifyItem { stem: string; choices: { id: string; text: string }[]; co
  * flag reason for questions that should be held for parent review. On any error
  * it returns an empty map (fail-open: don't block generation).
  */
-async function verifyQuestions(apiKey: string, items: VerifyItem[], context: string): Promise<Map<number, string>> {
+async function verifyQuestions(apiKey: string, items: VerifyItem[], context: string, rules: string): Promise<Map<number, string>> {
   const flagged = new Map<number, string>();
   if (!items.length) return flagged;
   try {
@@ -99,7 +99,16 @@ async function verifyQuestions(apiKey: string, items: VerifyItem[], context: str
     const resp = await anthropic.messages.create({
       model: MODEL,
       max_tokens: 1500,
-      system: `אתה בודק איכות של שאלות לימוד לילדים (${context}). סמן שאלה כלא‑תקינה (ok=false) רק אם יש בעיה ממשית: התשובה המסומנת ✓ שגויה או לא מדויקת; יש יותר מתשובה נכונה אחת; טעות עובדתית; ערבוב בין סיפורים/דמויות/אירועים שונים; ניסוח מבלבל; דורשת ידע נדיר או קריאת טקסט ספציפי שילד בגיל הזה לא בהכרח למד; לא מתאים לגיל; או (בערבית) התשובה הנכונה אינה מילה בערבית. אחרת ok=true. תן reason קצר בעברית לכל סימון.`,
+      system: `אתה שומר סף פדגוגי קפדן שבודק שאלות לימוד לילדים (${context}). תפקידך למצוא פגמים ולפסול. סמן שאלה כלא‑תקינה (ok=false) אם מתקיים ולו אחד מאלה:
+- התשובה המסומנת ✓ שגויה או לא מדויקת עובדתית (100% נכונות נדרשת).
+- יש יותר מתשובה נכונה אחת, או שהתשובה משתמעת לשתי פנים.
+- טעות עובדתית, ערבוב בין סיפורים/דמויות/אירועים, או ניסוח מבלבל.
+- דורשת ידע נדיר או קריאת טקסט ספציפי שילד בגיל הזה לא בהכרח למד.
+- הפרה של הכללים הקשיחים לגיל שלהלן (למשל מספרים מחוץ לטווח, גדלים לא סבירים, נושא מעבר לרמת הכיתה).
+- (בערבית) התשובה הנכונה אינה מילה בערבית.
+הכללים הקשיחים לגיל:
+${rules}
+בכל ספק - פסול (ok=false). אחרת ok=true. תן reason קצר וברור בעברית לכל פסילה.`,
       tools: [VERIFY_TOOL],
       tool_choice: { type: 'tool', name: 'emit_verdicts' },
       messages: [{ role: 'user', content: listing }],
@@ -111,6 +120,29 @@ async function verifyQuestions(apiKey: string, items: VerifyItem[], context: str
     }
   } catch { /* fail-open */ }
   return flagged;
+}
+
+/** Hard, grade-specific guardrails - the "ground truth" the generator must obey
+ *  and the validator enforces. Prevents out-of-level content (e.g. millions-scale
+ *  numbers or decimals in grade 3) and keeps everyday magnitudes realistic. */
+function gradeRules(grade: string): string {
+  if (grade === 'grade_3') {
+    return `כללים קשיחים לכיתה ג׳ (בני 8-9):
+- מספרים עד 10,000 בלבד. אסור מספרים גדולים או מיליונים.
+- אסור אחוזים, אסור מספרים עשרוניים, אסור מספרים שליליים, אסור אלגברה.
+- שברים רק פשוטים ומוחשיים (חצי, שליש, רבע).
+- גדלים מהחיים חייבים להיות סבירים לילדה: מחירים בשקלים בודדים עד מאות (לא אלפים ולא מיליונים), כמויות קטנות.
+- ניסוח קצר ופשוט, משפט אחד.`;
+  }
+  if (grade === 'grade_5') {
+    return `כללים קשיחים לכיתה ה׳ (בני 10-11):
+- מותר שברים, עשרוני, אחוזים ובעיות רב-שלביות ברמת כיתה ה׳.
+- אסור אלגברה של חטיבת ביניים, אסור חזקות/שורשים מתקדמים, אסור מספרים אסטרונומיים.
+- גדלים ריאליים: מחירים וכמויות סבירים (לא מיליונים בבעיה יומיומית).`;
+  }
+  return `כללים למקצועות העשרה (בני 8-11):
+- הסבר כל מושג בשפה פשוטה ומוחשית של ילדה, עם דוגמה מהעולם שלה (בית ספר, חברים, משחקים, משפחה).
+- בלי ז׳רגון מקצועי, עסקי או אקדמי מורכב. הבן/הרעיון חשוב יותר מהמונח.`;
 }
 
 /** Generate fresh questions for one topic, skipping anything already in the bank. */
@@ -154,7 +186,9 @@ hints: מערך של בדיוק 2 רמזים מדורגים - רמז 1 כיוו�
 explanation: משפט קצר שמסביר למה התשובה נכונה.
 לפחות מסיח שגוי אחד עם שדה misconception קצר באנגלית.
 עברית תקנית וידידותית. בלי אימוגי. גיוון גבוה בין השאלות.
-חשוב: השאלה חייבת להיות ניתנת למענה מידע כללי שנלמד בגיל הזה - בלי להניח שקראו טקסט מסוים או פרק ספציפי. הישאר בליבת הנושא הנלמד בבית הספר; הימנע מפרטים נדירים, אזוטריים או מבלבלים (למשל בתנ״ך - רק סיפורים ודמויות מוכרים ומרכזיים, בלי לערבב אירועים או דמויות מסיפורים שונים).${nikudNote}`;
+חשוב: השאלה חייבת להיות ניתנת למענה מידע כללי שנלמד בגיל הזה - בלי להניח שקראו טקסט מסוים או פרק ספציפי. הישאר בליבת הנושא הנלמד בבית הספר; הימנע מפרטים נדירים, אזוטריים או מבלבלים (למשל בתנ״ך - רק סיפורים ודמויות מוכרים ומרכזיים, בלי לערבב אירועים או דמויות מסיפורים שונים).
+${gradeRules(topic.grade)}
+גיוון (חשוב): שנה בין השאלות את המספרים, הערכים וההקשרים - אל תשאל את אותו תרגיל שוב בניסוח אחר (למשל לא לחזור על "25% מתוך 100" עם מילים שונות). כל שאלה צריכה חישוב או תוכן שונה ממש.${nikudNote}`;
 
   const avoid = [...existingStems].slice(0, 40);
   const userMsg = `נושא: ${subjectLabel} - ${topic.sub_topic} (${gradeLabel}).${arabicNote}
@@ -220,7 +254,7 @@ explanation: משפט קצר שמסביר למה התשובה נכונה.
     const p = r.payload as { stem: string; choices: { id: string; text: string }[]; correct_choice_id: string };
     return { stem: p.stem, choices: p.choices, correct: p.correct_choice_id };
   });
-  const flagged = await verifyQuestions(apiKey, items, `${subjectLabel} · ${gradeLabel}`);
+  const flagged = await verifyQuestions(apiKey, items, `${subjectLabel} · ${gradeLabel}`, gradeRules(topic.grade));
   rows.forEach((r, i) => {
     if (flagged.has(i)) {
       r.verification_status = 'auto_flagged';

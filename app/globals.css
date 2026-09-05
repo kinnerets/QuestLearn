@@ -956,6 +956,16 @@ button.kbar-row { width: 100%; background: none; border: none; padding: 6px 0; c
 .ksub-untrained { flex: none; font-weight: 700; font-size: .74rem; color: var(--muted); opacity: .8; }
 .status-hint { color: var(--muted); font-weight: 600; font-size: .78rem; margin: 0 0 10px; line-height: 1.4; }
 
+/* Parent: content-review filter + bulk delete */
+.flag-filter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.flag-chip { border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+  border-radius: 999px; padding: 6px 12px; font-weight: 800; font-size: .8rem; cursor: pointer; }
+.flag-chip.on { background: var(--magenta); border-color: var(--magenta); color: #fff; }
+.flag-delete-all { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;
+  border: 1px solid var(--magenta); background: transparent; color: var(--magenta-deep);
+  border-radius: 12px; padding: 9px 13px; font-weight: 800; font-size: .84rem; cursor: pointer; }
+.flag-delete-all .i { width: 15px; height: 15px; }
+
 /* Parent: reinforce by sub-topic */
 .pfocus { display: flex; flex-direction: column; gap: 8px; }
 .pfocus-subj { border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
@@ -963,6 +973,9 @@ button.kbar-row { width: 100%; background: none; border: none; padding: 6px 0; c
   background: var(--surface); border: none; padding: 12px 13px; cursor: pointer; }
 .pfocus-name { font-family: var(--font-display); font-weight: 800; font-size: .95rem; color: var(--ink); }
 .pfocus-score { font-weight: 800; font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pfocus-chev { color: var(--muted); transition: transform .2s; transform: rotate(-90deg); display: inline-flex; }
+.pfocus-chev.up { transform: rotate(90deg); }
+.pfocus-chev .i { width: 16px; height: 16px; }
 .pfocus-list { display: flex; flex-direction: column; gap: 6px; padding: 4px 13px 12px; }
 .pfocus-row { display: flex; align-items: center; gap: 10px; }
 .pfocus-tname { flex: 1; font-weight: 700; font-size: .84rem; color: var(--ink); }

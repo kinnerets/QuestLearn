@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ChevronIcon } from '@/components/icons';
 import { Section } from './Section';
 
 interface SubStat { id: string; subTopic: string; accuracy: number; answered: number; solved: number; total: number }
@@ -49,6 +50,7 @@ export function SubtopicFocusPanel({ childId, childName }: { childId?: string; c
               <button className="pfocus-head" onClick={() => setOpen(isOpen ? null : s.subject)} aria-expanded={isOpen}>
                 <span className="pfocus-name">{s.label}</span>
                 <span className="pfocus-score">{s.answered > 0 ? `${Math.round(s.accuracy * 100)}%` : '-'}</span>
+                <span className={`pfocus-chev${isOpen ? ' up' : ''}`}><ChevronIcon /></span>
               </button>
               {isOpen && (
                 <div className="pfocus-list">

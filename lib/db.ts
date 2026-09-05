@@ -1085,7 +1085,9 @@ export async function getSubjectBreakdown(grade: string, childId: string): Promi
     }
     const locked = await getLockedSubjects(sb);
     const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography',
-      'future_skills', 'economics', 'fashion', 'politics', 'ai', 'philosophy'];
+      'future_skills', 'economics', 'fashion', 'politics', 'ai', 'philosophy',
+      'metacognition', 'geopolitics', 'cognitive_bias', 'epigenetics', 'procrastination',
+      'decision_making', 'neuroplasticity', 'financial_literacy'];
     const out: SubjectBreakdown[] = [];
     for (const subject of order) {
       if (locked.has(subject)) continue;
@@ -1378,7 +1380,9 @@ export async function getSubjectCatalog(grade: string, childId: string): Promise
     // Parent-locked (sensitive) subjects are hidden from the child's map.
     const locked = await getLockedSubjects(sb);
     const order = ['math', 'geometry', 'hebrew', 'bible', 'arabic', 'english', 'science', 'geography',
-      'future_skills', 'economics', 'fashion', 'politics', 'ai', 'philosophy'];
+      'future_skills', 'economics', 'fashion', 'politics', 'ai', 'philosophy',
+      'metacognition', 'geopolitics', 'cognitive_bias', 'epigenetics', 'procrastination',
+      'decision_making', 'neuroplasticity', 'financial_literacy'];
     const cards: SubjectCard[] = [];
     for (const subject of order) {
       if (locked.has(subject)) continue;
@@ -2105,13 +2109,51 @@ export async function getFlaggedQuestions(): Promise<FlaggedQuestion[] | null> {
   }
 }
 
-/** Parent decision on a flagged question: approve → kids see it; reject → deleted. */
-export async function reviewQuestion(id: string, action: 'approve' | 'reject'): Promise<boolean> {
+/** Questions a parent already approved (verification_status='parent_approved') -
+ *  so a parent can review and delete ones approved by mistake. */
+export async function getApprovedQuestions(): Promise<FlaggedQuestion[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data } = await sb
+      .from('questions_bank')
+      .select('id,topic_id,payload')
+      .eq('verification_status', 'parent_approved')
+      .limit(100);
+    if (!data?.length) return [];
+    const topicIds = [...new Set(data.map((r) => r.topic_id as string))];
+    const { data: topics } = await sb
+      .from('curriculum_topics').select('id,subject,sub_topic,grade').in('id', topicIds);
+    const tmap = new Map((topics ?? []).map((t) => [t.id as string, t]));
+    return data.map((r) => {
+      const p = (r.payload ?? {}) as { stem?: string; correct_choice_id?: string; choices?: { id: string; text: string }[] };
+      const t = tmap.get(r.topic_id as string) as { subject?: string; sub_topic?: string; grade?: string } | undefined;
+      const choices = (p.choices ?? []).map((c) => ({ id: c.id, text: String(c.text) }));
+      const correct = choices.find((c) => c.id === p.correct_choice_id);
+      return {
+        id: r.id as string,
+        subject: t?.subject ?? '', subTopic: t?.sub_topic ?? '', grade: t?.grade ?? '',
+        stem: String(p.stem ?? ''), reason: '',
+        correctText: correct?.text ?? '', correctId: String(p.correct_choice_id ?? ''), choices,
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+/** Parent decision on a question: approve → kids see it; reject → deleted;
+ *  unapprove → sent back to the review queue (hidden from kids again). */
+export async function reviewQuestion(id: string, action: 'approve' | 'reject' | 'unapprove'): Promise<boolean> {
   const sb = getSupabase();
   if (!sb) return false;
   try {
     if (action === 'approve') {
       const { error } = await sb.from('questions_bank').update({ verification_status: 'parent_approved' }).eq('id', id);
+      return !error;
+    }
+    if (action === 'unapprove') {
+      const { error } = await sb.from('questions_bank').update({ verification_status: 'auto_flagged' }).eq('id', id);
       return !error;
     }
     const { error } = await sb.from('questions_bank').delete().eq('id', id);

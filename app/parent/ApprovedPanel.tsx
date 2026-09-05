@@ -8,20 +8,22 @@ import type { FlaggedQuestion } from '@/lib/db';
 
 const GRADE_SHORT: Record<string, string> = { grade_3: 'ג׳', grade_5: 'ה׳', enrichment: 'העשרה' };
 
-export function FlagsPanel() {
+/** Questions already approved — so a parent can undo an accidental approval:
+ *  delete the question, or send it back to the review queue. */
+export function ApprovedPanel() {
   const [items, setItems] = useState<FlaggedQuestion[]>([]);
-  const [names, setNames] = useState<Record<string, string>>({}); // grade → child name
+  const [names, setNames] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
-  const [filter, setFilter] = useState<string>('all');
+  const [filter, setFilter] = useState('all');
   const [loaded, setLoaded] = useState(false);
 
   async function load() {
     try {
-      const [f, kids] = await Promise.all([
-        fetch('/api/parent/flags').then((r) => r.json()),
+      const [a, kids] = await Promise.all([
+        fetch('/api/parent/flags?status=approved').then((r) => r.json()),
         fetch('/api/children').then((r) => r.json()).catch(() => null),
       ]);
-      if (Array.isArray(f?.flagged)) setItems(f.flagged);
+      if (Array.isArray(a?.approved)) setItems(a.approved);
       const map: Record<string, string> = {};
       for (const k of kids?.children ?? []) if (k.grade) map[k.grade] = k.name;
       setNames(map);
@@ -32,7 +34,7 @@ export function FlagsPanel() {
 
   function whose(grade: string) { return names[grade] || `כיתה ${GRADE_SHORT[grade] ?? grade}`; }
 
-  async function review(id: string, action: 'approve' | 'reject') {
+  async function act(id: string, action: 'reject' | 'unapprove') {
     setBusy(id);
     setItems((xs) => xs.filter((x) => x.id !== id));
     try {
@@ -44,26 +46,14 @@ export function FlagsPanel() {
     setBusy(null);
   }
 
-  async function deleteAllShown() {
-    const toDelete = shown;
-    if (!toDelete.length || !confirm(`למחוק ${toDelete.length} שאלות שסומנו?`)) return;
-    setItems((xs) => xs.filter((x) => !toDelete.some((d) => d.id === x.id)));
-    for (const q of toDelete) {
-      await fetch('/api/parent/flags', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ id: q.id, action: 'reject' }),
-      }).catch(() => {});
-    }
-  }
-
   if (!loaded || items.length === 0) return null;
 
   const grades = [...new Set(items.map((i) => i.grade))];
   const shown = filter === 'all' ? items : items.filter((i) => i.grade === filter);
 
   return (
-    <Section title="שאלות לבדיקה" count={items.length}
-      hint="שאלות שה‑AI סימן כדורשות עין שנייה - כבר מוסתרות מהילדות. מחיקה מסירה לצמיתות; אישור → הן יראו אותן.">
+    <Section title="שאלות שאישרת" count={items.length}
+      hint="שאלות שכבר אישרת והילדות רואות. אם אישרת משהו בטעות - אפשר למחוק אותו, או להחזיר אותו לבדיקה כדי שיוסתר.">
       {grades.length > 1 && (
         <div className="flag-filter">
           <button className={`flag-chip${filter === 'all' ? ' on' : ''}`} onClick={() => setFilter('all')}>הכל</button>
@@ -72,12 +62,6 @@ export function FlagsPanel() {
           ))}
         </div>
       )}
-      {shown.length > 1 && (
-        <button className="flag-delete-all" onClick={deleteAllShown}>
-          <CloseIcon /> מחיקת כל {shown.length} השאלות המוצגות
-        </button>
-      )}
-
       {shown.map((q) => (
         <div key={q.id} className="flag-card">
           <div className="flag-meta">{whose(q.grade)} · {SUBJECT_LABEL[q.subject] ?? q.subject}{q.subTopic ? ` · ${q.subTopic}` : ''}</div>
@@ -92,13 +76,12 @@ export function FlagsPanel() {
               ))}
             </ul>
           )}
-          {q.reason && <div className="flag-reason"><span className="flag-reason-tag">למה סומן</span>{q.reason}</div>}
           <div className="flag-actions">
-            <button className="flag-btn reject" disabled={busy === q.id} onClick={() => review(q.id, 'reject')}>
+            <button className="flag-btn reject" disabled={busy === q.id} onClick={() => act(q.id, 'reject')}>
               <CloseIcon /> מחיקה
             </button>
-            <button className="flag-btn approve" disabled={busy === q.id} onClick={() => review(q.id, 'approve')}>
-              <CheckIcon /> אישור
+            <button className="flag-btn" disabled={busy === q.id} onClick={() => act(q.id, 'unapprove')}>
+              החזרה לבדיקה
             </button>
           </div>
         </div>
