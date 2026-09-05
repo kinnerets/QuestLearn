@@ -446,11 +446,14 @@ function AcademicView({
           const cls = `ans${showCorrect ? ' correct' : ''}${isWrong ? ' wrong' : ''}${isGone ? ' gone' : ''}`;
           const disabled = locked || isWrong || isGone;
           return (
-            <button key={c.id} className={cls} onClick={() => onAnswer(c.id)} disabled={disabled}>
-              <span>{c.text}</span>
-              {showCorrect && <CheckIcon />}
-              {isWrong && <CloseIcon />}
-            </button>
+            <div key={c.id} className="ans-row">
+              <button className={cls} onClick={() => onAnswer(c.id)} disabled={disabled}>
+                <span>{c.text}</span>
+                {showCorrect && <CheckIcon />}
+                {isWrong && <CloseIcon />}
+              </button>
+              {st.qtype !== 'true_false' && <SpeakButton text={c.text} className="ans-speak" />}
+            </div>
           );
         })}
       </div>

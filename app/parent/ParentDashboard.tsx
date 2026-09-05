@@ -31,12 +31,6 @@ interface Kid {
 
 const GRADE_LABEL: Record<string, string> = { grade_3: 'כיתה ג׳', grade_5: 'כיתה ה׳' };
 
-const SUBJECT_LABEL: Record<string, string> = {
-  math: 'חשבון', geometry: 'גאומטריה', hebrew: 'עברית', bible: 'תנ״ך',
-  science: 'מדע', arabic: 'ערבית', english: 'אנגלית', geography: 'גאוגרפיה',
-  future_skills: 'שער העתיד', leadership: 'מנהיגות',
-};
-
 const MISCONCEPTION_LABEL: Record<string, string> = {
   off_by_one_multiple: 'טעות בלוח הכפל (קפיצה אחת יותר/פחות)',
   bigger_denominator_bigger_fraction: 'חושבת ששבר עם מכנה גדול = גדול יותר',
@@ -46,7 +40,6 @@ const MISCONCEPTION_LABEL: Record<string, string> = {
 };
 
 function pct(x: number) { return Math.round(x * 100); }
-function masteryClass(m: number) { return m >= 0.7 ? 'good' : m >= 0.4 ? 'mid' : 'low'; }
 
 export function ParentDashboard({ kids }: { kids: Kid[] }) {
   const router = useRouter();
@@ -149,23 +142,8 @@ function ReportCard({ kid }: { kid: Kid }) {
             <Stat value={`~${r.learnMinutes}׳`} label="זמן למידה" />
           </div>
 
-          {r.subjects.length > 0 && (
-            <div className="report-section">
-              <div className="report-section-title">שליטה לפי נושא</div>
-              {r.subjects.map((s, i) => (
-                <div key={i} className="mastery-row">
-                  <span className="mastery-name">
-                    {SUBJECT_LABEL[s.subject] ?? s.subject}
-                    <em>{s.subTopic}</em>
-                  </span>
-                  <span className="mastery-bar">
-                    <i className={masteryClass(s.mastery)} style={{ width: `${pct(s.mastery)}%` }} />
-                  </span>
-                  <span className="mastery-pct">{pct(s.mastery)}%</span>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Per-subject/sub-topic mastery + reinforce lives in the collapsible
+              "חיזוק לפי תת-נושא" panel below, so it isn't duplicated here. */}
 
           {r.misconceptions.length > 0 && (
             <div className="report-section">
